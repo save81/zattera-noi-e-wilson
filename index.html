@@ -895,20 +895,38 @@ const FIREBASE_ENABLED = FIREBASE_CONFIG.apiKey !== "" && FIREBASE_CONFIG.databa
 // =====================================================
 let db = null;
 let checklistRef = null;
+let settingsRef = null;
 let checklistState = {}; // stato condiviso: { "0": true, "5": true, ... }
+let ignoreSettingsUpdate = false; // evita loop quando aggiorniamo noi stessi
 
 if (FIREBASE_ENABLED) {
   try {
     firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.database();
     checklistRef = db.ref('zattera/checklist');
+    settingsRef = db.ref('zattera/settings');
 
-    // Ascolta i cambiamenti in tempo reale
+    // Ascolta i cambiamenti alla checklist in tempo reale
     checklistRef.on('value', (snapshot) => {
       checklistState = snapshot.val() || {};
       renderChecklist();
       updateProgress();
       showSyncStatus('online');
+    });
+
+    // Ascolta i cambiamenti ai parametri del calcolatore
+    settingsRef.on('value', (snapshot) => {
+      if (ignoreSettingsUpdate) return;
+      const settings = snapshot.val();
+      if (settings) {
+        // Aggiorna i campi con i valori dal database
+        if (settings.numPersone) document.getElementById('numPersone').value = settings.numPersone;
+        if (settings.pesoMedio) document.getElementById('pesoMedio').value = settings.pesoMedio;
+        if (settings.capienzaBoccione) document.getElementById('capienzaBoccione').value = settings.capienzaBoccione;
+        if (settings.margine) document.getElementById('margine').value = settings.margine;
+        // Ricalcola tutto con i nuovi valori
+        calcola(true); // true = non salvare di nuovo su Firebase
+      }
     });
 
     // Mostra stato connessione
@@ -919,6 +937,20 @@ if (FIREBASE_ENABLED) {
     console.warn('Firebase init failed, using localStorage:', e);
     showSyncStatus('error');
   }
+}
+
+// Salva i parametri del calcolatore su Firebase
+function saveSettings() {
+  if (!FIREBASE_ENABLED || !settingsRef) return;
+  ignoreSettingsUpdate = true;
+  settingsRef.set({
+    numPersone: parseInt(document.getElementById('numPersone').value) || 8,
+    pesoMedio: parseInt(document.getElementById('pesoMedio').value) || 75,
+    capienzaBoccione: parseInt(document.getElementById('capienzaBoccione').value) || 18,
+    margine: parseFloat(document.getElementById('margine').value) || 1.3
+  }).then(() => {
+    setTimeout(() => { ignoreSettingsUpdate = false; }, 500);
+  });
 }
 
 function showSyncStatus(status) {
@@ -1026,7 +1058,9 @@ function updateProgress() {
   document.getElementById('progressText').textContent = pct + '% completato (' + done + '/' + checklistItems.length + ')';
 }
 
-function calcola() {
+function calcola(fromFirebase) {
+  // Se la modifica viene dall'utente (non da Firebase), salva su Firebase
+  if (!fromFirebase && FIREBASE_ENABLED) saveSettings();
   const numPersone = parseInt(document.getElementById('numPersone').value) || 8;
   const pesoMedio = parseInt(document.getElementById('pesoMedio').value) || 75;
   const capienza = parseInt(document.getElementById('capienzaBoccione').value) || 18;
