@@ -501,6 +501,28 @@
     box-shadow: 0 6px 28px rgba(76, 175, 80, 0.6);
   }
   .fab-save:active { transform: scale(0.95); }
+  .fab-save.unsaved {
+    animation: pulse-save 1.2s ease-in-out infinite;
+    background: linear-gradient(135deg, var(--coral), #D32F2F);
+    box-shadow: 0 4px 20px rgba(255, 112, 67, 0.6);
+  }
+  @keyframes pulse-save {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+  }
+  .fab-save.unsaved:hover { animation: none; transform: scale(1.1); }
+  .unsaved-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    border: 2px solid var(--coral);
+    display: none;
+  }
+  .fab-save.unsaved .unsaved-badge { display: block; }
   .fab-save .fab-label {
     position: absolute;
     right: 72px;
@@ -1136,9 +1158,10 @@
 </div>
 
 <!-- FLOATING SAVE BUTTON -->
-<button class="fab-save" onclick="saveAll()" title="Salva tutto su Firebase">
+<button class="fab-save" id="fabSave" onclick="saveAll()" title="Salva tutto su Firebase">
   &#x1F4BE;
   <span class="fab-label">SALVA TUTTO</span>
+  <span class="unsaved-badge"></span>
 </button>
 
 <!-- TOAST NOTIFICATION -->
@@ -1344,12 +1367,28 @@ function saveBudgetData() {
   }
 }
 
+// Track unsaved changes
+let hasUnsavedChanges = false;
+
+function markUnsaved() {
+  if (!hasUnsavedChanges) {
+    hasUnsavedChanges = true;
+    document.getElementById('fabSave').classList.add('unsaved');
+  }
+}
+
+function markSaved() {
+  hasUnsavedChanges = false;
+  document.getElementById('fabSave').classList.remove('unsaved');
+}
+
 // SAVE ALL (floating button)
 function saveAll() {
   saveSettings();
   saveChecklistData();
   saveMaterialsData();
   saveBudgetData();
+  markSaved();
   showToast('Tutto salvato!', 'success');
 }
 
@@ -1460,7 +1499,7 @@ function saveMaterialEdit(idx) {
       delete materialsData[idx].key;
     }
   }
-  saveMaterialsData();
+  markUnsaved();
   renderMaterials();
   closeEditor();
   showToast(idx === -1 ? 'Materiale aggiunto!' : 'Materiale modificato!', 'success');
@@ -1469,7 +1508,7 @@ function saveMaterialEdit(idx) {
 function deleteMaterial(idx) {
   if (!confirm('Eliminare "' + materialsData[idx].name + '"?')) return;
   materialsData.splice(idx, 1);
-  saveMaterialsData();
+  markUnsaved();
   renderMaterials();
   showToast('Materiale eliminato', 'success');
 }
@@ -1544,7 +1583,7 @@ function saveBudgetEdit(idx) {
       delete budgetData[idx].key;
     }
   }
-  saveBudgetData();
+  markUnsaved();
   renderBudget();
   closeEditor();
   showToast(idx === -1 ? 'Voce aggiunta!' : 'Voce modificata!', 'success');
@@ -1553,7 +1592,7 @@ function saveBudgetEdit(idx) {
 function deleteBudgetItem(idx) {
   if (!confirm('Eliminare "' + budgetData[idx].name + '"?')) return;
   budgetData.splice(idx, 1);
-  saveBudgetData();
+  markUnsaved();
   renderBudget();
   showToast('Voce eliminata', 'success');
 }
@@ -1598,7 +1637,7 @@ function toggleCheck(i, el) {
   checklistData[i].done = el.checked;
   el.closest('.checklist-item').classList.toggle('done', el.checked);
   updateProgress();
-  saveChecklistData();
+  markUnsaved();
 }
 
 function updateProgress() {
@@ -1637,7 +1676,7 @@ function saveChecklistEdit(idx) {
     checklistData[idx].text = text;
     checklistData[idx].cat = cat;
   }
-  saveChecklistData();
+  markUnsaved();
   renderChecklist();
   updateProgress();
   closeEditor();
@@ -1647,7 +1686,7 @@ function saveChecklistEdit(idx) {
 function deleteChecklistItem(idx) {
   if (!confirm('Eliminare "' + checklistData[idx].text + '"?')) return;
   checklistData.splice(idx, 1);
-  saveChecklistData();
+  markUnsaved();
   renderChecklist();
   updateProgress();
   showToast('Voce eliminata', 'success');
@@ -1657,7 +1696,7 @@ function deleteChecklistItem(idx) {
 // CALCULATOR
 // =====================================================
 function calcola(fromFirebase) {
-  if (!fromFirebase && FIREBASE_ENABLED) saveSettings();
+  if (!fromFirebase) markUnsaved();
   const numPersone = parseInt(document.getElementById('numPersone').value) || 8;
   const pesoMedio = parseInt(document.getElementById('pesoMedio').value) || 75;
   const capienza = parseInt(document.getElementById('capienzaBoccione').value) || 18;
@@ -1781,12 +1820,6 @@ function getListData(type) {
   return [];
 }
 
-function saveListData(type) {
-  if (type === 'checklist') saveChecklistData();
-  else if (type === 'materials') saveMaterialsData();
-  else if (type === 'budget') saveBudgetData();
-}
-
 function rerenderList(type) {
   if (type === 'checklist') { renderChecklist(); updateProgress(); }
   else if (type === 'materials') renderMaterials();
@@ -1835,7 +1868,7 @@ function setupDragHandles(container, listType) {
       if (dragSrcIdx !== null && dragSrcIdx !== toIdx && dragListType === listType) {
         const list = getListData(listType);
         moveItem(list, dragSrcIdx, toIdx);
-        saveListData(listType);
+        markUnsaved();
         rerenderList(listType);
         showToast('Ordine aggiornato!', 'success');
       }
@@ -1931,7 +1964,7 @@ function touchDragEnd(e) {
     if (touchStartIdx !== null && touchStartIdx !== toIdx) {
       const list = getListData(touchListType);
       moveItem(list, touchStartIdx, toIdx);
-      saveListData(touchListType);
+      markUnsaved();
       rerenderList(touchListType);
       showToast('Ordine aggiornato!', 'success');
     }
