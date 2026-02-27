@@ -1,5 +1,883 @@
-// Your web app's Firebase configuration
-const firebaseConfig = {
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Progetto Zattera - Estate 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Lobster&family=Nunito:wght@400;600;700;800&display=swap');
+
+  :root {
+    --ocean-deep: #0B3D6B;
+    --ocean-mid: #1565A0;
+    --ocean-light: #4FC3F7;
+    --sand: #F5E6C8;
+    --sand-dark: #D4A86A;
+    --wood: #8B5E3C;
+    --wood-light: #C49A6C;
+    --wood-dark: #5D3A1A;
+    --sun: #FFD54F;
+    --coral: #FF7043;
+    --foam: #E0F7FA;
+    --green: #4CAF50;
+    --red: #E53935;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(180deg, var(--ocean-deep) 0%, var(--ocean-mid) 40%, var(--ocean-light) 70%, var(--sand) 95%);
+    min-height: 100vh;
+    color: #1a1a1a;
+    overflow-x: hidden;
+  }
+
+  /* Waves animation */
+  .waves {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.15;
+  }
+  .wave {
+    position: absolute;
+    width: 200%;
+    height: 200px;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 40px,
+      rgba(255,255,255,0.15) 40px,
+      rgba(255,255,255,0.15) 80px
+    );
+    border-radius: 50%;
+    animation: wave-move 8s ease-in-out infinite;
+  }
+  .wave:nth-child(1) { top: 15%; animation-delay: 0s; opacity: 0.4; }
+  .wave:nth-child(2) { top: 35%; animation-delay: -2s; opacity: 0.3; }
+  .wave:nth-child(3) { top: 55%; animation-delay: -4s; opacity: 0.2; }
+
+  @keyframes wave-move {
+    0%, 100% { transform: translateX(-25%); }
+    50% { transform: translateX(0%); }
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 3rem 0 2rem;
+    animation: fadeInDown 0.8s ease;
+  }
+  .header h1 {
+    font-family: 'Lobster', cursive;
+    font-size: 3.5rem;
+    color: white;
+    text-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+    margin-bottom: 0.5rem;
+  }
+  .header .subtitle {
+    font-size: 1.2rem;
+    color: var(--sand);
+    font-weight: 600;
+  }
+  .header .castaway-badge {
+    display: inline-block;
+    margin-top: 1rem;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255,255,255,0.25);
+    border-radius: 50px;
+    padding: 0.5rem 1.5rem;
+    color: white;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+  }
+
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Cards */
+  .card {
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    animation: fadeInUp 0.6s ease forwards;
+    opacity: 0;
+  }
+  .card:nth-child(1) { animation-delay: 0.1s; }
+  .card:nth-child(2) { animation-delay: 0.2s; }
+  .card:nth-child(3) { animation-delay: 0.3s; }
+  .card:nth-child(4) { animation-delay: 0.4s; }
+  .card:nth-child(5) { animation-delay: 0.5s; }
+  .card:nth-child(6) { animation-delay: 0.6s; }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--ocean-deep);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .card-title .icon {
+    font-size: 1.8rem;
+  }
+
+  /* Calculator Section */
+  .calc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  @media (max-width: 600px) { .calc-grid { grid-template-columns: 1fr; } }
+
+  .calc-field label {
+    display: block;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #555;
+    margin-bottom: 0.3rem;
+  }
+  .calc-field input, .calc-field select {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: 'Nunito', sans-serif;
+    transition: border-color 0.3s;
+  }
+  .calc-field input:focus, .calc-field select:focus {
+    outline: none;
+    border-color: var(--ocean-light);
+  }
+
+  .result-box {
+    background: linear-gradient(135deg, var(--ocean-deep), var(--ocean-mid));
+    border-radius: 16px;
+    padding: 1.5rem;
+    color: white;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+  }
+  .result-item {
+    text-align: center;
+  }
+  .result-item .number {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--sun);
+  }
+  .result-item .label {
+    font-size: 0.8rem;
+    opacity: 0.85;
+    margin-top: 0.2rem;
+  }
+
+  .warning-box {
+    background: #FFF3E0;
+    border-left: 4px solid #FF9800;
+    border-radius: 0 12px 12px 0;
+    padding: 1rem 1.2rem;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #E65100;
+  }
+
+  /* Raft Visual */
+  .raft-visual {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 1rem auto;
+  }
+  .raft-svg-container {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+  }
+  .raft-svg-container svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .dimensions-label {
+    text-align: center;
+    font-weight: 700;
+    color: var(--ocean-deep);
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  /* Materials List */
+  .materials-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  .materials-table th {
+    background: var(--ocean-deep);
+    color: white;
+    padding: 0.8rem 1rem;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+  .materials-table th:first-child { border-radius: 12px 0 0 0; }
+  .materials-table th:last-child { border-radius: 0 12px 0 0; }
+  .materials-table td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+  }
+  .materials-table tr:nth-child(even) { background: #f7fafc; }
+  .materials-table tr:last-child td:first-child { border-radius: 0 0 0 12px; }
+  .materials-table tr:last-child td:last-child { border-radius: 0 0 12px 0; }
+
+  /* Steps */
+  .step {
+    display: flex;
+    gap: 1.2rem;
+    margin-bottom: 1.5rem;
+    align-items: flex-start;
+  }
+  .step-num {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--ocean-mid), var(--ocean-light));
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 12px rgba(21, 101, 160, 0.35);
+  }
+  .step-content h3 {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--ocean-deep);
+    margin-bottom: 0.3rem;
+  }
+  .step-content p {
+    font-size: 0.9rem;
+    color: #555;
+    line-height: 1.6;
+  }
+
+  /* Checklist */
+  .checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+    border-radius: 8px;
+    padding-left: 0.5rem;
+  }
+  .checklist-item:hover { background: #f7fafc; }
+  .checklist-item input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    accent-color: var(--green);
+    cursor: pointer;
+  }
+  .checklist-item.done .item-text {
+    text-decoration: line-through;
+    color: #aaa;
+  }
+  .item-text { font-size: 0.95rem; }
+  .item-category {
+    font-size: 0.7rem;
+    font-weight: 700;
+    background: var(--ocean-light);
+    color: white;
+    padding: 0.15rem 0.5rem;
+    border-radius: 6px;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+  .item-category.safety { background: var(--coral); }
+  .item-category.tool { background: var(--wood); }
+
+  .progress-bar-bg {
+    width: 100%;
+    height: 12px;
+    background: #e0e0e0;
+    border-radius: 6px;
+    margin: 1rem 0;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), #66BB6A);
+    border-radius: 6px;
+    transition: width 0.5s ease;
+  }
+  .progress-text {
+    text-align: center;
+    font-weight: 700;
+    color: var(--green);
+    font-size: 0.9rem;
+  }
+
+  /* Safety section */
+  .safety-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  @media (max-width: 600px) { .safety-grid { grid-template-columns: 1fr; } }
+
+  .safety-item {
+    background: #FFF8E1;
+    border-radius: 12px;
+    padding: 1rem;
+    border: 2px solid #FFD54F;
+  }
+  .safety-item h4 {
+    color: var(--coral);
+    font-size: 0.95rem;
+    margin-bottom: 0.3rem;
+  }
+  .safety-item p {
+    font-size: 0.85rem;
+    color: #555;
+    line-height: 1.5;
+  }
+
+  /* Budget section */
+  .budget-total {
+    background: linear-gradient(135deg, var(--green), #388E3C);
+    border-radius: 16px;
+    padding: 1.5rem;
+    color: white;
+    text-align: center;
+    margin-top: 1rem;
+  }
+  .budget-total .total-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+  }
+  .budget-total .total-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+  }
+  .budget-note {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 0.8rem;
+    font-style: italic;
+    text-align: center;
+  }
+
+  /* Timeline section */
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+    margin-top: 1rem;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--ocean-light), var(--ocean-deep));
+    border-radius: 2px;
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -1.55rem;
+    top: 6px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--ocean-mid);
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px var(--ocean-light);
+  }
+  .timeline-item.highlight::before {
+    background: var(--coral);
+    box-shadow: 0 0 0 2px var(--coral);
+  }
+  .timeline-when {
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: var(--ocean-deep);
+  }
+  .timeline-what {
+    font-size: 0.9rem;
+    color: #555;
+    margin-top: 0.15rem;
+  }
+  .timeline-who {
+    font-size: 0.8rem;
+    color: var(--ocean-light);
+    font-weight: 700;
+  }
+
+  /* Info box */
+  .info-box {
+    background: #E3F2FD;
+    border-left: 4px solid var(--ocean-mid);
+    border-radius: 0 12px 12px 0;
+    padding: 1rem 1.2rem;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #0D47A1;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 3rem 0;
+    color: rgba(255,255,255,0.6);
+    font-size: 0.85rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="waves">
+  <div class="wave"></div>
+  <div class="wave"></div>
+  <div class="wave"></div>
+</div>
+
+<div class="container">
+
+  <div class="header">
+    <h1>🚣 Progetto Zattera</h1>
+    <p class="subtitle">Estate 2026 — L'avventura in famiglia</p>
+    <div class="castaway-badge">🏝️ ISPIRAZIONE CAST AWAY</div>
+  </div>
+
+  <!-- CALCULATOR -->
+  <div class="card" style="animation-delay: 0.1s">
+    <div class="card-title"><span class="icon">🧮</span> Calcolatore Galleggiamento</div>
+    <p style="color:#666; margin-bottom:1rem; font-size:0.9rem;">Inserisci i dati per calcolare quanti boccioni servono e le dimensioni della zattera.</p>
+
+    <div class="calc-grid">
+      <div class="calc-field">
+        <label>👥 Numero persone</label>
+        <input type="number" id="numPersone" value="8" min="1" max="15" onchange="calcola()">
+      </div>
+      <div class="calc-field">
+        <label>⚖️ Peso medio per persona (kg)</label>
+        <input type="number" id="pesoMedio" value="75" min="30" max="150" onchange="calcola()">
+      </div>
+      <div class="calc-field">
+        <label>💧 Capienza boccioni (litri)</label>
+        <select id="capienzaBoccione" onchange="calcola()">
+          <option value="10">10 litri</option>
+          <option value="15">15 litri</option>
+          <option value="18" selected>18 litri</option>
+          <option value="20">20 litri</option>
+        </select>
+      </div>
+      <div class="calc-field">
+        <label>📐 Margine di sicurezza</label>
+        <select id="margine" onchange="calcola()">
+          <option value="1.3">30% (consigliato)</option>
+          <option value="1.5">50% (extra sicuro)</option>
+          <option value="1.2">20% (minimo)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="result-box" id="risultati">
+      <!-- filled by JS -->
+    </div>
+
+    <div class="warning-box" id="warningBox" style="display:none"></div>
+  </div>
+
+  <!-- SCHEMA VISIVO -->
+  <div class="card" style="animation-delay: 0.2s">
+    <div class="card-title"><span class="icon">📐</span> Schema della Zattera</div>
+    <p style="color:#666; margin-bottom:1rem; font-size:0.9rem;">Vista dall'alto e laterale con disposizione dei boccioni sotto il compensato.</p>
+
+    <div class="raft-visual">
+      <div class="raft-svg-container">
+        <svg id="raftSvg" viewBox="0 0 500 380" xmlns="http://www.w3.org/2000/svg">
+          <!-- Water background -->
+          <defs>
+            <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#4FC3F7" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#0B3D6B" stop-opacity="0.3"/>
+            </linearGradient>
+            <pattern id="woodPattern" width="20" height="10" patternUnits="userSpaceOnUse">
+              <rect width="20" height="10" fill="#C49A6C"/>
+              <line x1="0" y1="3" x2="20" y2="3" stroke="#B08050" stroke-width="0.5"/>
+              <line x1="0" y1="7" x2="20" y2="7" stroke="#B08050" stroke-width="0.3"/>
+            </pattern>
+          </defs>
+
+          <!-- Top view label -->
+          <text x="30" y="25" font-family="Nunito, sans-serif" font-weight="800" font-size="14" fill="#0B3D6B">VISTA DALL'ALTO</text>
+
+          <!-- Raft top view -->
+          <rect x="60" y="40" width="180" height="130" rx="4" fill="url(#woodPattern)" stroke="#5D3A1A" stroke-width="2"/>
+
+          <!-- Plank lines -->
+          <line x1="60" y1="72" x2="240" y2="72" stroke="#8B5E3C" stroke-width="1" stroke-dasharray="4,3"/>
+          <line x1="60" y1="105" x2="240" y2="105" stroke="#8B5E3C" stroke-width="1" stroke-dasharray="4,3"/>
+          <line x1="60" y1="138" x2="240" y2="138" stroke="#8B5E3C" stroke-width="1" stroke-dasharray="4,3"/>
+
+          <!-- Jugs visible as circles (grid) -->
+          <g opacity="0.4">
+            <circle cx="90" cy="60" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+            <circle cx="115" cy="60" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+            <circle cx="140" cy="60" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+            <circle cx="165" cy="60" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+            <circle cx="190" cy="60" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+            <circle cx="215" cy="60" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+
+            <circle cx="90" cy="85" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+            <circle cx="115" cy="85" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+            <circle cx="140" cy="85" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+            <circle cx="165" cy="85" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+            <circle cx="190" cy="85" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+            <circle cx="215" cy="85" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+
+            <circle cx="90" cy="110" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+            <circle cx="115" cy="110" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+            <circle cx="140" cy="110" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+            <circle cx="165" cy="110" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+            <circle cx="190" cy="110" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+            <circle cx="215" cy="110" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+
+            <circle cx="90" cy="135" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+            <circle cx="115" cy="135" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+            <circle cx="140" cy="135" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+            <circle cx="165" cy="135" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+            <circle cx="190" cy="135" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+            <circle cx="215" cy="135" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
+          </g>
+
+          <!-- Dimension arrows top -->
+          <line x1="60" y1="183" x2="240" y2="183" stroke="#0B3D6B" stroke-width="1.5" marker-start="url(#arrowL)" marker-end="url(#arrowR)"/>
+          <text x="130" y="198" font-family="Nunito" font-weight="700" font-size="12" fill="#0B3D6B" id="dimW">3.0 m</text>
+
+          <line x1="252" y1="40" x2="252" y2="170" stroke="#0B3D6B" stroke-width="1.5" marker-start="url(#arrowU)" marker-end="url(#arrowD)"/>
+          <text x="260" y="110" font-family="Nunito" font-weight="700" font-size="12" fill="#0B3D6B" id="dimH">2.5 m</text>
+
+          <defs>
+            <marker id="arrowR" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+              <path d="M0,0 L8,3 L0,6" fill="#0B3D6B"/>
+            </marker>
+            <marker id="arrowL" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+              <path d="M8,0 L0,3 L8,6" fill="#0B3D6B"/>
+            </marker>
+            <marker id="arrowU" markerWidth="6" markerHeight="8" refX="3" refY="0" orient="auto">
+              <path d="M0,8 L3,0 L6,8" fill="#0B3D6B"/>
+            </marker>
+            <marker id="arrowD" markerWidth="6" markerHeight="8" refX="3" refY="8" orient="auto">
+              <path d="M0,0 L3,8 L6,0" fill="#0B3D6B"/>
+            </marker>
+          </defs>
+
+          <!-- Side view label -->
+          <text x="30" y="235" font-family="Nunito, sans-serif" font-weight="800" font-size="14" fill="#0B3D6B">VISTA LATERALE</text>
+
+          <!-- Water line -->
+          <rect x="30" y="310" width="450" height="65" fill="url(#waterGrad)" rx="4"/>
+          <text x="430" y="350" font-family="Nunito" font-size="10" fill="#1565A0" font-weight="700">MARE</text>
+
+          <!-- Side view raft -->
+          <!-- Plywood deck -->
+          <rect x="80" y="280" width="280" height="12" rx="2" fill="#C49A6C" stroke="#5D3A1A" stroke-width="1.5"/>
+          <text x="185" y="276" font-family="Nunito" font-size="10" fill="#8B5E3C" font-weight="700" text-anchor="middle">Compensato 18mm</text>
+
+          <!-- Support beams -->
+          <rect x="90" y="292" width="260" height="8" rx="1" fill="#8B5E3C" stroke="#5D3A1A" stroke-width="1"/>
+
+          <!-- Jugs side view -->
+          <ellipse cx="120" cy="318" rx="14" ry="16" fill="#B3E5FC" stroke="#1565A0" stroke-width="1.5" opacity="0.8"/>
+          <ellipse cx="155" cy="318" rx="14" ry="16" fill="#B3E5FC" stroke="#1565A0" stroke-width="1.5" opacity="0.8"/>
+          <ellipse cx="190" cy="318" rx="14" ry="16" fill="#B3E5FC" stroke="#1565A0" stroke-width="1.5" opacity="0.8"/>
+          <ellipse cx="225" cy="318" rx="14" ry="16" fill="#B3E5FC" stroke="#1565A0" stroke-width="1.5" opacity="0.8"/>
+          <ellipse cx="260" cy="318" rx="14" ry="16" fill="#B3E5FC" stroke="#1565A0" stroke-width="1.5" opacity="0.8"/>
+          <ellipse cx="295" cy="318" rx="14" ry="16" fill="#B3E5FC" stroke="#1565A0" stroke-width="1.5" opacity="0.8"/>
+          <ellipse cx="330" cy="318" rx="14" ry="16" fill="#B3E5FC" stroke="#1565A0" stroke-width="1.5" opacity="0.8"/>
+
+          <!-- Ropes -->
+          <line x1="106" y1="300" x2="106" y2="336" stroke="#D4A86A" stroke-width="2" stroke-dasharray="3,2"/>
+          <line x1="140" y1="300" x2="140" y2="336" stroke="#D4A86A" stroke-width="2" stroke-dasharray="3,2"/>
+          <line x1="174" y1="300" x2="174" y2="336" stroke="#D4A86A" stroke-width="2" stroke-dasharray="3,2"/>
+          <line x1="208" y1="300" x2="208" y2="336" stroke="#D4A86A" stroke-width="2" stroke-dasharray="3,2"/>
+          <line x1="242" y1="300" x2="242" y2="336" stroke="#D4A86A" stroke-width="2" stroke-dasharray="3,2"/>
+          <line x1="276" y1="300" x2="276" y2="336" stroke="#D4A86A" stroke-width="2" stroke-dasharray="3,2"/>
+          <line x1="310" y1="300" x2="310" y2="336" stroke="#D4A86A" stroke-width="2" stroke-dasharray="3,2"/>
+          <line x1="344" y1="300" x2="344" y2="336" stroke="#D4A86A" stroke-width="2" stroke-dasharray="3,2"/>
+
+          <!-- Water line marker -->
+          <line x1="70" y1="310" x2="380" y2="310" stroke="#1565A0" stroke-width="1" stroke-dasharray="8,4"/>
+          <text x="385" y="314" font-family="Nunito" font-size="9" fill="#1565A0" font-weight="600">linea d'acqua</text>
+
+          <!-- Legend -->
+          <g transform="translate(310, 240)">
+            <rect x="0" y="0" width="160" height="95" rx="8" fill="white" stroke="#ddd" stroke-width="1"/>
+            <text x="10" y="18" font-family="Nunito" font-size="10" font-weight="800" fill="#333">LEGENDA</text>
+            <rect x="10" y="28" width="14" height="8" fill="#C49A6C" stroke="#5D3A1A" stroke-width="0.5" rx="1"/>
+            <text x="30" y="36" font-family="Nunito" font-size="9" fill="#555">Compensato</text>
+            <ellipse cx="17" cy="52" rx="7" ry="8" fill="#B3E5FC" stroke="#1565A0" stroke-width="1"/>
+            <text x="30" y="56" font-family="Nunito" font-size="9" fill="#555">Boccione d'acqua</text>
+            <line x1="10" y1="70" x2="24" y2="70" stroke="#D4A86A" stroke-width="2" stroke-dasharray="3,2"/>
+            <text x="30" y="74" font-family="Nunito" font-size="9" fill="#555">Corde di fissaggio</text>
+            <rect x="10" y="80" width="14" height="5" fill="#8B5E3C" rx="1"/>
+            <text x="30" y="88" font-family="Nunito" font-size="9" fill="#555">Travetti supporto</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- MATERIALS -->
+  <div class="card" style="animation-delay: 0.3s">
+    <div class="card-title"><span class="icon">🪵</span> Lista Materiali</div>
+    <table class="materials-table" id="materialsTable">
+      <thead>
+        <tr>
+          <th>Materiale</th>
+          <th>Quantità</th>
+          <th>Note</th>
+        </tr>
+      </thead>
+      <tbody id="materialsBody">
+        <!-- filled by JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- BUDGET ESTIMATE -->
+  <div class="card" style="animation-delay: 0.35s">
+    <div class="card-title"><span class="icon">💰</span> Stima Budget</div>
+    <p style="color:#666; margin-bottom:1rem; font-size:0.9rem;">Costi indicativi per i materiali. I boccioni si possono spesso recuperare gratis da uffici e aziende!</p>
+
+    <table class="materials-table" id="budgetTable">
+      <thead>
+        <tr>
+          <th>Materiale</th>
+          <th>Costo stimato</th>
+          <th>Dove trovarlo</th>
+        </tr>
+      </thead>
+      <tbody id="budgetBody">
+        <!-- filled by JS -->
+      </tbody>
+    </table>
+
+    <div class="budget-total" id="budgetTotal"></div>
+    <p class="budget-note">* Prezzi indicativi estate 2026. I boccioni possono essere gratuiti se recuperati da uffici, bar o distributori automatici.</p>
+
+    <div class="info-box" style="margin-top:1rem">
+      💡 <strong>Suggerimento:</strong> Chiedete a parenti, amici e colleghi di conservare i boccioni vuoti nelle settimane prima del progetto. Potrete risparmiare la voce di spesa principale!
+    </div>
+  </div>
+
+  <!-- CONSTRUCTION STEPS -->
+  <div class="card" style="animation-delay: 0.4s">
+    <div class="card-title"><span class="icon">🔨</span> Fasi di Costruzione</div>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3>Preparare i boccioni</h3>
+        <p>Svuotare, lavare e asciugare tutti i boccioni. Verificare che i tappi siano ermetici. Avvitare bene e sigillare con silicone o nastro americano impermeabile. Lasciare asciugare 24h.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3>Costruire il telaio</h3>
+        <p>Tagliare le tavole di compensato (18mm marino) nelle dimensioni calcolate. Creare una cornice con travetti in legno (listelli 5×5 cm) sotto il compensato, formando una griglia che accoglierà i boccioni. Fissare con viti inox.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h3>Fissare i boccioni</h3>
+        <p>Posizionare i boccioni nella griglia, ben distribuiti. Fissarli con corde nautiche passate attraverso fori nel compensato, creando una "rete" che li tenga in posizione. Ogni boccione va legato individualmente.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h3>Impermeabilizzare</h3>
+        <p>Trattare il compensato con vernice marina impermeabilizzante (almeno 2 mani). Prestare attenzione ai bordi e ai fori. Lasciare asciugare completamente prima del varo.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <h3>Aggiungere sicurezza e accessori</h3>
+        <p>Installare corde perimetrali come maniglie. Aggiungere angolari anti-sfregamento. Preparare remi improvvisati (tavole o pagaie). Fissare un punto per legare una cima di sicurezza.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <h3>Test in acqua bassa!</h3>
+        <p>Prima del grande viaggio, testare la zattera in acqua bassa con carico progressivo: prima 2 persone, poi 4, poi tutti. Verificare stabilità, galleggiamento e tenuta dei boccioni.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHECKLIST -->
+  <div class="card" style="animation-delay: 0.5s">
+    <div class="card-title"><span class="icon">✅</span> Checklist Preparazione</div>
+    <p style="color:#666; margin-bottom:0.5rem; font-size:0.9rem;" id="checklistDesc">Spunta le voci man mano che procedi!</p>
+    <div id="syncStatus" style="display:none; margin-bottom:0.8rem; padding:0.5rem 1rem; border-radius:10px; font-size:0.8rem; font-weight:700;"></div>
+
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-text" id="progressText">0% completato</div>
+
+    <div id="checklistContainer"></div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="card" style="animation-delay: 0.55s">
+    <div class="card-title"><span class="icon">📅</span> Pianificazione — 3 Weekend</div>
+    <p style="color:#666; margin-bottom:1rem; font-size:0.9rem;">Un piano realistico su 3 weekend per costruire la zattera senza fretta.</p>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-when">Weekend 1 — Sabato</div>
+        <div class="timeline-what">Raccolta boccioni + acquisto materiali al brico/ferramenta</div>
+        <div class="timeline-who">Tutti insieme</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-when">Weekend 1 — Domenica</div>
+        <div class="timeline-what">Lavare, asciugare e sigillare tutti i boccioni con silicone</div>
+        <div class="timeline-who">Adulti + ragazzi</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-when">Infrasettimanale</div>
+        <div class="timeline-what">Asciugatura silicone (24-48h) — niente da fare!</div>
+        <div class="timeline-who">—</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-when">Weekend 2 — Sabato</div>
+        <div class="timeline-what">Taglio compensato + costruzione telaio con travetti</div>
+        <div class="timeline-who">Adulti (attrezzi elettrici)</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-when">Weekend 2 — Domenica</div>
+        <div class="timeline-what">Fissaggio boccioni alla griglia + 1a mano di vernice marina</div>
+        <div class="timeline-who">Tutti insieme</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-when">Infrasettimanale</div>
+        <div class="timeline-what">Asciugatura + 2a mano di vernice</div>
+        <div class="timeline-who">1 persona (15 min)</div>
+      </div>
+      <div class="timeline-item highlight">
+        <div class="timeline-when">Weekend 3 — IL GRANDE GIORNO!</div>
+        <div class="timeline-what">Accessori di sicurezza + TEST IN ACQUA + VARO!</div>
+        <div class="timeline-who">TUTTI! 🎉</div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      💡 <strong>Meteo:</strong> Controllate le previsioni a inizio settimana per il weekend 3. Vento &lt; 10 nodi e mare calmo sono le condizioni ideali. In caso di maltempo, rimandate di una settimana — la zattera aspetta!
+    </div>
+  </div>
+
+  <!-- SAFETY -->
+  <div class="card" style="animation-delay: 0.6s">
+    <div class="card-title"><span class="icon">⚠️</span> Sicurezza in Mare</div>
+    <p style="color:#666; margin-bottom:1rem; font-size:0.9rem;">Regole fondamentali per divertirsi in sicurezza.</p>
+
+    <div class="safety-grid">
+      <div class="safety-item">
+        <h4>🦺 Giubbotti salvagente</h4>
+        <p>OBBLIGATORI per tutti, specialmente bambini. Un giubbotto per persona, omologato.</p>
+      </div>
+      <div class="safety-item">
+        <h4>📱 Comunicazione</h4>
+        <p>Portare cellulare in custodia impermeabile. Avvisare qualcuno a terra del percorso.</p>
+      </div>
+      <div class="safety-item">
+        <h4>🧭 Non allontanarsi troppo</h4>
+        <p>Restare entro 300m dalla riva. Controllare le condizioni meteo prima di partire.</p>
+      </div>
+      <div class="safety-item">
+        <h4>☀️ Protezione solare</h4>
+        <p>Crema solare SPF 50+, cappelli, acqua potabile in abbondanza. Il sole in mare è implacabile.</p>
+      </div>
+      <div class="safety-item">
+        <h4>🪢 Cima di sicurezza</h4>
+        <p>Legare una corda lunga (30m+) ancorata a riva o a un'imbarcazione di appoggio.</p>
+      </div>
+      <div class="safety-item">
+        <h4>🏊 Saper nuotare</h4>
+        <p>Tutti i partecipanti devono saper nuotare. Bambini piccoli sempre con adulto dedicato.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Progetto Zattera Estate 2026 — Buon divertimento in famiglia! 🌊
+  </div>
+
+</div>
+
+<!-- Firebase SDK (caricato solo se configurato) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+<script>
+// =====================================================
+// CONFIGURAZIONE FIREBASE — COMPILARE CON I PROPRI DATI
+// (vedi guida-setup.html per le istruzioni passo-passo)
+// =====================================================
+const FIREBASE_CONFIG = {
   apiKey: "AIzaSyB8XN_EE3FyeSTDJRF3pJxrYRwp1ZpIc1E",
   authDomain: "zattera-noi-e-wilson.firebaseapp.com",
   databaseURL: "https://zattera-noi-e-wilson-default-rtdb.europe-west1.firebasedatabase.app",
@@ -8,3 +886,245 @@ const firebaseConfig = {
   messagingSenderId: "136898685704",
   appId: "1:136898685704:web:a97cbc5e94c27e749e1abd"
 };
+
+// Se tutti i campi sono vuoti, usa localStorage (modalità offline)
+const FIREBASE_ENABLED = FIREBASE_CONFIG.apiKey !== "" && FIREBASE_CONFIG.databaseURL !== "";
+
+// =====================================================
+// INIZIALIZZAZIONE FIREBASE
+// =====================================================
+let db = null;
+let checklistRef = null;
+let checklistState = {}; // stato condiviso: { "0": true, "5": true, ... }
+
+if (FIREBASE_ENABLED) {
+  try {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.database();
+    checklistRef = db.ref('zattera/checklist');
+
+    // Ascolta i cambiamenti in tempo reale
+    checklistRef.on('value', (snapshot) => {
+      checklistState = snapshot.val() || {};
+      renderChecklist();
+      updateProgress();
+      showSyncStatus('online');
+    });
+
+    // Mostra stato connessione
+    db.ref('.info/connected').on('value', (snap) => {
+      showSyncStatus(snap.val() ? 'online' : 'offline');
+    });
+  } catch (e) {
+    console.warn('Firebase init failed, using localStorage:', e);
+    showSyncStatus('error');
+  }
+}
+
+function showSyncStatus(status) {
+  const el = document.getElementById('syncStatus');
+  const desc = document.getElementById('checklistDesc');
+  if (!FIREBASE_ENABLED) {
+    el.style.display = 'none';
+    desc.textContent = 'Spunta le voci man mano che procedi! Progressi salvati localmente nel browser.';
+    return;
+  }
+  el.style.display = 'block';
+  if (status === 'online') {
+    el.style.background = '#E8F5E9';
+    el.style.color = '#2E7D32';
+    el.innerHTML = '🟢 Sincronizzato — Le modifiche sono condivise con tutta la famiglia in tempo reale';
+    desc.textContent = 'Spunta le voci man mano che procedi! Tutti i familiari vedono i progressi in tempo reale.';
+  } else if (status === 'offline') {
+    el.style.background = '#FFF3E0';
+    el.style.color = '#E65100';
+    el.innerHTML = '🟠 Offline — Le modifiche verranno sincronizzate appena torni online';
+  } else {
+    el.style.background = '#FFEBEE';
+    el.style.color = '#C62828';
+    el.innerHTML = '🔴 Firebase non configurato — Usando salvataggio locale. Vedi guida-setup.html';
+  }
+}
+
+// =====================================================
+// CHECKLIST
+// =====================================================
+const checklistItems = [
+  { text: "Raccogliere i boccioni (minimo calcolato)", cat: "Materiale" },
+  { text: "Acquistare compensato marino 18mm", cat: "Materiale" },
+  { text: "Acquistare travetti in legno 5×5 cm", cat: "Materiale" },
+  { text: "Procurare viti inox e bulloni", cat: "Materiale" },
+  { text: "Comprare corda nautica (30m+)", cat: "Materiale" },
+  { text: "Silicone o nastro americano impermeabile", cat: "Materiale" },
+  { text: "Vernice marina impermeabilizzante", cat: "Materiale" },
+  { text: "Giubbotti salvagente per tutti (8 pz)", cat: "Sicurezza", safety: true },
+  { text: "Custodia impermeabile per cellulare", cat: "Sicurezza", safety: true },
+  { text: "Crema solare SPF 50+", cat: "Sicurezza", safety: true },
+  { text: "Acqua potabile e snack", cat: "Sicurezza", safety: true },
+  { text: "Remi o pagaie", cat: "Attrezzi", tool: true },
+  { text: "Trapano con punte per legno", cat: "Attrezzi", tool: true },
+  { text: "Seghetto circolare o a mano", cat: "Attrezzi", tool: true },
+  { text: "Metro, matita, squadra", cat: "Attrezzi", tool: true },
+  { text: "Verificare tenuta ermetica boccioni", cat: "Test" },
+  { text: "Trattare compensato (2 mani vernice)", cat: "Costruzione" },
+  { text: "Assemblare telaio + boccioni", cat: "Costruzione" },
+  { text: "Test in acqua bassa (carico progressivo)", cat: "Test" },
+  { text: "Controllare meteo il giorno del varo", cat: "Varo" },
+  { text: "Avvisare qualcuno del percorso", cat: "Varo" },
+  { text: "DIVERTIRSI! 🎉", cat: "Varo" }
+];
+
+function getCheck(i) {
+  if (FIREBASE_ENABLED) {
+    return checklistState[String(i)] === true;
+  }
+  try { return JSON.parse(localStorage.getItem('zattera_check_' + i)); } catch { return false; }
+}
+
+function toggleCheck(i, el) {
+  const checked = el.checked;
+  if (FIREBASE_ENABLED) {
+    // Scrivi su Firebase — l'aggiornamento arriva via listener
+    checklistRef.child(String(i)).set(checked);
+  } else {
+    try { localStorage.setItem('zattera_check_' + i, checked); } catch {}
+  }
+  el.closest('.checklist-item').classList.toggle('done', checked);
+  updateProgress();
+}
+
+function renderChecklist() {
+  const container = document.getElementById('checklistContainer');
+  container.innerHTML = '';
+  checklistItems.forEach((item, i) => {
+    const checked = getCheck(i);
+    const div = document.createElement('div');
+    div.className = 'checklist-item' + (checked ? ' done' : '');
+    const catClass = item.safety ? 'safety' : (item.tool ? 'tool' : '');
+    div.innerHTML = `
+      <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleCheck(${i}, this)">
+      <span class="item-text">${item.text}</span>
+      <span class="item-category ${catClass}">${item.cat}</span>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function initChecklist() {
+  renderChecklist();
+  updateProgress();
+  if (!FIREBASE_ENABLED) {
+    showSyncStatus('local');
+  }
+}
+
+function updateProgress() {
+  let done = 0;
+  checklistItems.forEach((_, i) => { if (getCheck(i)) done++; });
+  const pct = Math.round(done / checklistItems.length * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = pct + '% completato (' + done + '/' + checklistItems.length + ')';
+}
+
+function calcola() {
+  const numPersone = parseInt(document.getElementById('numPersone').value) || 8;
+  const pesoMedio = parseInt(document.getElementById('pesoMedio').value) || 75;
+  const capienza = parseInt(document.getElementById('capienzaBoccione').value) || 18;
+  const margine = parseFloat(document.getElementById('margine').value) || 1.3;
+
+  const pesoTotalePersone = numPersone * pesoMedio;
+  const pesoStruttura = 80 + (numPersone > 6 ? 40 : 0);
+  const pesoTotale = pesoTotalePersone + pesoStruttura;
+  const spintaNecessaria = pesoTotale * margine;
+  const numBoccioni = Math.ceil(spintaNecessaria / capienza);
+
+  // Calculate raft dimensions
+  const areaPerPersona = 0.7; // m² per person
+  const areaMinima = numPersone * areaPerPersona;
+  let larghezza, lunghezza;
+  if (numPersone <= 4) { larghezza = 2.0; lunghezza = Math.max(2.0, Math.ceil(areaMinima / 2.0 * 10) / 10); }
+  else if (numPersone <= 8) { larghezza = 2.5; lunghezza = Math.max(2.5, Math.ceil(areaMinima / 2.5 * 10) / 10); }
+  else { larghezza = 3.0; lunghezza = Math.max(3.0, Math.ceil(areaMinima / 3.0 * 10) / 10); }
+
+  // Ensure enough space for jugs
+  const jugDiam = capienza >= 15 ? 0.30 : 0.22;
+  const colsMax = Math.floor(lunghezza / jugDiam);
+  const rowsMax = Math.floor(larghezza / jugDiam);
+  if (colsMax * rowsMax < numBoccioni) {
+    lunghezza = Math.ceil(numBoccioni / rowsMax) * jugDiam + 0.2;
+    lunghezza = Math.ceil(lunghezza * 10) / 10;
+  }
+
+  const numCompensato = Math.ceil((lunghezza * larghezza) / (1.22 * 2.44));
+
+  document.getElementById('risultati').innerHTML = `
+    <div class="result-item"><div class="number">${numBoccioni}</div><div class="label">Boccioni da ${capienza}L</div></div>
+    <div class="result-item"><div class="number">${pesoTotale} kg</div><div class="label">Peso totale</div></div>
+    <div class="result-item"><div class="number">${lunghezza} × ${larghezza} m</div><div class="label">Dimensioni zattera</div></div>
+    <div class="result-item"><div class="number">${numCompensato}</div><div class="label">Fogli compensato</div></div>
+  `;
+
+  // Update SVG dimensions
+  document.getElementById('dimW').textContent = lunghezza.toFixed(1) + ' m';
+  document.getElementById('dimH').textContent = larghezza.toFixed(1) + ' m';
+
+  // Update materials
+  const tbody = document.getElementById('materialsBody');
+  tbody.innerHTML = `
+    <tr><td>Boccioni acqua vuoti (${capienza}L)</td><td><strong>${numBoccioni} pezzi</strong></td><td>Ben chiusi e sigillati</td></tr>
+    <tr><td>Compensato marino 18mm (122×244 cm)</td><td><strong>${numCompensato} fogli</strong></td><td>Trattato con vernice marina</td></tr>
+    <tr><td>Travetti legno 5×5 cm</td><td><strong>~${Math.ceil((lunghezza + larghezza) * 3)} m lineari</strong></td><td>Per telaio e griglia supporto</td></tr>
+    <tr><td>Viti inox 4×50mm</td><td><strong>~${numCompensato * 30} pezzi</strong></td><td>Resistenti alla salsedine</td></tr>
+    <tr><td>Corda nautica (Ø 8-10mm)</td><td><strong>~${Math.ceil(numBoccioni * 0.8)} m</strong></td><td>Per fissaggio boccioni + perimetrale</td></tr>
+    <tr><td>Silicone nautico</td><td><strong>2 tubetti</strong></td><td>Per sigillare tappi boccioni</td></tr>
+    <tr><td>Vernice marina impermeabilizzante</td><td><strong>2 barattoli</strong></td><td>2 mani su tutto il legno</td></tr>
+    <tr><td>Nastro americano impermeabile</td><td><strong>2 rotoli</strong></td><td>Rinforzo e riparazioni</td></tr>
+    <tr><td>Giubbotti salvagente</td><td><strong>${numPersone} pezzi</strong></td><td>Omologati, uno per persona!</td></tr>
+  `;
+
+  // Budget
+  const budgetItems = [
+    { name: `Boccioni acqua ${capienza}L`, cost: 0, qty: numBoccioni, note: "Gratis se recuperati*", where: "Uffici, bar, distributori" },
+    { name: "Compensato marino 18mm", cost: 35, qty: numCompensato, note: "", where: "Brico, falegnameria" },
+    { name: "Travetti legno 5x5 cm", cost: 3, qty: Math.ceil((lunghezza + larghezza) * 3), note: "al metro", where: "Brico, falegnameria" },
+    { name: "Viti inox 4x50mm (conf. 100)", cost: 12, qty: Math.ceil(numCompensato * 30 / 100), note: "", where: "Ferramenta" },
+    { name: "Corda nautica 8-10mm (al metro)", cost: 1.5, qty: Math.ceil(numBoccioni * 0.8), note: "", where: "Negozio nautico, online" },
+    { name: "Silicone nautico", cost: 8, qty: 2, note: "", where: "Brico, ferramenta" },
+    { name: "Vernice marina (0.75L)", cost: 18, qty: 2, note: "", where: "Brico, negozio nautico" },
+    { name: "Nastro americano impermeabile", cost: 5, qty: 2, note: "", where: "Brico, ferramenta" },
+    { name: "Giubbotti salvagente", cost: 15, qty: numPersone, note: "Omologati!", where: "Decathlon, negozio nautico" },
+    { name: "Custodia impermeabile cell.", cost: 8, qty: 2, note: "", where: "Online, Decathlon" },
+  ];
+  const budgetBody = document.getElementById('budgetBody');
+  let totalCost = 0;
+  budgetBody.innerHTML = budgetItems.map(item => {
+    const subtotal = item.cost * item.qty;
+    totalCost += subtotal;
+    return `<tr>
+      <td>${item.name} (x${item.qty})</td>
+      <td><strong>${subtotal === 0 ? 'GRATIS*' : '~' + subtotal + ' \u20AC'}</strong></td>
+      <td>${item.where}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('budgetTotal').innerHTML = `
+    <div class="total-label">BUDGET TOTALE STIMATO</div>
+    <div class="total-number">~${totalCost} \u20AC</div>
+    <div class="total-label" style="margin-top:0.3rem; opacity:0.7">Esclusi attrezzi (trapano, seghetto) che probabilmente avete gia</div>
+  `;
+
+  // Warning
+  const warn = document.getElementById('warningBox');
+  if (numBoccioni > 80) {
+    warn.style.display = 'block';
+    warn.innerHTML = '⚠️ <strong>Attenzione:</strong> servono molti boccioni (' + numBoccioni + '). Valuta di usare boccioni più grandi o ridurre il numero di persone per rendere il progetto più gestibile.';
+  } else {
+    warn.style.display = 'none';
+  }
+}
+
+// Initialize
+calcola();
+initChecklist();
+</script>
+</body>
+</html>
