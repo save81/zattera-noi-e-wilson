@@ -606,6 +606,14 @@
     display: block;
     margin-top: 2px;
   }
+  .field-mod {
+    font-size: 0.65rem;
+    color: #aaa;
+    font-style: italic;
+    display: block;
+    margin-top: 3px;
+    min-height: 1em;
+  }
   .fab-save .fab-label {
     position: absolute;
     right: 72px;
@@ -871,28 +879,32 @@
     <div class="calc-grid">
       <div class="calc-field">
         <label>&#x1F465; Numero persone</label>
-        <input type="number" id="numPersone" value="8" min="1" max="15" onchange="calcola()">
+        <input type="number" id="numPersone" value="8" min="1" max="15" onchange="fieldChanged('numPersone')">
+        <span class="field-mod" id="mod_numPersone"></span>
       </div>
       <div class="calc-field">
         <label>&#x2696;&#xFE0F; Peso medio per persona (kg)</label>
-        <input type="number" id="pesoMedio" value="75" min="30" max="150" onchange="calcola()">
+        <input type="number" id="pesoMedio" value="75" min="30" max="150" onchange="fieldChanged('pesoMedio')">
+        <span class="field-mod" id="mod_pesoMedio"></span>
       </div>
       <div class="calc-field">
         <label>&#x1F4A7; Capienza boccioni (litri)</label>
-        <select id="capienzaBoccione" onchange="calcola()">
+        <select id="capienzaBoccione" onchange="fieldChanged('capienzaBoccione')">
           <option value="10">10 litri</option>
           <option value="15">15 litri</option>
           <option value="18" selected>18 litri</option>
           <option value="20">20 litri</option>
         </select>
+        <span class="field-mod" id="mod_capienzaBoccione"></span>
       </div>
       <div class="calc-field">
         <label>&#x1F4D0; Margine di sicurezza</label>
-        <select id="margine" onchange="calcola()">
+        <select id="margine" onchange="fieldChanged('margine')">
           <option value="1.3">30% (consigliato)</option>
           <option value="1.5">50% (extra sicuro)</option>
           <option value="1.2">20% (minimo)</option>
         </select>
+        <span class="field-mod" id="mod_margine"></span>
       </div>
     </div>
 
@@ -1355,17 +1367,46 @@ function modLabelBlock(item) {
 }
 
 // =====================================================
+// PER-FIELD METADATA (calculator inputs)
+// =====================================================
+function fieldChanged(fieldName) {
+  settingsMeta[fieldName] = { _by: currentNickname || '?', _at: Date.now() };
+  updateFieldLabel(fieldName);
+  calcola();
+}
+
+function updateFieldLabel(fieldName) {
+  const el = document.getElementById('mod_' + fieldName);
+  if (!el) return;
+  const m = settingsMeta[fieldName];
+  if (m && m._by) {
+    el.textContent = m._by + ', ' + timeAgo(m._at);
+  } else {
+    el.textContent = '';
+  }
+}
+
+function updateAllFieldLabels() {
+  ['numPersone', 'pesoMedio', 'capienzaBoccione', 'margine'].forEach(updateFieldLabel);
+}
+
+// =====================================================
 // FIREBASE + DATA
 // =====================================================
 let db = null;
 let settingsRef = null;
+let settingsMetaRef = null;
 let materialsDataRef = null;
 let budgetDataRef = null;
 let checklistDataRef = null;
 let ignoreSettings = false;
+let ignoreSettingsMeta = false;
 let ignoreMaterials = false;
 let ignoreBudget = false;
 let ignoreChecklist = false;
+
+// Per-field metadata: { fieldName: { _by: 'Nick', _at: timestamp } }
+let settingsMeta = {};
 
 // Deleted IDs tracked per section (for merge)
 let deletedMaterialIds = new Set();
@@ -1419,6 +1460,7 @@ if (FIREBASE_ENABLED) {
     firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.database();
     settingsRef = db.ref('zattera/v2/settings');
+    settingsMetaRef = db.ref('zattera/v2/settingsMeta');
     materialsDataRef = db.ref('zattera/v2/materials');
     budgetDataRef = db.ref('zattera/v2/budget');
     checklistDataRef = db.ref('zattera/v2/checklist');
@@ -1462,6 +1504,15 @@ if (FIREBASE_ENABLED) {
         if (s.capienzaBoccione) document.getElementById('capienzaBoccione').value = s.capienzaBoccione;
         if (s.margine) document.getElementById('margine').value = s.margine;
         calcola(true);
+      }
+    });
+
+    settingsMetaRef.on('value', (snap) => {
+      if (ignoreSettingsMeta) return;
+      const d = snap.val();
+      if (d && typeof d === 'object') {
+        settingsMeta = d;
+        updateAllFieldLabels();
       }
     });
 
@@ -1558,6 +1609,11 @@ async function saveAll() {
       });
       setTimeout(() => { ignoreSettings = false; }, 500);
 
+      // Save per-field metadata
+      ignoreSettingsMeta = true;
+      await settingsMetaRef.set(settingsMeta);
+      setTimeout(() => { ignoreSettingsMeta = false; }, 500);
+
       // Merge-save each section
       checklistData = await mergeSave(checklistDataRef, checklistData, deletedChecklistIds, 'checklist');
       materialsData = await mergeSave(materialsDataRef, materialsData, deletedMaterialIds, 'materials');
@@ -1571,6 +1627,7 @@ async function saveAll() {
       localStorage.setItem('zattera_checklistData', JSON.stringify(checklistData));
       localStorage.setItem('zattera_materialsData', JSON.stringify(materialsData));
       localStorage.setItem('zattera_budgetData', JSON.stringify(budgetData));
+      localStorage.setItem('zattera_settingsMeta', JSON.stringify(settingsMeta));
     }
 
     markSaved();
