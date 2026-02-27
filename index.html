@@ -211,22 +211,6 @@
     color: #E65100;
   }
 
-  /* Raft Visual */
-  .raft-visual {
-    position: relative;
-    width: 100%;
-    max-width: 500px;
-    margin: 1rem auto;
-  }
-  .raft-svg-container {
-    width: 100%;
-    aspect-ratio: 4 / 3;
-  }
-  .raft-svg-container svg {
-    width: 100%;
-    height: 100%;
-  }
-
   .dimensions-label {
     text-align: center;
     font-weight: 700;
@@ -614,6 +598,66 @@
     margin-top: 3px;
     min-height: 1em;
   }
+
+  /* RENDER 3D SECTION */
+  .render-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 1rem;
+  }
+  .render-panel {
+    background: #f8fbff;
+    border: 1px solid #d0dde8;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+  }
+  .render-panel.panel-3d {
+    grid-column: 1 / -1;
+    min-height: 350px;
+    background: linear-gradient(180deg, #87CEEB 0%, #4FC3F7 40%, #1565A0 100%);
+    border: 2px solid #1565A0;
+  }
+  .render-panel-label {
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #0B3D6B;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    z-index: 2;
+    background: rgba(255,255,255,0.8);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .render-panel.panel-3d .render-panel-label {
+    color: white;
+    background: rgba(11,61,107,0.6);
+  }
+  .render-panel canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .ortho-canvas {
+    width: 100%;
+    height: 220px;
+  }
+  @media (max-width: 600px) {
+    .render-grid {
+      grid-template-columns: 1fr;
+    }
+    .ortho-canvas {
+      height: 180px;
+    }
+    .render-panel.panel-3d {
+      min-height: 280px;
+    }
+  }
+
   .fab-save .fab-label {
     position: absolute;
     right: 72px;
@@ -915,139 +959,31 @@
     <div class="warning-box" id="warningBox" style="display:none"></div>
   </div>
 
-  <!-- SCHEMA VISIVO -->
+  <!-- RENDER ZATTERA -->
   <div class="card" style="animation-delay: 0.2s">
-    <div class="card-title"><span class="icon">&#x1F4D0;</span> Schema della Zattera</div>
-    <p style="color:#666; margin-bottom:1rem; font-size:0.9rem;">Vista dall'alto e laterale con disposizione dei boccioni sotto il compensato.</p>
+    <div class="card-title"><span class="icon">&#x1F4D0;</span> Render della Zattera</div>
+    <p style="color:#666; margin-bottom:1rem; font-size:0.9rem;">Viste ortogonali e render 3D generati in base ai parametri del calcolatore.</p>
 
-    <div class="raft-visual">
-      <div class="raft-svg-container">
-        <svg id="raftSvg" viewBox="0 0 500 380" xmlns="http://www.w3.org/2000/svg">
-          <!-- Water background -->
-          <defs>
-            <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#4FC3F7" stop-opacity="0.3"/>
-              <stop offset="100%" stop-color="#0B3D6B" stop-opacity="0.3"/>
-            </linearGradient>
-            <pattern id="woodPattern" width="20" height="10" patternUnits="userSpaceOnUse">
-              <rect width="20" height="10" fill="#C49A6C"/>
-              <line x1="0" y1="3" x2="20" y2="3" stroke="#B08050" stroke-width="0.5"/>
-              <line x1="0" y1="7" x2="20" y2="7" stroke="#B08050" stroke-width="0.3"/>
-            </pattern>
-          </defs>
-
-          <!-- Top view label -->
-          <text x="30" y="25" font-family="Nunito, sans-serif" font-weight="800" font-size="14" fill="#0B3D6B">VISTA DALL'ALTO</text>
-
-          <!-- Raft top view -->
-          <rect x="60" y="40" width="180" height="130" rx="4" fill="url(#woodPattern)" stroke="#5D3A1A" stroke-width="2"/>
-
-          <!-- Plank lines -->
-          <line x1="60" y1="72" x2="240" y2="72" stroke="#8B5E3C" stroke-width="1" stroke-dasharray="4,3"/>
-          <line x1="60" y1="105" x2="240" y2="105" stroke="#8B5E3C" stroke-width="1" stroke-dasharray="4,3"/>
-          <line x1="60" y1="138" x2="240" y2="138" stroke="#8B5E3C" stroke-width="1" stroke-dasharray="4,3"/>
-
-          <!-- Jugs visible as circles (grid) -->
-          <g opacity="0.4">
-            <circle cx="90" cy="60" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="115" cy="60" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="140" cy="60" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="165" cy="60" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="190" cy="60" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="215" cy="60" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="90" cy="85" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="115" cy="85" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="140" cy="85" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="165" cy="85" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="190" cy="85" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="215" cy="85" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="90" cy="110" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="115" cy="110" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="140" cy="110" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="165" cy="110" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="190" cy="110" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="215" cy="110" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="90" cy="135" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="115" cy="135" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="140" cy="135" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="165" cy="135" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="190" cy="135" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-            <circle cx="215" cy="135" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-          </g>
-
-          <!-- Dimension arrows top -->
-          <line x1="60" y1="183" x2="240" y2="183" stroke="#0B3D6B" stroke-width="1.5" marker-start="url(#arrowL)" marker-end="url(#arrowR)"/>
-          <text x="130" y="198" font-family="Nunito" font-weight="700" font-size="12" fill="#0B3D6B" id="dimW">3.0 m</text>
-
-          <line x1="252" y1="40" x2="252" y2="170" stroke="#0B3D6B" stroke-width="1.5" marker-start="url(#arrowU)" marker-end="url(#arrowD)"/>
-          <text x="260" y="110" font-family="Nunito" font-weight="700" font-size="12" fill="#0B3D6B" id="dimH">2.5 m</text>
-
-          <defs>
-            <marker id="arrowR" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-              <path d="M0,0 L8,3 L0,6" fill="#0B3D6B"/>
-            </marker>
-            <marker id="arrowL" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
-              <path d="M8,0 L0,3 L8,6" fill="#0B3D6B"/>
-            </marker>
-            <marker id="arrowU" markerWidth="6" markerHeight="8" refX="3" refY="0" orient="auto">
-              <path d="M0,8 L3,0 L6,8" fill="#0B3D6B"/>
-            </marker>
-            <marker id="arrowD" markerWidth="6" markerHeight="8" refX="3" refY="8" orient="auto">
-              <path d="M0,0 L3,8 L6,0" fill="#0B3D6B"/>
-            </marker>
-          </defs>
-
-          <!-- Side view label -->
-          <text x="30" y="235" font-family="Nunito, sans-serif" font-weight="800" font-size="14" fill="#0B3D6B">VISTA LATERALE</text>
-
-          <!-- Water line -->
-          <rect x="30" y="310" width="450" height="65" fill="url(#waterGrad)" rx="4"/>
-          <text x="430" y="350" font-family="Nunito" font-size="10" fill="#1565A0" font-weight="700">MARE</text>
-
-          <!-- Side view raft -->
-          <rect x="80" y="280" width="280" height="12" rx="2" fill="#C49A6C" stroke="#5D3A1A" stroke-width="1.5"/>
-          <text x="185" y="276" font-family="Nunito" font-size="10" fill="#8B5E3C" font-weight="700" text-anchor="middle">Compensato 18mm</text>
-
-          <!-- Support beams -->
-          <rect x="90" y="292" width="260" height="8" rx="1" fill="#8B5E3C" stroke="#5D3A1A" stroke-width="1"/>
-
-          <!-- Jugs side view -->
-          <ellipse cx="120" cy="318" rx="14" ry="16" fill="#B3E5FC" stroke="#1565A0" stroke-width="1.5" opacity="0.8"/>
-          <ellipse cx="155" cy="318" rx="14" ry="16" fill="#B3E5FC" stroke="#1565A0" stroke-width="1.5" opacity="0.8"/>
-          <ellipse cx="190" cy="318" rx="14" ry="16" fill="#B3E5FC" stroke="#1565A0" stroke-width="1.5" opacity="0.8"/>
-          <ellipse cx="225" cy="318" rx="14" ry="16" fill="#B3E5FC" stroke="#1565A0" stroke-width="1.5" opacity="0.8"/>
-          <ellipse cx="260" cy="318" rx="14" ry="16" fill="#B3E5FC" stroke="#1565A0" stroke-width="1.5" opacity="0.8"/>
-          <ellipse cx="295" cy="318" rx="14" ry="16" fill="#B3E5FC" stroke="#1565A0" stroke-width="1.5" opacity="0.8"/>
-          <ellipse cx="330" cy="318" rx="14" ry="16" fill="#B3E5FC" stroke="#1565A0" stroke-width="1.5" opacity="0.8"/>
-
-          <!-- Ropes -->
-          <line x1="106" y1="300" x2="106" y2="336" stroke="#D4A86A" stroke-width="2" stroke-dasharray="3,2"/>
-          <line x1="140" y1="300" x2="140" y2="336" stroke="#D4A86A" stroke-width="2" stroke-dasharray="3,2"/>
-          <line x1="174" y1="300" x2="174" y2="336" stroke="#D4A86A" stroke-width="2" stroke-dasharray="3,2"/>
-          <line x1="208" y1="300" x2="208" y2="336" stroke="#D4A86A" stroke-width="2" stroke-dasharray="3,2"/>
-          <line x1="242" y1="300" x2="242" y2="336" stroke="#D4A86A" stroke-width="2" stroke-dasharray="3,2"/>
-          <line x1="276" y1="300" x2="276" y2="336" stroke="#D4A86A" stroke-width="2" stroke-dasharray="3,2"/>
-          <line x1="310" y1="300" x2="310" y2="336" stroke="#D4A86A" stroke-width="2" stroke-dasharray="3,2"/>
-          <line x1="344" y1="300" x2="344" y2="336" stroke="#D4A86A" stroke-width="2" stroke-dasharray="3,2"/>
-
-          <!-- Water line marker -->
-          <line x1="70" y1="310" x2="380" y2="310" stroke="#1565A0" stroke-width="1" stroke-dasharray="8,4"/>
-          <text x="385" y="314" font-family="Nunito" font-size="9" fill="#1565A0" font-weight="600">linea d'acqua</text>
-
-          <!-- Legend -->
-          <g transform="translate(310, 240)">
-            <rect x="0" y="0" width="160" height="95" rx="8" fill="white" stroke="#ddd" stroke-width="1"/>
-            <text x="10" y="18" font-family="Nunito" font-size="10" font-weight="800" fill="#333">LEGENDA</text>
-            <rect x="10" y="28" width="14" height="8" fill="#C49A6C" stroke="#5D3A1A" stroke-width="0.5" rx="1"/>
-            <text x="30" y="36" font-family="Nunito" font-size="9" fill="#555">Compensato</text>
-            <ellipse cx="17" cy="52" rx="7" ry="8" fill="#B3E5FC" stroke="#1565A0" stroke-width="1"/>
-            <text x="30" y="56" font-family="Nunito" font-size="9" fill="#555">Boccione d'acqua</text>
-            <line x1="10" y1="70" x2="24" y2="70" stroke="#D4A86A" stroke-width="2" stroke-dasharray="3,2"/>
-            <text x="30" y="74" font-family="Nunito" font-size="9" fill="#555">Corde di fissaggio</text>
-            <rect x="10" y="80" width="14" height="5" fill="#8B5E3C" rx="1"/>
-            <text x="30" y="88" font-family="Nunito" font-size="9" fill="#555">Travetti supporto</text>
-          </g>
-        </svg>
+    <div class="render-grid">
+      <div class="render-panel">
+        <span class="render-panel-label">Vista dall'alto</span>
+        <canvas id="viewTop" class="ortho-canvas"></canvas>
+      </div>
+      <div class="render-panel">
+        <span class="render-panel-label">Vista frontale</span>
+        <canvas id="viewFront" class="ortho-canvas"></canvas>
+      </div>
+      <div class="render-panel">
+        <span class="render-panel-label">Vista laterale</span>
+        <canvas id="viewSide" class="ortho-canvas"></canvas>
+      </div>
+      <div class="render-panel">
+        <span class="render-panel-label">Legenda</span>
+        <canvas id="viewLegend" class="ortho-canvas"></canvas>
+      </div>
+      <div class="render-panel panel-3d">
+        <span class="render-panel-label">Render 3D</span>
+        <canvas id="view3D"></canvas>
       </div>
     </div>
   </div>
@@ -1275,7 +1211,7 @@
   <div class="nick-panel">
     <h3>&#x1F44B; Come ti chiami?</h3>
     <p>Il tuo nome apparir&agrave; accanto alle modifiche che fai, cos&igrave; la famiglia sa chi ha cambiato cosa.</p>
-    <input id="nickInput" placeholder="Es: Save, Mamma, Marco..." maxlength="20">
+    <input id="nickInput" placeholder="Es: Save, Alessia, Sofia, Tommy, Nonna....." maxlength="20">
     <br>
     <button onclick="confirmNickname()">Conferma</button>
   </div>
@@ -1284,6 +1220,7 @@
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <script>
 // =====================================================
@@ -1504,6 +1441,8 @@ if (FIREBASE_ENABLED) {
         if (s.capienzaBoccione) document.getElementById('capienzaBoccione').value = s.capienzaBoccione;
         if (s.margine) document.getElementById('margine').value = s.margine;
         calcola(true);
+        // Remote save arrived: update render
+        if (lastRenderParams) renderAllViews(lastRenderParams);
       }
     });
 
@@ -1631,6 +1570,8 @@ async function saveAll() {
     }
 
     markSaved();
+    // Update render views after save
+    if (lastRenderParams) renderAllViews(lastRenderParams);
     showToast('Tutto salvato!', 'success');
   } catch (e) {
     console.error('Save error:', e);
@@ -1967,11 +1908,14 @@ function calcola(fromFirebase) {
   else if (numPersone <= 8) { larghezza = 2.5; lunghezza = Math.max(2.5, Math.ceil(areaMinima / 2.5 * 10) / 10); }
   else { larghezza = 3.0; lunghezza = Math.max(3.0, Math.ceil(areaMinima / 3.0 * 10) / 10); }
 
-  const jugDiam = capienza >= 15 ? 0.30 : 0.22;
-  const colsMax = Math.floor(lunghezza / jugDiam);
+  // Boccioni SDRAIATI: jugLen along lunghezza, jugDiam along larghezza
+  const jDim = jugDimensions(capienza);
+  const jugDiam = jDim.diam;
+  const jugLen = jDim.len;
+  const colsMax = Math.floor(lunghezza / jugLen);
   const rowsMax = Math.floor(larghezza / jugDiam);
   if (colsMax * rowsMax < numBoccioni) {
-    lunghezza = Math.ceil(numBoccioni / rowsMax) * jugDiam + 0.2;
+    lunghezza = Math.ceil(numBoccioni / rowsMax) * jugLen + 0.2;
     lunghezza = Math.ceil(lunghezza * 10) / 10;
   }
 
@@ -1983,8 +1927,8 @@ function calcola(fromFirebase) {
     '<div class="result-item"><div class="number">' + lunghezza + ' &times; ' + larghezza + ' m</div><div class="label">Dimensioni zattera</div></div>' +
     '<div class="result-item"><div class="number">' + numCompensato + '</div><div class="label">Fogli compensato</div></div>';
 
-  document.getElementById('dimW').textContent = lunghezza.toFixed(1) + ' m';
-  document.getElementById('dimH').textContent = larghezza.toFixed(1) + ' m';
+  // Store render params (render only on save or init)
+  lastRenderParams = { lunghezza, larghezza, numBoccioni, capienza, jugDiam, numPersone, numCompensato };
 
   // Fresh auto materials (used for init and for updating quantities)
   const freshMaterials = [
@@ -2275,7 +2219,599 @@ function init() {
   calcola(true);
   renderChecklist();
   updateProgress();
+  // Initial render after first calcola
+  if (lastRenderParams) renderAllViews(lastRenderParams);
 }
+
+// =====================================================
+// RENDER ENGINE — Orthogonal views + Three.js 3D
+// =====================================================
+let lastRenderParams = null;
+let threeScene = null, threeCamera = null, threeRenderer = null;
+let raftGroup = null, waterMesh = null;
+let threeAnimId = null;
+
+function setupHiDPI(canvas, w, h) {
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  return ctx;
+}
+
+function renderAllViews(p) {
+  lastRenderParams = p;
+  drawTopView(p);
+  drawFrontView(p);
+  drawSideView(p);
+  drawLegend(p);
+  render3D(p);
+}
+
+// ─── HELPER: jug layout (boccioni SDRAIATI) ───
+// Sdraiati: l'asse lungo del boccione è parallelo alla lunghezza zattera
+// jugLen = lunghezza boccione, jugDiam = diametro sezione circolare
+function jugDimensions(capienza) {
+  // Dimensioni reali approssimative dei boccioni d'acqua
+  if (capienza >= 18) return { len: 0.42, diam: 0.28 };
+  if (capienza >= 15) return { len: 0.38, diam: 0.26 };
+  if (capienza >= 10) return { len: 0.35, diam: 0.22 };
+  return { len: 0.30, diam: 0.20 };
+}
+
+function jugLayout(numBoccioni, lunghezza, larghezza, jugDiam, capienza) {
+  const jd = jugDimensions(capienza || 18);
+  // Sdraiati: occupano jugLen in lunghezza, jugDiam in larghezza
+  const cols = Math.max(1, Math.floor(lunghezza / jd.len));
+  const rows = Math.max(1, Math.ceil(numBoccioni / cols));
+  const positions = [];
+  let placed = 0;
+  for (let r = 0; r < rows && placed < numBoccioni; r++) {
+    const inRow = Math.min(cols, numBoccioni - placed);
+    for (let c = 0; c < inRow; c++) {
+      const x = (c + 0.5) * (lunghezza / Math.max(inRow, 1));
+      const y = (r + 0.5) * (larghezza / Math.max(rows, 1));
+      positions.push({ x, y });
+      placed++;
+    }
+  }
+  return { positions, cols, rows, jugLen: jd.len, jugDiam: jd.diam };
+}
+
+// ─── HELPER: draw dimension arrow ───
+function drawDimArrow(ctx, x1, y1, x2, y2, label, color) {
+  ctx.save();
+  ctx.strokeStyle = color || '#0B3D6B';
+  ctx.fillStyle = color || '#0B3D6B';
+  ctx.lineWidth = 1.5;
+  ctx.font = 'bold 11px Nunito, sans-serif';
+
+  const dx = x2 - x1, dy = y2 - y1;
+  const len = Math.sqrt(dx * dx + dy * dy);
+  const ux = dx / len, uy = dy / len;
+  const arrowSize = 6;
+
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+
+  // Arrowheads
+  for (const [px, py, dir] of [[x1, y1, 1], [x2, y2, -1]]) {
+    ctx.beginPath();
+    ctx.moveTo(px, py);
+    ctx.lineTo(px + dir * arrowSize * ux - arrowSize * 0.4 * uy, py + dir * arrowSize * uy + arrowSize * 0.4 * ux);
+    ctx.lineTo(px + dir * arrowSize * ux + arrowSize * 0.4 * uy, py + dir * arrowSize * uy - arrowSize * 0.4 * ux);
+    ctx.fill();
+  }
+
+  // Label
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const pad = 4;
+  const tw = ctx.measureText(label).width + pad * 2;
+  ctx.fillStyle = '#f8fbff';
+  ctx.fillRect(mx - tw / 2, my - 8, tw, 16);
+  ctx.fillStyle = color || '#0B3D6B';
+  ctx.fillText(label, mx, my);
+  ctx.restore();
+}
+
+// ─── TOP VIEW ───
+function drawTopView(p) {
+  const canvas = document.getElementById('viewTop');
+  if (!canvas) return;
+  const W = canvas.parentElement.clientWidth;
+  const H = 220;
+  const ctx = setupHiDPI(canvas, W, H);
+
+  ctx.clearRect(0, 0, W, H);
+
+  const margin = 40;
+  const maxW = W - margin * 2;
+  const maxH = H - margin * 2 - 20;
+  const scale = Math.min(maxW / p.lunghezza, maxH / p.larghezza);
+  const rw = p.lunghezza * scale;
+  const rh = p.larghezza * scale;
+  const ox = (W - rw) / 2;
+  const oy = (H - rh) / 2 + 5;
+
+  // Wood fill
+  ctx.fillStyle = '#C49A6C';
+  ctx.strokeStyle = '#5D3A1A';
+  ctx.lineWidth = 2;
+  roundRect(ctx, ox, oy, rw, rh, 4);
+
+  // Plank lines
+  ctx.strokeStyle = '#A0764A';
+  ctx.lineWidth = 0.5;
+  const plankCount = Math.round(p.larghezza / 0.4);
+  for (let i = 1; i < plankCount; i++) {
+    const yy = oy + (rh / plankCount) * i;
+    ctx.beginPath(); ctx.moveTo(ox, yy); ctx.lineTo(ox + rw, yy); ctx.stroke();
+  }
+
+  // Jugs SDRAIATI (rounded rects from above, long axis = lunghezza direction)
+  const jl = jugLayout(p.numBoccioni, p.lunghezza, p.larghezza, p.jugDiam, p.capienza);
+  ctx.globalAlpha = 0.35;
+  jl.positions.forEach(jp => {
+    const cx = ox + jp.x * scale;
+    const cy = oy + jp.y * scale;
+    const jw = jl.jugLen * scale * 0.9;   // length along X
+    const jh = jl.jugDiam * scale * 0.85;  // diameter along Y
+    ctx.fillStyle = '#4FC3F7';
+    ctx.strokeStyle = '#1565A0'; ctx.lineWidth = 1;
+    roundRect(ctx, cx - jw / 2, cy - jh / 2, jw, jh, jh / 2);
+  });
+  ctx.globalAlpha = 1;
+
+  // Dimension arrows
+  drawDimArrow(ctx, ox, oy + rh + 18, ox + rw, oy + rh + 18, p.lunghezza.toFixed(1) + ' m');
+  drawDimArrow(ctx, ox - 18, oy, ox - 18, oy + rh, p.larghezza.toFixed(1) + ' m');
+}
+
+// ─── FRONT VIEW (guardando da davanti — boccioni sdraiati, si vede la sezione circolare) ───
+function drawFrontView(p) {
+  const canvas = document.getElementById('viewFront');
+  if (!canvas) return;
+  const W = canvas.parentElement.clientWidth;
+  const H = 220;
+  const ctx = setupHiDPI(canvas, W, H);
+  ctx.clearRect(0, 0, W, H);
+
+  const jl = jugLayout(p.numBoccioni, p.lunghezza, p.larghezza, p.jugDiam, p.capienza);
+  const jd = jugDimensions(p.capienza);
+  const margin = 35;
+  const deckThick = 0.018;
+  const beamThick = 0.05;
+  const jugD = jd.diam;
+  const totalH = deckThick + beamThick + jugD;
+  const scaleX = (W - margin * 2) / p.larghezza;
+  const scaleY = (H - margin * 2 - 30) / totalH;
+  const scale = Math.min(scaleX, scaleY);
+
+  const rw = p.larghezza * scale;
+  const ox = (W - rw) / 2;
+  const waterY = H - 30;
+
+  const deckTop = waterY - totalH * scale - 8;
+
+  // Water
+  ctx.fillStyle = 'rgba(79,195,247,0.25)';
+  ctx.fillRect(0, waterY, W, H - waterY);
+  ctx.setLineDash([8, 4]);
+  ctx.strokeStyle = '#1565A0'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(10, waterY); ctx.lineTo(W - 10, waterY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.font = '9px Nunito, sans-serif'; ctx.fillStyle = '#1565A0';
+  ctx.fillText('linea d\'acqua', W - 80, waterY + 12);
+
+  // Deck
+  const dh = Math.max(deckThick * scale, 6);
+  ctx.fillStyle = '#C49A6C'; ctx.strokeStyle = '#5D3A1A'; ctx.lineWidth = 1.5;
+  ctx.fillRect(ox, deckTop, rw, dh); ctx.strokeRect(ox, deckTop, rw, dh);
+
+  // Beam
+  const bh = Math.max(beamThick * scale, 5);
+  const beamTop = deckTop + dh;
+  ctx.fillStyle = '#8B5E3C'; ctx.strokeStyle = '#5D3A1A'; ctx.lineWidth = 1;
+  ctx.fillRect(ox + 5, beamTop, rw - 10, bh); ctx.strokeRect(ox + 5, beamTop, rw - 10, bh);
+
+  // Jugs — front view = circles (cross-section of laying jugs)
+  const jugRadius = (jugD / 2) * scale;
+  const jugCY = beamTop + bh + jugRadius;
+  const seenY = new Set();
+  jl.positions.forEach(jp => {
+    const colKey = Math.round(jp.y * 100);
+    if (seenY.has(colKey)) return;
+    seenY.add(colKey);
+    const cx = ox + (jp.y / p.larghezza) * rw;
+    ctx.beginPath(); ctx.arc(cx, jugCY, jugRadius * 0.9, 0, Math.PI * 2);
+    ctx.fillStyle = '#B3E5FC'; ctx.globalAlpha = 0.8; ctx.fill();
+    ctx.strokeStyle = '#1565A0'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    // Rope
+    ctx.setLineDash([3, 2]);
+    ctx.strokeStyle = '#D4A86A'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(cx, beamTop); ctx.lineTo(cx, jugCY + jugRadius * 0.9); ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  drawDimArrow(ctx, ox, deckTop - 15, ox + rw, deckTop - 15, p.larghezza.toFixed(1) + ' m');
+}
+
+// ─── SIDE VIEW (boccioni sdraiati — si vede il profilo allungato) ───
+function drawSideView(p) {
+  const canvas = document.getElementById('viewSide');
+  if (!canvas) return;
+  const W = canvas.parentElement.clientWidth;
+  const H = 220;
+  const ctx = setupHiDPI(canvas, W, H);
+  ctx.clearRect(0, 0, W, H);
+
+  const jd = jugDimensions(p.capienza);
+  const jl = jugLayout(p.numBoccioni, p.lunghezza, p.larghezza, p.jugDiam, p.capienza);
+  const margin = 35;
+  const deckThick = 0.018;
+  const beamThick = 0.05;
+  const jugD = jd.diam;
+  const totalH = deckThick + beamThick + jugD;
+  const scaleX = (W - margin * 2) / p.lunghezza;
+  const scaleY = (H - margin * 2 - 30) / totalH;
+  const scale = Math.min(scaleX, scaleY);
+
+  const rw = p.lunghezza * scale;
+  const ox = (W - rw) / 2;
+  const waterY = H - 30;
+
+  const deckTop = waterY - totalH * scale - 8;
+  const dh = Math.max(deckThick * scale, 6);
+
+  // Water
+  ctx.fillStyle = 'rgba(79,195,247,0.25)';
+  ctx.fillRect(0, waterY, W, H - waterY);
+  ctx.setLineDash([8, 4]);
+  ctx.strokeStyle = '#1565A0'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(10, waterY); ctx.lineTo(W - 10, waterY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.font = '9px Nunito, sans-serif'; ctx.fillStyle = '#1565A0';
+  ctx.fillText('linea d\'acqua', W - 80, waterY + 12);
+
+  // Deck
+  ctx.fillStyle = '#C49A6C'; ctx.strokeStyle = '#5D3A1A'; ctx.lineWidth = 1.5;
+  ctx.fillRect(ox, deckTop, rw, dh); ctx.strokeRect(ox, deckTop, rw, dh);
+
+  ctx.font = 'bold 9px Nunito, sans-serif'; ctx.fillStyle = '#5D3A1A'; ctx.textAlign = 'center';
+  ctx.fillText('Compensato 18mm', ox + rw / 2, deckTop - 4);
+
+  // Beams
+  const bh = Math.max(beamThick * scale, 5);
+  const beamTop = deckTop + dh;
+  ctx.fillStyle = '#8B5E3C'; ctx.strokeStyle = '#5D3A1A'; ctx.lineWidth = 1;
+  ctx.fillRect(ox + 5, beamTop, rw - 10, bh); ctx.strokeRect(ox + 5, beamTop, rw - 10, bh);
+
+  // Jugs — side view: SDRAIATI = rounded rects (profilo lungo)
+  const jugH = jugD * scale;
+  const jugW = jd.len * scale;
+  const jugTopY = beamTop + bh;
+  const seenX = new Set();
+  jl.positions.forEach(jp => {
+    const rowKey = Math.round(jp.x * 100);
+    if (seenX.has(rowKey)) return;
+    seenX.add(rowKey);
+    const cx = ox + (jp.x / p.lunghezza) * rw;
+
+    ctx.fillStyle = '#B3E5FC'; ctx.strokeStyle = '#1565A0'; ctx.lineWidth = 1.5;
+    ctx.globalAlpha = 0.8;
+    roundRect(ctx, cx - jugW / 2, jugTopY, jugW, jugH * 0.9, jugH * 0.4);
+    ctx.globalAlpha = 1;
+
+    // Neck (tappo) on left side
+    ctx.fillStyle = '#ddd'; ctx.strokeStyle = '#999'; ctx.lineWidth = 1;
+    const neckW = jugW * 0.12;
+    const neckH = jugH * 0.3;
+    ctx.fillRect(cx - jugW / 2 - neckW, jugTopY + jugH * 0.3, neckW, neckH);
+    ctx.strokeRect(cx - jugW / 2 - neckW, jugTopY + jugH * 0.3, neckW, neckH);
+
+    // Rope
+    ctx.setLineDash([3, 2]);
+    ctx.strokeStyle = '#D4A86A'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(cx, beamTop); ctx.lineTo(cx, jugTopY + jugH * 0.9); ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  drawDimArrow(ctx, ox, deckTop - 20, ox + rw, deckTop - 20, p.lunghezza.toFixed(1) + ' m');
+}
+
+// ─── LEGEND ───
+function drawLegend(p) {
+  const canvas = document.getElementById('viewLegend');
+  if (!canvas) return;
+  const W = canvas.parentElement.clientWidth;
+  const H = 220;
+  const ctx = setupHiDPI(canvas, W, H);
+  ctx.clearRect(0, 0, W, H);
+
+  const items = [
+    { type: 'rect', color: '#C49A6C', stroke: '#5D3A1A', label: 'Compensato marino' },
+    { type: 'rect', color: '#8B5E3C', stroke: '#5D3A1A', label: 'Travetti supporto' },
+    { type: 'jug', color: '#B3E5FC', stroke: '#1565A0', label: 'Boccione (sdraiato)' },
+    { type: 'line', color: '#D4A86A', label: 'Corde di fissaggio' },
+  ];
+
+  const lx = 20, startY = 30, gap = 32;
+  ctx.font = 'bold 12px Nunito, sans-serif';
+  ctx.fillStyle = '#333';
+  ctx.fillText('LEGENDA', lx, 18);
+
+  items.forEach((item, i) => {
+    const y = startY + i * gap;
+    if (item.type === 'rect') {
+      ctx.fillStyle = item.color;
+      ctx.fillRect(lx, y, 24, 12);
+      ctx.strokeStyle = item.stroke; ctx.lineWidth = 1;
+      ctx.strokeRect(lx, y, 24, 12);
+    } else if (item.type === 'jug') {
+      // Rounded rect (lying jug icon)
+      ctx.fillStyle = item.color; ctx.strokeStyle = item.stroke; ctx.lineWidth = 1.5;
+      roundRect(ctx, lx, y, 24, 12, 6);
+    } else if (item.type === 'line') {
+      ctx.setLineDash([3, 2]);
+      ctx.strokeStyle = item.color; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(lx, y + 6); ctx.lineTo(lx + 24, y + 6); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    ctx.font = '11px Nunito, sans-serif'; ctx.fillStyle = '#444';
+    ctx.textAlign = 'left';
+    ctx.fillText(item.label, lx + 32, y + 10);
+  });
+
+  // Stats
+  const sy = startY + items.length * gap + 15;
+  ctx.font = 'bold 11px Nunito, sans-serif'; ctx.fillStyle = '#0B3D6B';
+  ctx.fillText('SPECIFICHE', lx, sy);
+  ctx.font = '10px Nunito, sans-serif'; ctx.fillStyle = '#555';
+  ctx.fillText('Dimensioni: ' + p.lunghezza.toFixed(1) + ' x ' + p.larghezza.toFixed(1) + ' m', lx, sy + 16);
+  ctx.fillText('Boccioni: ' + p.numBoccioni + ' da ' + p.capienza + 'L', lx, sy + 30);
+  ctx.fillText('Compensato: ' + p.numCompensato + ' fogli', lx, sy + 44);
+  ctx.fillText('Persone: ' + p.numPersone, lx, sy + 58);
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+}
+
+// ─── THREE.JS 3D RENDER ───
+function render3D(p) {
+  const canvas = document.getElementById('view3D');
+  if (!canvas) return;
+  const container = canvas.parentElement;
+  const W = container.clientWidth;
+  const H = Math.max(350, container.clientHeight);
+
+  if (!threeRenderer) {
+    threeRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+    threeRenderer.setPixelRatio(window.devicePixelRatio);
+    threeRenderer.shadowMap.enabled = true;
+
+    threeScene = new THREE.Scene();
+
+    threeCamera = new THREE.PerspectiveCamera(40, W / H, 0.1, 200);
+    threeCamera.position.set(6, 4, 6);
+    threeCamera.lookAt(0, 0, 0);
+
+    // Lights
+    const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+    threeScene.add(ambient);
+    const sun = new THREE.DirectionalLight(0xfff4e0, 1);
+    sun.position.set(5, 10, 5);
+    sun.castShadow = true;
+    threeScene.add(sun);
+    const hemi = new THREE.HemisphereLight(0x87CEEB, 0x1565A0, 0.3);
+    threeScene.add(hemi);
+
+    // Sky (fog)
+    threeScene.fog = new THREE.FogExp2(0x87CEEB, 0.015);
+    threeRenderer.setClearColor(0x87CEEB);
+
+    // Water plane
+    const waterGeo = new THREE.PlaneGeometry(80, 80, 60, 60);
+    const waterMat = new THREE.MeshPhongMaterial({
+      color: 0x1E90FF,
+      transparent: true,
+      opacity: 0.7,
+      shininess: 100,
+      flatShading: true
+    });
+    waterMesh = new THREE.Mesh(waterGeo, waterMat);
+    waterMesh.rotation.x = -Math.PI / 2;
+    waterMesh.position.y = -0.3;
+    threeScene.add(waterMesh);
+  }
+
+  threeRenderer.setSize(W, H);
+  threeCamera.aspect = W / H;
+  threeCamera.updateProjectionMatrix();
+
+  // Rebuild raft group
+  if (raftGroup) threeScene.remove(raftGroup);
+  raftGroup = new THREE.Group();
+
+  const L = p.lunghezza;
+  const Wd = p.larghezza;
+  const deckH = 0.04;
+  const beamH = 0.08;
+
+  // Deck (compensato)
+  const deckGeo = new THREE.BoxGeometry(L, deckH, Wd);
+  const deckMat = new THREE.MeshPhongMaterial({ color: 0xC49A6C, flatShading: true });
+  const deck = new THREE.Mesh(deckGeo, deckMat);
+  deck.position.y = beamH + deckH / 2;
+  deck.castShadow = true;
+  deck.receiveShadow = true;
+  raftGroup.add(deck);
+
+  // Plank lines on deck
+  const plankCount = Math.round(Wd / 0.4);
+  for (let i = 1; i < plankCount; i++) {
+    const lineGeo = new THREE.BoxGeometry(L + 0.01, deckH + 0.005, 0.008);
+    const lineMat = new THREE.MeshPhongMaterial({ color: 0x8B5E3C });
+    const line = new THREE.Mesh(lineGeo, lineMat);
+    line.position.y = beamH + deckH / 2;
+    line.position.z = -Wd / 2 + (Wd / plankCount) * i;
+    raftGroup.add(line);
+  }
+
+  // Beams (travetti) — 3 cross-beams
+  const beamCount = Math.max(3, Math.round(L / 0.8));
+  const beamMat = new THREE.MeshPhongMaterial({ color: 0x8B5E3C, flatShading: true });
+  for (let i = 0; i < beamCount; i++) {
+    const beamGeo = new THREE.BoxGeometry(0.05, beamH, Wd - 0.1);
+    const beam = new THREE.Mesh(beamGeo, beamMat);
+    beam.position.x = -L / 2 + L / (beamCount + 1) * (i + 1);
+    beam.position.y = beamH / 2;
+    beam.castShadow = true;
+    raftGroup.add(beam);
+  }
+
+  // Longitudinal beams (2)
+  for (let i = 0; i < 2; i++) {
+    const lbGeo = new THREE.BoxGeometry(L - 0.1, beamH, 0.05);
+    const lb = new THREE.Mesh(lbGeo, beamMat);
+    lb.position.z = (i === 0 ? -1 : 1) * (Wd / 2 - 0.15);
+    lb.position.y = beamH / 2;
+    lb.castShadow = true;
+    raftGroup.add(lb);
+  }
+
+  // Boccioni SDRAIATI — laying on their side, axis along X (lunghezza)
+  const jd = jugDimensions(p.capienza);
+  const jugMat = new THREE.MeshPhongMaterial({
+    color: 0xB3E5FC,
+    transparent: true,
+    opacity: 0.75,
+    shininess: 60
+  });
+  const jugR = jd.diam / 2;
+  const jugLen = jd.len;
+  const jl = jugLayout(p.numBoccioni, L, Wd, p.jugDiam, p.capienza);
+
+  jl.positions.forEach(jp => {
+    const jGroup = new THREE.Group();
+
+    // Body cylinder — built vertical then rotated
+    const bodyGeo = new THREE.CylinderGeometry(jugR * 0.85, jugR * 0.85, jugLen, 12);
+    const body = new THREE.Mesh(bodyGeo, jugMat);
+    jGroup.add(body);
+
+    // Cap ends (hemisphere)
+    const capGeo = new THREE.SphereGeometry(jugR * 0.85, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2);
+
+    const capA = new THREE.Mesh(capGeo, jugMat);
+    capA.position.y = jugLen / 2;
+    jGroup.add(capA);
+
+    const capB = new THREE.Mesh(capGeo, jugMat);
+    capB.rotation.x = Math.PI;
+    capB.position.y = -jugLen / 2;
+    jGroup.add(capB);
+
+    // Neck (on one end)
+    const neckGeo = new THREE.CylinderGeometry(jugR * 0.2, jugR * 0.35, jugLen * 0.1, 8);
+    const neckMat = new THREE.MeshPhongMaterial({ color: 0xeeeeee });
+    const neck = new THREE.Mesh(neckGeo, neckMat);
+    neck.position.y = jugLen / 2 + jugLen * 0.05;
+    jGroup.add(neck);
+
+    // SDRAIARSI: rotate 90° so cylinder axis is along X
+    jGroup.rotation.z = Math.PI / 2;
+
+    // Position under deck
+    jGroup.position.x = jp.x - L / 2;
+    jGroup.position.z = jp.y - Wd / 2;
+    jGroup.position.y = -jugR;  // center of jug just below beams
+
+    raftGroup.add(jGroup);
+  });
+
+  // Ropes (visual)
+  const ropeMat = new THREE.MeshPhongMaterial({ color: 0xD4A86A });
+  for (let i = 0; i < beamCount; i++) {
+    const bx = -L / 2 + L / (beamCount + 1) * (i + 1);
+    const ropeGeo = new THREE.CylinderGeometry(0.008, 0.008, jugR * 2 + beamH, 4);
+    const rope = new THREE.Mesh(ropeGeo, ropeMat);
+    rope.position.x = bx;
+    rope.position.y = -(jugR);
+    raftGroup.add(rope);
+  }
+
+  threeScene.add(raftGroup);
+
+  // Camera distance based on raft size
+  const maxDim = Math.max(L, Wd);
+  threeCamera.position.set(maxDim * 1.5, maxDim * 1, maxDim * 1.5);
+  threeCamera.lookAt(0, 0, 0);
+
+  // Start animation
+  if (threeAnimId) cancelAnimationFrame(threeAnimId);
+  animateRaft();
+}
+
+function animateRaft() {
+  threeAnimId = requestAnimationFrame(animateRaft);
+  const t = Date.now() * 0.001;
+
+  // Raft bobbing
+  if (raftGroup) {
+    raftGroup.position.y = Math.sin(t * 0.8) * 0.06;
+    raftGroup.rotation.z = Math.sin(t * 0.5) * 0.015;
+    raftGroup.rotation.x = Math.sin(t * 0.6 + 1) * 0.01;
+  }
+
+  // Water waves
+  if (waterMesh) {
+    const pos = waterMesh.geometry.attributes.position;
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i);
+      const y = pos.getY(i);
+      const z = Math.sin(x * 0.5 + t) * 0.08 + Math.sin(y * 0.3 + t * 0.7) * 0.06;
+      pos.setZ(i, z);
+    }
+    pos.needsUpdate = true;
+  }
+
+  // Slow camera orbit
+  if (threeCamera && lastRenderParams) {
+    const md = Math.max(lastRenderParams.lunghezza, lastRenderParams.larghezza);
+    const dist = md * 1.8;
+    threeCamera.position.x = Math.cos(t * 0.15) * dist;
+    threeCamera.position.z = Math.sin(t * 0.15) * dist;
+    threeCamera.position.y = md * 0.9 + Math.sin(t * 0.2) * 0.3;
+    threeCamera.lookAt(0, 0, 0);
+  }
+
+  threeRenderer.render(threeScene, threeCamera);
+}
+
+// Resize handler
+window.addEventListener('resize', function() {
+  if (lastRenderParams) {
+    clearTimeout(window._renderResizeTimer);
+    window._renderResizeTimer = setTimeout(function() { renderAllViews(lastRenderParams); }, 200);
+  }
+});
 
 init();
 </script>
