@@ -386,58 +386,89 @@
     text-align: center;
   }
 
-  /* Timeline section */
-  .timeline {
-    position: relative;
-    padding-left: 2rem;
-    margin-top: 1rem;
+  /* Pianificazione 7 giorni */
+  .plan-day {
+    margin-bottom: 1.2rem;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #dce8f0;
   }
-  .timeline::before {
-    content: '';
-    position: absolute;
-    left: 12px;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: linear-gradient(180deg, var(--ocean-light), var(--ocean-deep));
-    border-radius: 2px;
+  .plan-day-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 0.7rem 1rem;
+    font-weight: 800; font-size: 0.95rem;
+    cursor: pointer; user-select: none;
+    transition: background 0.2s;
   }
-  .timeline-item {
-    position: relative;
-    margin-bottom: 1.5rem;
-    padding-left: 1.5rem;
+  .plan-day-header:hover { filter: brightness(0.95); }
+  .plan-day-header .day-num {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; font-weight: 800; color: white;
+    flex-shrink: 0;
   }
-  .timeline-item::before {
-    content: '';
-    position: absolute;
-    left: -1.55rem;
-    top: 6px;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--ocean-mid);
-    border: 3px solid white;
-    box-shadow: 0 0 0 2px var(--ocean-light);
+  .plan-day-header .day-title { flex: 1; }
+  .plan-day-header .day-badge {
+    font-size: 0.7rem; padding: 2px 8px; border-radius: 10px;
+    font-weight: 700; text-transform: uppercase;
   }
-  .timeline-item.highlight::before {
-    background: var(--coral);
-    box-shadow: 0 0 0 2px var(--coral);
+  .plan-day.build .plan-day-header { background: #E3F2FD; color: #0B3D6B; }
+  .plan-day.build .day-num { background: var(--ocean-mid); }
+  .plan-day.build .day-badge { background: #BBDEFB; color: #0D47A1; }
+  .plan-day.fun .plan-day-header { background: #FFF3E0; color: #E65100; }
+  .plan-day.fun .day-num { background: #FF9800; }
+  .plan-day.fun .day-badge { background: #FFE0B2; color: #E65100; }
+  .plan-day.launch .plan-day-header { background: #E8F5E9; color: #1B5E20; }
+  .plan-day.launch .day-num { background: #43A047; }
+  .plan-day.launch .day-badge { background: #C8E6C9; color: #1B5E20; }
+
+  .plan-day-tasks {
+    padding: 0 1rem 0.8rem 1rem;
+    background: white;
   }
-  .timeline-when {
-    font-weight: 800;
-    font-size: 0.9rem;
-    color: var(--ocean-deep);
+  .plan-task {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.88rem;
   }
-  .timeline-what {
-    font-size: 0.9rem;
-    color: #555;
-    margin-top: 0.15rem;
+  .plan-task:last-child { border-bottom: none; }
+  .plan-task input[type="checkbox"] {
+    margin-top: 3px; width: 18px; height: 18px;
+    accent-color: var(--ocean-mid); flex-shrink: 0; cursor: pointer;
   }
-  .timeline-who {
-    font-size: 0.8rem;
-    color: var(--ocean-light);
-    font-weight: 700;
+  .plan-task label { cursor: pointer; flex: 1; line-height: 1.4; }
+  .plan-task label.done { text-decoration: line-through; color: #aaa; }
+  .plan-task .task-who {
+    font-size: 0.72rem; color: #999; font-weight: 600;
+    white-space: nowrap; margin-top: 3px;
   }
+  .plan-task .task-time {
+    font-size: 0.7rem; color: var(--ocean-mid); font-weight: 700;
+    background: #E3F2FD; padding: 1px 6px; border-radius: 6px;
+    white-space: nowrap; margin-top: 2px;
+  }
+  .plan-progress-bar {
+    height: 8px; background: #e0e0e0; border-radius: 4px;
+    overflow: hidden; margin-bottom: 0.3rem;
+  }
+  .plan-progress-fill {
+    height: 100%; border-radius: 4px;
+    background: linear-gradient(90deg, var(--ocean-mid), var(--green));
+    transition: width 0.4s;
+  }
+
+  .plan-day-actions { display: inline-flex; gap: 2px; margin-left: 0.5rem; }
+  .plan-task-actions { display: inline-flex; gap: 2px; margin-left: 0.4rem; flex-shrink: 0; }
+
+  .plan-btn-sm, .plan-btn-xs {
+    border: none; background: rgba(0,0,0,0.07); border-radius: 6px;
+    cursor: pointer; line-height: 1; transition: background 0.2s;
+  }
+  .plan-btn-sm { padding: 4px 7px; font-size: 0.85rem; }
+  .plan-btn-xs { padding: 3px 6px; font-size: 0.75rem; }
+  .plan-btn-sm:hover, .plan-btn-xs:hover { background: rgba(0,0,0,0.15); }
+  .plan-btn-sm.danger:hover, .plan-btn-xs.danger:hover { background: rgba(229,57,53,0.2); color: var(--red); }
 
   /* Info box */
   .info-box {
@@ -507,6 +538,48 @@
     display: none;
   }
   .fab-save.unsaved .unsaved-badge { display: block; }
+
+  /* Rigenera Viste button */
+  .btn-rigenera {
+    display: block;
+    width: 100%;
+    max-width: 380px;
+    margin: 1rem auto 0.4rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 0.5px;
+  }
+  .btn-rigenera:disabled {
+    background: #ccc;
+    color: #888;
+    cursor: default;
+    box-shadow: none;
+    transform: none;
+  }
+  .btn-rigenera:enabled {
+    background: linear-gradient(135deg, #1565C0, #0D47A1);
+    color: white;
+    box-shadow: 0 4px 16px rgba(21, 101, 192, 0.45);
+    animation: pulse-rigenera 1.5s ease-in-out infinite;
+  }
+  .btn-rigenera:enabled:hover {
+    animation: none;
+    transform: scale(1.03);
+    box-shadow: 0 6px 24px rgba(21, 101, 192, 0.6);
+  }
+  .btn-rigenera:enabled:active {
+    transform: scale(0.97);
+  }
+  @keyframes pulse-rigenera {
+    0%, 100% { box-shadow: 0 4px 16px rgba(21, 101, 192, 0.45); }
+    50% { box-shadow: 0 6px 28px rgba(21, 101, 192, 0.7); }
+  }
 
   /* Nickname bar */
   .nickname-bar {
@@ -615,7 +688,7 @@
   }
   .render-panel.panel-3d {
     grid-column: 1 / -1;
-    min-height: 350px;
+    min-height: 420px;
     background: linear-gradient(180deg, #87CEEB 0%, #4FC3F7 40%, #1565A0 100%);
     border: 2px solid #1565A0;
   }
@@ -909,7 +982,7 @@
 <div class="container">
 
   <div class="header">
-    <h1>&#x1F6A3; Progetto Zattera NOI E WILSON </h1>
+    <h1>&#x1F6A3; Progetto Zattera Noi e Wilsoooooonnnnnn </h1>
     <p class="subtitle">Estate 2026 — L'avventura in famiglia</p>
     <div class="castaway-badge">&#x1F3DD;&#xFE0F; ISPIRAZIONE CAST AWAY</div>
     <div class="nickname-bar">&#x1F464; Stai lavorando come: <span class="nick-name" id="nickDisplay" onclick="promptNickname()" title="Clicca per cambiare nome">...</span></div>
@@ -923,12 +996,12 @@
     <div class="calc-grid">
       <div class="calc-field">
         <label>&#x1F465; Numero persone</label>
-        <input type="number" id="numPersone" value="8" min="1" max="15" onchange="fieldChanged('numPersone')">
+        <input type="number" id="numPersone" value="4" min="1" max="15" onchange="fieldChanged('numPersone')">
         <span class="field-mod" id="mod_numPersone"></span>
       </div>
       <div class="calc-field">
         <label>&#x2696;&#xFE0F; Peso medio per persona (kg)</label>
-        <input type="number" id="pesoMedio" value="75" min="30" max="150" onchange="fieldChanged('pesoMedio')">
+        <input type="number" id="pesoMedio" value="70" min="30" max="150" onchange="fieldChanged('pesoMedio')">
         <span class="field-mod" id="mod_pesoMedio"></span>
       </div>
       <div class="calc-field">
@@ -944,16 +1017,51 @@
       <div class="calc-field">
         <label>&#x1F4D0; Margine di sicurezza</label>
         <select id="margine" onchange="fieldChanged('margine')">
-          <option value="1.3">30% (consigliato)</option>
-          <option value="1.5">50% (extra sicuro)</option>
-          <option value="1.2">20% (minimo)</option>
+          <option value="1.2" selected>20% (target 120%)</option>
+          <option value="1.3">30% (extra sicuro)</option>
+          <option value="1.5">50% (molto sicuro)</option>
         </select>
         <span class="field-mod" id="mod_margine"></span>
       </div>
     </div>
 
+    <div style="margin-top:1.2rem; padding-top:1rem; border-top:2px dashed #ccc;">
+      <div style="font-weight:700; font-size:0.95rem; color:var(--ocean-deep); margin-bottom:0.6rem;">&#x1F6E2;&#xFE0F; Bidoni Extra <span style="font-weight:400;font-size:0.8rem;color:#888;">(esterni, ai lati &mdash; riducono i boccioni necessari)</span></div>
+      <div class="calc-grid">
+        <div class="calc-field">
+          <label>&#x1F6E2;&#xFE0F; Numero bidoni</label>
+          <input type="number" id="numBidoni" value="0" min="0" max="20" onchange="fieldChanged('numBidoni')">
+          <span class="field-mod" id="mod_numBidoni"></span>
+        </div>
+        <div class="calc-field">
+          <label>&#x1F4CF; Capienza bidone (litri)</label>
+          <select id="capienzaBidone" onchange="fieldChanged('capienzaBidone')">
+            <option value="30">30 litri</option>
+            <option value="60" selected>60 litri</option>
+            <option value="80">80 litri</option>
+            <option value="100">100 litri</option>
+            <option value="120">120 litri</option>
+          </select>
+          <span class="field-mod" id="mod_capienzaBidone"></span>
+        </div>
+      </div>
+    </div>
+
     <div class="result-box" id="risultati">
       <!-- filled by JS -->
+    </div>
+
+    <button class="btn-rigenera" id="btnRigenera" onclick="rigeneraViste()" disabled>&#x1F504; Rigenera Viste e Render 3D</button>
+
+    <div id="galleggiamentoGauge" style="margin-top:0.8rem; padding:0.8rem; background:#f0f7ff; border-radius:10px; display:none;">
+      <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-weight:600; margin-bottom:4px;">
+        <span>&#x2696;&#xFE0F; Bilancio galleggiamento</span>
+        <span id="gaugePercent"></span>
+      </div>
+      <div style="height:12px; background:#e0e0e0; border-radius:6px; overflow:hidden;">
+        <div id="gaugeFill" style="height:100%; border-radius:6px; transition:width 0.4s, background 0.4s;"></div>
+      </div>
+      <div id="gaugeDetail" style="font-size:0.78rem; color:#666; margin-top:4px;"></div>
     </div>
 
     <div class="warning-box" id="warningBox" style="display:none"></div>
@@ -1052,7 +1160,7 @@
       <div class="step-num">2</div>
       <div class="step-content">
         <h3>Costruire il telaio</h3>
-        <p>Tagliare le tavole di compensato (18mm marino) nelle dimensioni calcolate. Creare una cornice con travetti in legno (listelli 5x5 cm) sotto il compensato, formando una griglia che accoglier&agrave; i boccioni. Fissare con viti inox.</p>
+        <p>Tagliare i tubi PVC &Oslash;125mm alle misure calcolate (longitudinali e trasversali). Sigillare ogni tubo con tappi PVC incollati. Assemblare la griglia legando i tubi tra loro con fascette. Appoggiare i pannelli di plastica sopra la griglia e fissarli.</p>
       </div>
     </div>
 
@@ -1060,15 +1168,15 @@
       <div class="step-num">3</div>
       <div class="step-content">
         <h3>Fissare i boccioni</h3>
-        <p>Posizionare i boccioni nella griglia, ben distribuiti. Fissarli con corde nautiche passate attraverso fori nel compensato, creando una "rete" che li tenga in posizione. Ogni boccione va legato individualmente.</p>
+        <p>Posizionare i boccioni sdraiati sotto la griglia di tubi PVC, ben distribuiti. Fissarli con fascette e corde nautiche alla griglia, assicurando che restino in posizione. Ogni boccione va legato individualmente.</p>
       </div>
     </div>
 
     <div class="step">
       <div class="step-num">4</div>
       <div class="step-content">
-        <h3>Impermeabilizzare</h3>
-        <p>Trattare il compensato con vernice marina impermeabilizzante (almeno 2 mani). Prestare attenzione ai bordi e ai fori. Lasciare asciugare completamente prima del varo.</p>
+        <h3>Verificare e rinforzare</h3>
+        <p>Controllare che tutti i tubi PVC siano ben sigillati (immergere in acqua e cercare bolle d'aria). Rinforzare i punti di giunzione con nastro americano. Verificare che i pannelli siano ben fissati alla griglia.</p>
       </div>
     </div>
 
@@ -1102,51 +1210,17 @@
     <button class="btn-add-row" onclick="openChecklistEditor(-1)">+ Aggiungi voce</button>
   </div>
 
-  <!-- TIMELINE -->
+  <!-- PIANIFICAZIONE 7 GIORNI AL MARE -->
   <div class="card" style="animation-delay: 0.55s">
-    <div class="card-title"><span class="icon">&#x1F4C5;</span> Pianificazione &mdash; 3 Weekend</div>
-    <p style="color:#666; margin-bottom:1rem; font-size:0.9rem;">Un piano realistico su 3 weekend per costruire la zattera senza fretta.</p>
+    <div class="card-title"><span class="icon">&#x1F3D6;&#xFE0F;</span> Pianificazione &mdash; 7 Giorni al Mare</div>
+    <p style="color:#666; margin-bottom:0.5rem; font-size:0.9rem;">3 giorni per costruire, 4 giorni per godersi la zattera! Ogni task si pu&ograve; spuntare.</p>
+    <div class="plan-progress-bar"><div class="plan-progress-fill" id="planProgressFill" style="width:0%"></div></div>
+    <div class="progress-text" id="planProgressText" style="margin-bottom:1rem;">0 / 0 completati</div>
 
-    <div class="timeline">
-      <div class="timeline-item">
-        <div class="timeline-when">Weekend 1 &mdash; Sabato</div>
-        <div class="timeline-what">Raccolta boccioni + acquisto materiali al brico/ferramenta</div>
-        <div class="timeline-who">Tutti insieme</div>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-when">Weekend 1 &mdash; Domenica</div>
-        <div class="timeline-what">Lavare, asciugare e sigillare tutti i boccioni con silicone</div>
-        <div class="timeline-who">Adulti + ragazzi</div>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-when">Infrasettimanale</div>
-        <div class="timeline-what">Asciugatura silicone (24-48h) &mdash; niente da fare!</div>
-        <div class="timeline-who">&mdash;</div>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-when">Weekend 2 &mdash; Sabato</div>
-        <div class="timeline-what">Taglio compensato + costruzione telaio con travetti</div>
-        <div class="timeline-who">Adulti (attrezzi elettrici)</div>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-when">Weekend 2 &mdash; Domenica</div>
-        <div class="timeline-what">Fissaggio boccioni alla griglia + 1a mano di vernice marina</div>
-        <div class="timeline-who">Tutti insieme</div>
-      </div>
-      <div class="timeline-item">
-        <div class="timeline-when">Infrasettimanale</div>
-        <div class="timeline-what">Asciugatura + 2a mano di vernice</div>
-        <div class="timeline-who">1 persona (15 min)</div>
-      </div>
-      <div class="timeline-item highlight">
-        <div class="timeline-when">Weekend 3 &mdash; IL GRANDE GIORNO!</div>
-        <div class="timeline-what">Accessori di sicurezza + TEST IN ACQUA + VARO!</div>
-        <div class="timeline-who">TUTTI! &#x1F389;</div>
-      </div>
-    </div>
+    <div id="planTimeline"></div>
 
-    <div class="info-box">
-      &#x1F4A1; <strong>Meteo:</strong> Controllate le previsioni a inizio settimana per il weekend 3. Vento &lt; 10 nodi e mare calmo sono le condizioni ideali. In caso di maltempo, rimandate di una settimana &mdash; la zattera aspetta!
+    <div class="info-box" style="margin-top:1rem;">
+      &#x1F4A1; <strong>Meteo:</strong> Controllate le previsioni! Vento &lt; 10 nodi e mare calmo per il varo. Se piove il Giorno 3, invertite con attivit&agrave; al coperto e rimandate il test.
     </div>
   </div>
 
@@ -1310,6 +1384,9 @@ function fieldChanged(fieldName) {
   settingsMeta[fieldName] = { _by: currentNickname || '?', _at: Date.now() };
   updateFieldLabel(fieldName);
   calcola();
+  // Abilita il pulsante Rigenera (le viste non sono ancora aggiornate)
+  const btn = document.getElementById('btnRigenera');
+  if (btn) btn.disabled = false;
 }
 
 function updateFieldLabel(fieldName) {
@@ -1324,7 +1401,7 @@ function updateFieldLabel(fieldName) {
 }
 
 function updateAllFieldLabels() {
-  ['numPersone', 'pesoMedio', 'capienzaBoccione', 'margine'].forEach(updateFieldLabel);
+  ['numPersone', 'pesoMedio', 'capienzaBoccione', 'margine', 'numBidoni', 'capienzaBidone'].forEach(updateFieldLabel);
 }
 
 // =====================================================
@@ -1355,23 +1432,23 @@ let deletedChecklistIds = new Set();
 // =====================================================
 const DEFAULT_CHECKLIST = [
   { _id: "chk_boccioni", text: "Raccogliere i boccioni (minimo calcolato)", cat: "Materiale", done: false },
-  { _id: "chk_compensato", text: "Acquistare compensato marino 18mm", cat: "Materiale", done: false },
-  { _id: "chk_travetti", text: "Acquistare travetti in legno 5x5 cm", cat: "Materiale", done: false },
-  { _id: "chk_viti", text: "Procurare viti inox e bulloni", cat: "Materiale", done: false },
+  { _id: "chk_tubi", text: "Procurare tubi PVC \u00d8125mm (barre da 3m)", cat: "Materiale", done: false },
+  { _id: "chk_tappi", text: "Acquistare tappi PVC \u00d8125mm + colla PVC", cat: "Materiale", done: false },
+  { _id: "chk_pannelli", text: "Procurare pannelli plastica alveolare 200x100cm", cat: "Materiale", done: false },
+  { _id: "chk_fascette", text: "Procurare fascette resistenti UV (lunghe)", cat: "Materiale", done: false },
   { _id: "chk_corda", text: "Comprare corda nautica (30m+)", cat: "Materiale", done: false },
   { _id: "chk_silicone", text: "Silicone o nastro americano impermeabile", cat: "Materiale", done: false },
-  { _id: "chk_vernice", text: "Vernice marina impermeabilizzante", cat: "Materiale", done: false },
+  { _id: "chk_nastro", text: "Nastro americano impermeabile", cat: "Materiale", done: false },
   { _id: "chk_giubbotti", text: "Giubbotti salvagente per tutti", cat: "Sicurezza", done: false },
   { _id: "chk_custodia", text: "Custodia impermeabile per cellulare", cat: "Sicurezza", done: false },
   { _id: "chk_crema", text: "Crema solare SPF 50+", cat: "Sicurezza", done: false },
   { _id: "chk_acqua", text: "Acqua potabile e snack", cat: "Sicurezza", done: false },
   { _id: "chk_remi", text: "Remi o pagaie", cat: "Attrezzi", done: false },
-  { _id: "chk_trapano", text: "Trapano con punte per legno", cat: "Attrezzi", done: false },
-  { _id: "chk_seghetto", text: "Seghetto circolare o a mano", cat: "Attrezzi", done: false },
+  { _id: "chk_seghetto", text: "Seghetto per tubi PVC", cat: "Attrezzi", done: false },
   { _id: "chk_metro", text: "Metro, matita, squadra", cat: "Attrezzi", done: false },
   { _id: "chk_tenuta", text: "Verificare tenuta ermetica boccioni", cat: "Test", done: false },
-  { _id: "chk_trattare", text: "Trattare compensato (2 mani vernice)", cat: "Costruzione", done: false },
-  { _id: "chk_assemblare", text: "Assemblare telaio + boccioni", cat: "Costruzione", done: false },
+  { _id: "chk_sigillare_tubi", text: "Sigillare tubi PVC con tappi + colla", cat: "Costruzione", done: false },
+  { _id: "chk_assemblare", text: "Assemblare griglia tubi + pannelli + boccioni", cat: "Costruzione", done: false },
   { _id: "chk_testacqua", text: "Test in acqua bassa (carico progressivo)", cat: "Test", done: false },
   { _id: "chk_meteo", text: "Controllare meteo il giorno del varo", cat: "Varo", done: false },
   { _id: "chk_avvisare", text: "Avvisare qualcuno del percorso", cat: "Varo", done: false },
@@ -1398,6 +1475,8 @@ if (FIREBASE_ENABLED) {
     db = firebase.database();
     settingsRef = db.ref('zattera/v2/settings');
     settingsMetaRef = db.ref('zattera/v2/settingsMeta');
+    planRef = db.ref('zattera/v2/plan');
+    planDataRef = db.ref('zattera/v2/planDays');
     materialsDataRef = db.ref('zattera/v2/materials');
     budgetDataRef = db.ref('zattera/v2/budget');
     checklistDataRef = db.ref('zattera/v2/checklist');
@@ -1440,6 +1519,8 @@ if (FIREBASE_ENABLED) {
         if (s.pesoMedio) document.getElementById('pesoMedio').value = s.pesoMedio;
         if (s.capienzaBoccione) document.getElementById('capienzaBoccione').value = s.capienzaBoccione;
         if (s.margine) document.getElementById('margine').value = s.margine;
+        document.getElementById('numBidoni').value = s.numBidoni || 0;
+        if (s.capienzaBidone) document.getElementById('capienzaBidone').value = s.capienzaBidone;
         calcola(true);
         // Remote save arrived: update render
         if (lastRenderParams) renderAllViews(lastRenderParams);
@@ -1452,6 +1533,24 @@ if (FIREBASE_ENABLED) {
       if (d && typeof d === 'object') {
         settingsMeta = d;
         updateAllFieldLabels();
+      }
+    });
+
+    planRef.on('value', (snap) => {
+      if (ignorePlan) return;
+      const d = snap.val();
+      if (d && typeof d === 'object') {
+        planChecked = d;
+        renderPlan();
+      }
+    });
+
+    planDataRef.on('value', (snap) => {
+      if (ignorePlanData) return;
+      const d = snap.val();
+      if (d && Array.isArray(d) && d.length > 0) {
+        planData = d;
+        renderPlan();
       }
     });
 
@@ -1544,6 +1643,8 @@ async function saveAll() {
         pesoMedio: parseInt(document.getElementById('pesoMedio').value) || 75,
         capienzaBoccione: parseInt(document.getElementById('capienzaBoccione').value) || 18,
         margine: parseFloat(document.getElementById('margine').value) || 1.3,
+        numBidoni: parseInt(document.getElementById('numBidoni').value) || 0,
+        capienzaBidone: parseInt(document.getElementById('capienzaBidone').value) || 60,
         _by: currentNickname, _at: Date.now()
       });
       setTimeout(() => { ignoreSettings = false; }, 500);
@@ -1552,6 +1653,16 @@ async function saveAll() {
       ignoreSettingsMeta = true;
       await settingsMetaRef.set(settingsMeta);
       setTimeout(() => { ignoreSettingsMeta = false; }, 500);
+
+      // Save plan checklist
+      ignorePlan = true;
+      await planRef.set(planChecked);
+      setTimeout(() => { ignorePlan = false; }, 500);
+
+      // Save plan structure (days/tasks)
+      ignorePlanData = true;
+      await planDataRef.set(planData);
+      setTimeout(() => { ignorePlanData = false; }, 500);
 
       // Merge-save each section
       checklistData = await mergeSave(checklistDataRef, checklistData, deletedChecklistIds, 'checklist');
@@ -1567,6 +1678,8 @@ async function saveAll() {
       localStorage.setItem('zattera_materialsData', JSON.stringify(materialsData));
       localStorage.setItem('zattera_budgetData', JSON.stringify(budgetData));
       localStorage.setItem('zattera_settingsMeta', JSON.stringify(settingsMeta));
+      localStorage.setItem('zattera_planData', JSON.stringify(planData));
+      localStorage.setItem('zattera_planChecked', JSON.stringify(planChecked));
     }
 
     markSaved();
@@ -1885,6 +1998,275 @@ function deleteChecklistItem(idx) {
 }
 
 // =====================================================
+// PIANIFICAZIONE — 7 GIORNI AL MARE
+// =====================================================
+let planRef = null;
+let planDataRef = null;
+let ignorePlan = false;
+let ignorePlanData = false;
+
+// Default plan data (will be overridden by Firebase)
+const DEFAULT_PLAN = [
+  { _id: 'day1', day: 1, title: 'Raccolta e preparazione materiali', type: 'build', badge: 'Costruzione', tasks: [
+    { _id: 'p1a', text: 'Raccogliere tutti i boccioni (chiedere a bar, uffici, amici)', who: 'Tutti', time: 'Mattina' },
+    { _id: 'p1b', text: 'Procurare tubi PVC \u00d8125mm, tappi, colla PVC al brico', who: 'Save + Alessia', time: 'Mattina' },
+    { _id: 'p1c', text: 'Comprare pannelli plastica, fascette UV, corda nautica, silicone', who: 'Save + Alessia', time: 'Mattina' },
+    { _id: 'p1d', text: 'Lavare e asciugare tutti i boccioni', who: 'Sofia + Tommy', time: 'Pomeriggio' },
+    { _id: 'p1e', text: 'Sigillare i tappi dei boccioni con silicone nautico', who: 'Save + Nonna', time: 'Pomeriggio' },
+    { _id: 'p1f', text: 'Verificare attrezzi: avvitatore, sega, metro, matita', who: 'Save', time: 'Sera' },
+    { _id: 'p1g', text: 'Comprare giubbotti salvagente per tutti', who: 'Alessia', time: 'Pomeriggio' },
+  ]},
+  { _id: 'day2', day: 2, title: 'Costruzione struttura zattera', type: 'build', badge: 'Costruzione', tasks: [
+    { _id: 'p2a', text: 'Tagliare tubi PVC alle misure e sigillare con tappi + colla', who: 'Save', time: 'Mattina presto' },
+    { _id: 'p2b', text: 'Assemblare la griglia di tubi PVC (long. + trasv.) con fascette', who: 'Save + aiutante', time: 'Mattina' },
+    { _id: 'p2c', text: 'Fissare i pannelli di plastica sopra la griglia', who: 'Save + Tommy', time: 'Tarda mattina' },
+    { _id: 'p2d', text: 'Disporre i boccioni sdraiati sotto la griglia', who: 'Sofia + Tommy', time: 'Pomeriggio' },
+    { _id: 'p2e', text: 'Legare i boccioni con fascette e corda nautica (ben stretti!)', who: 'Tutti', time: 'Pomeriggio' },
+    { _id: 'p2f', text: 'Verificare tenuta tubi: immergere in acqua e cercare bolle', who: 'Save + Sofia', time: 'Tardo pomeriggio' },
+    { _id: 'p2g', text: 'Montare il palo per la vela al centro', who: 'Save', time: 'Tardo pomeriggio' },
+    { _id: 'p2h', text: 'Preparare Wilson! Pallone + faccia + capelli', who: 'Sofia + Tommy', time: 'Sera' },
+  ]},
+  { _id: 'day3', day: 3, title: 'VARO e primo viaggio!', type: 'launch', badge: 'Il Grande Giorno', tasks: [
+    { _id: 'p3a', text: 'Seconda mano di vernice (se asciutta dalla sera prima)', who: 'Save', time: 'Mattina presto' },
+    { _id: 'p3b', text: 'Controllo finale: boccioni sigillati, corde strette, viti ok', who: 'Save + Alessia', time: 'Mattina' },
+    { _id: 'p3c', text: 'Montare vela e remi, fissare Wilson al suo posto!', who: 'Tommy + Sofia', time: 'Mattina' },
+    { _id: 'p3d', text: 'Trasportare la zattera in spiaggia', who: 'TUTTI', time: 'Mattina' },
+    { _id: 'p3e', text: 'TEST in acqua bassa: prima 2 persone, poi 4, poi tutti', who: 'TUTTI', time: 'Tarda mattina' },
+    { _id: 'p3f', text: 'Indossare giubbotti salvagente!', who: 'TUTTI', time: 'Prima del varo' },
+    { _id: 'p3g', text: 'VARO UFFICIALE! Foto di gruppo sulla zattera!', who: 'TUTTI', time: 'Mezzogiorno' },
+  ]},
+  { _id: 'day4', day: 4, title: 'Esplorazione costiera', type: 'fun', badge: 'Divertimento', tasks: [
+    { _id: 'p4a', text: 'Navigata lungo la costa (entro 300m dalla riva)', who: 'Tutti', time: 'Mattina' },
+    { _id: 'p4b', text: 'Tuffi dalla zattera!', who: 'Tutti', time: 'Pomeriggio' },
+    { _id: 'p4c', text: 'Pic-nic galleggiante', who: 'Tutti', time: 'Pranzo' },
+    { _id: 'p4d', text: 'Controllare stato boccioni e corde dopo primo uso', who: 'Save', time: 'Sera' },
+  ]},
+  { _id: 'day5', day: 5, title: 'Avventura e pesca', type: 'fun', badge: 'Divertimento', tasks: [
+    { _id: 'p5a', text: 'Pesca dalla zattera (canna + secchiello)', who: 'Tommy + Nonna', time: 'Mattina' },
+    { _id: 'p5b', text: 'Gara di tuffi: chi fa il tuffo migliore?', who: 'Tutti', time: 'Pomeriggio' },
+    { _id: 'p5c', text: 'Sessione foto/video per i ricordi', who: 'Alessia', time: 'Tramonto' },
+  ]},
+  { _id: 'day6', day: 6, title: 'Relax e giochi in acqua', type: 'fun', badge: 'Divertimento', tasks: [
+    { _id: 'p6a', text: 'Zattera come base per snorkeling', who: 'Tutti', time: 'Mattina' },
+    { _id: 'p6b', text: 'Giochi di societ\u00e0 sulla zattera galleggiante', who: 'Tutti', time: 'Pomeriggio' },
+    { _id: 'p6c', text: 'Tramonto sulla zattera con merenda', who: 'Tutti', time: 'Sera' },
+  ]},
+  { _id: 'day7', day: 7, title: 'Ultimo giorno e smontaggio', type: 'fun', badge: 'Ultimo giorno', tasks: [
+    { _id: 'p7a', text: 'Ultima navigata mattutina con Wilson', who: 'Tutti', time: 'Mattina' },
+    { _id: 'p7b', text: 'Foto ricordo finale: NOI E WILSON!', who: 'Tutti', time: 'Mattina' },
+    { _id: 'p7c', text: 'Smontare vela, remi, recuperare giubbotti', who: 'Save + Tommy', time: 'Pomeriggio' },
+    { _id: 'p7d', text: 'Decidere: conservare la zattera o lasciarla a qualcuno?', who: 'Tutti', time: 'Sera' },
+  ]}
+];
+
+let planData = JSON.parse(JSON.stringify(DEFAULT_PLAN));
+let planChecked = {};
+let planInitialized = false;
+
+const PLAN_TYPES = [
+  { value: 'build', label: 'Costruzione' },
+  { value: 'launch', label: 'Varo' },
+  { value: 'fun', label: 'Divertimento' }
+];
+const PLAN_TIMES = ['Mattina presto', 'Mattina', 'Tarda mattina', 'Pranzo', 'Pomeriggio', 'Tardo pomeriggio', 'Sera', 'Tramonto'];
+
+function renderPlan() {
+  const container = document.getElementById('planTimeline');
+  if (!container) return;
+  let html = '';
+
+  planData.forEach((day, di) => {
+    html += '<div class="plan-day ' + day.type + '">';
+    html += '<div class="plan-day-header">';
+    html += '<span class="day-num" onclick="togglePlanDay(this.parentElement)">' + day.day + '</span>';
+    html += '<span class="day-title" onclick="togglePlanDay(this.parentElement)">Giorno ' + day.day + ' &mdash; ' + escHtml(day.title) + '</span>';
+    html += '<span class="day-badge">' + escHtml(day.badge) + '</span>';
+    html += '<span class="plan-day-actions">';
+    html += '<button class="plan-btn-sm" onclick="openDayEditor(' + di + ')" title="Modifica giorno">&#x270F;&#xFE0F;</button>';
+    html += '<button class="plan-btn-sm danger" onclick="deletePlanDay(' + di + ')" title="Elimina giorno">&#x1F5D1;</button>';
+    html += '</span>';
+    html += '</div>';
+    html += '<div class="plan-day-tasks">';
+
+    day.tasks.forEach((task, ti) => {
+      const checked = planChecked[task._id] ? true : false;
+      const modInfo = planChecked[task._id];
+      html += '<div class="plan-task">';
+      html += '<input type="checkbox" id="pt_' + task._id + '" ' + (checked ? 'checked' : '') + ' onchange="togglePlanTask(\'' + task._id + '\')">';
+      html += '<div style="flex:1;min-width:0">';
+      html += '<label for="pt_' + task._id + '" class="' + (checked ? 'done' : '') + '">' + escHtml(task.text) + '</label>';
+      if (modInfo && modInfo._by) {
+        html += '<span class="mod-by" style="display:block;margin-top:1px">' + escHtml(modInfo._by) + ', ' + timeAgo(modInfo._at) + '</span>';
+      }
+      html += '</div>';
+      html += '<span class="task-time">' + escHtml(task.time) + '</span>';
+      html += '<span class="task-who">' + escHtml(task.who) + '</span>';
+      html += '<span class="plan-task-actions">';
+      html += '<button class="plan-btn-xs" onclick="openPlanTaskEditor(' + di + ',' + ti + ')" title="Modifica">&#x270F;</button>';
+      html += '<button class="plan-btn-xs danger" onclick="deletePlanTask(' + di + ',' + ti + ')" title="Elimina">&#x2716;</button>';
+      html += '</span>';
+      html += '</div>';
+    });
+
+    html += '<button class="btn-add-row" style="margin:0.5rem 0 0.3rem; font-size:0.8rem;" onclick="openPlanTaskEditor(' + di + ',-1)">+ Aggiungi attivit&agrave;</button>';
+    html += '</div></div>';
+  });
+
+  html += '<button class="btn-add-row" style="margin-top:0.8rem;" onclick="openDayEditor(-1)">+ Aggiungi giorno</button>';
+
+  container.innerHTML = html;
+  updatePlanProgress();
+}
+
+function togglePlanDay(header) {
+  const tasks = header.nextElementSibling;
+  tasks.style.display = tasks.style.display === 'none' ? '' : 'none';
+}
+
+function togglePlanTask(taskId) {
+  if (planChecked[taskId]) {
+    delete planChecked[taskId];
+  } else {
+    planChecked[taskId] = { _by: currentNickname || '?', _at: Date.now() };
+  }
+  renderPlan();
+  markUnsaved();
+}
+
+function updatePlanProgress() {
+  let total = 0, done = 0;
+  planData.forEach(d => { total += d.tasks.length; d.tasks.forEach(t => { if (planChecked[t._id]) done++; }); });
+  const pct = total > 0 ? Math.round(done / total * 100) : 0;
+  const fill = document.getElementById('planProgressFill');
+  const text = document.getElementById('planProgressText');
+  if (fill) fill.style.width = pct + '%';
+  if (text) text.textContent = done + ' / ' + total + ' completati (' + pct + '%)';
+}
+
+// ─── PLAN TASK EDITOR ───
+function openPlanTaskEditor(dayIdx, taskIdx) {
+  const isNew = taskIdx === -1;
+  const task = isNew ? { text: '', who: '', time: 'Mattina' } : planData[dayIdx].tasks[taskIdx];
+  const timeOpts = PLAN_TIMES.map(t =>
+    '<option value="' + t + '"' + (t === task.time ? ' selected' : '') + '>' + t + '</option>'
+  ).join('');
+  openEditor(
+    '<h3>' + (isNew ? 'Aggiungi Attivit\u00e0' : 'Modifica Attivit\u00e0') + '</h3>' +
+    '<div class="form-group"><label>Descrizione</label><input id="edPlanText" value="' + escAttr(task.text) + '" placeholder="Cosa fare..."></div>' +
+    '<div class="form-group"><label>Chi partecipa</label><input id="edPlanWho" value="' + escAttr(task.who) + '" placeholder="Es: Save + Tommy, Tutti..."></div>' +
+    '<div class="form-group"><label>Quando</label><select id="edPlanTime">' + timeOpts + '</select></div>' +
+    '<div class="btn-row">' +
+      '<button class="btn-confirm secondary" onclick="closeEditor()">Annulla</button>' +
+      '<button class="btn-confirm primary" onclick="savePlanTask(' + dayIdx + ',' + taskIdx + ')">Salva</button>' +
+    '</div>'
+  );
+  document.getElementById('edPlanText').focus();
+}
+
+function savePlanTask(dayIdx, taskIdx) {
+  const text = document.getElementById('edPlanText').value.trim();
+  const who = document.getElementById('edPlanWho').value.trim();
+  const time = document.getElementById('edPlanTime').value;
+  if (!text) { showToast('Inserisci la descrizione', 'error'); return; }
+  if (taskIdx === -1) {
+    planData[dayIdx].tasks.push(stampItem({ _id: genId(), text, who: who || 'Tutti', time }));
+  } else {
+    planData[dayIdx].tasks[taskIdx].text = text;
+    planData[dayIdx].tasks[taskIdx].who = who || 'Tutti';
+    planData[dayIdx].tasks[taskIdx].time = time;
+    stampItem(planData[dayIdx].tasks[taskIdx]);
+  }
+  markUnsaved();
+  renderPlan();
+  closeEditor();
+  showToast(taskIdx === -1 ? 'Attivit\u00e0 aggiunta!' : 'Attivit\u00e0 modificata!', 'success');
+}
+
+function deletePlanTask(dayIdx, taskIdx) {
+  const task = planData[dayIdx].tasks[taskIdx];
+  if (!confirm('Eliminare "' + task.text.substring(0, 40) + '..."?')) return;
+  delete planChecked[task._id];
+  planData[dayIdx].tasks.splice(taskIdx, 1);
+  markUnsaved();
+  renderPlan();
+  showToast('Attivit\u00e0 eliminata', 'success');
+}
+
+// ─── DAY EDITOR ───
+function openDayEditor(dayIdx) {
+  const isNew = dayIdx === -1;
+  const day = isNew ? { day: planData.length + 1, title: '', type: 'fun', badge: 'Divertimento' } : planData[dayIdx];
+  const typeOpts = PLAN_TYPES.map(t =>
+    '<option value="' + t.value + '"' + (t.value === day.type ? ' selected' : '') + '>' + t.label + '</option>'
+  ).join('');
+  openEditor(
+    '<h3>' + (isNew ? 'Aggiungi Giorno' : 'Modifica Giorno ' + day.day) + '</h3>' +
+    '<div class="form-group"><label>Numero giorno</label><input type="number" id="edDayNum" value="' + day.day + '" min="1" max="30"></div>' +
+    '<div class="form-group"><label>Titolo</label><input id="edDayTitle" value="' + escAttr(day.title) + '" placeholder="Es: Giornata di costruzione"></div>' +
+    '<div class="form-group"><label>Tipo</label><select id="edDayType" onchange="updateDayBadge()">' + typeOpts + '</select></div>' +
+    '<div class="form-group"><label>Badge</label><input id="edDayBadge" value="' + escAttr(day.badge) + '" placeholder="Es: Costruzione"></div>' +
+    '<div class="btn-row">' +
+      '<button class="btn-confirm secondary" onclick="closeEditor()">Annulla</button>' +
+      '<button class="btn-confirm primary" onclick="savePlanDay(' + dayIdx + ')">Salva</button>' +
+    '</div>'
+  );
+  document.getElementById('edDayTitle').focus();
+}
+
+function updateDayBadge() {
+  const type = document.getElementById('edDayType').value;
+  const badge = document.getElementById('edDayBadge');
+  const map = { build: 'Costruzione', launch: 'Il Grande Giorno', fun: 'Divertimento' };
+  if (badge && map[type]) badge.value = map[type];
+}
+
+function savePlanDay(dayIdx) {
+  const dayNum = parseInt(document.getElementById('edDayNum').value) || 1;
+  const title = document.getElementById('edDayTitle').value.trim();
+  const type = document.getElementById('edDayType').value;
+  const badge = document.getElementById('edDayBadge').value.trim();
+  if (!title) { showToast('Inserisci il titolo del giorno', 'error'); return; }
+  if (dayIdx === -1) {
+    planData.push({ _id: genId(), day: dayNum, title, type, badge: badge || 'Nuovo', tasks: [] });
+    planData.sort((a, b) => a.day - b.day);
+  } else {
+    planData[dayIdx].day = dayNum;
+    planData[dayIdx].title = title;
+    planData[dayIdx].type = type;
+    planData[dayIdx].badge = badge || 'Nuovo';
+    planData.sort((a, b) => a.day - b.day);
+  }
+  markUnsaved();
+  renderPlan();
+  closeEditor();
+  showToast(dayIdx === -1 ? 'Giorno aggiunto!' : 'Giorno modificato!', 'success');
+}
+
+function deletePlanDay(dayIdx) {
+  const day = planData[dayIdx];
+  if (!confirm('Eliminare il Giorno ' + day.day + ' "' + day.title + '" e tutte le sue attivit\u00e0?')) return;
+  day.tasks.forEach(t => delete planChecked[t._id]);
+  planData.splice(dayIdx, 1);
+  markUnsaved();
+  renderPlan();
+  showToast('Giorno eliminato', 'success');
+}
+
+// =====================================================
+// RIGENERA VISTE (called by button)
+// =====================================================
+function rigeneraViste() {
+  calcola(false);
+  if (lastRenderParams) {
+    renderAllViews(lastRenderParams);
+    render3D(lastRenderParams);
+  }
+  // Disabilita il pulsante (viste aggiornate)
+  const btn = document.getElementById('btnRigenera');
+  if (btn) btn.disabled = true;
+}
+
+// =====================================================
 // CALCULATOR
 // =====================================================
 function calcola(fromFirebase) {
@@ -1894,67 +2276,169 @@ function calcola(fromFirebase) {
   const capienza = parseInt(document.getElementById('capienzaBoccione').value) || 18;
   const margine = parseFloat(document.getElementById('margine').value) || 1.3;
 
-  const pesoTotalePersone = numPersone * pesoMedio;
-  const pesoStruttura = 80 + (numPersone > 6 ? 40 : 0);
-  const pesoTotale = pesoTotalePersone + pesoStruttura;
-  const spintaNecessaria = pesoTotale * margine;
-  const numBoccioni = Math.ceil(spintaNecessaria / capienza);
+  // ─── BIDONI EXTRA (esterni, ai lati) ───
+  const numBidoni = parseInt(document.getElementById('numBidoni').value) || 0;
+  const capienzaBidone = parseInt(document.getElementById('capienzaBidone').value) || 60;
+  const extraLitri = numBidoni * capienzaBidone;
 
-  // Calculate raft dimensions
-  const areaPerPersona = 0.7;
-  const areaMinima = numPersone * areaPerPersona;
-  let larghezza, lunghezza;
-  if (numPersone <= 4) { larghezza = 2.0; lunghezza = Math.max(2.0, Math.ceil(areaMinima / 2.0 * 10) / 10); }
-  else if (numPersone <= 8) { larghezza = 2.5; lunghezza = Math.max(2.5, Math.ceil(areaMinima / 2.5 * 10) / 10); }
-  else { larghezza = 3.0; lunghezza = Math.max(3.0, Math.ceil(areaMinima / 3.0 * 10) / 10); }
-
-  // Boccioni SDRAIATI: jugLen along lunghezza, jugDiam along larghezza
+  // Boccioni dimensions
   const jDim = jugDimensions(capienza);
   const jugDiam = jDim.diam;
-  const jugLen = jDim.len;
-  const colsMax = Math.floor(lunghezza / jugLen);
-  const rowsMax = Math.floor(larghezza / jugDiam);
-  if (colsMax * rowsMax < numBoccioni) {
-    lunghezza = Math.ceil(numBoccioni / rowsMax) * jugLen + 0.2;
-    lunghezza = Math.ceil(lunghezza * 10) / 10;
+
+  // ─── PIATTAFORMA: TUBI PVC Ø125mm (3m) + PANNELLI PLASTICA ───
+  const TUBO_DIAM = 0.125;       // m (Ø 125mm)
+  const TUBO_LUNG = 3.0;         // m (barre da 3m)
+  const TUBO_PESO_M = 1.8;       // kg per metro lineare (PVC Ø125mm)
+  const TUBO_SPINTA_M = 11.0;    // litri per metro (volume interno sigillato Ø125mm)
+  const PANNELLO_PESO_MQ = 2.5;  // kg per m² (plastica alveolare 8mm)
+  const PANNELLO_SPESSORE = 0.008; // m
+  const PESO_BOCCIONE = 1;       // kg boccione vuoto
+  const PESO_BIDONE = 4;         // kg bidone vuoto (media)
+  const PESO_LEGATURE = 10;      // kg corde, fascette, tappi PVC
+  const areaPerPersona = 0.7;    // m² per persona (minimo)
+
+  // ─── OTTIMIZZAZIONE: minimizzare tubi e boccioni ───
+  // Strategia: dimensioni piattaforma minime per le persone,
+  // poi calcola tubi necessari per struttura, e boccioni solo
+  // per colmare il gap di spinta non coperto dai tubi.
+  const pesoTotalePersone = numPersone * pesoMedio;
+  const areaMinima = numPersone * areaPerPersona;
+
+  // Piattaforma: lunghezza = 3m (1 barra intera), larghezza minima
+  // Uso barre da 3m intere per i tubi longitudinali (lungo la lunghezza)
+  // Tubi trasversali corti (lungo la larghezza) tagliati dalle barre
+  let lunghezza = TUBO_LUNG; // 3m fissi (1 barra intera)
+  let larghezza = Math.max(1.0, Math.ceil(areaMinima / lunghezza * 2) / 2); // arrotonda a 0.5m
+
+  // Griglia tubi PVC — minimale ma strutturale
+  // Longitudinali: ogni ~40cm in larghezza (reggono il peso)
+  const numTubiLong = Math.max(2, Math.ceil(larghezza / 0.40) + 1);
+  // Trasversali: ogni ~60cm in lunghezza (distanziatori + rigidità)
+  const numTubiTrasv = Math.max(2, Math.ceil(lunghezza / 0.60) + 1);
+
+  const metriTubiLong = numTubiLong * lunghezza;  // tubi interi da 3m
+  const metriTubiTrasv = numTubiTrasv * larghezza; // tagli dalla barra
+  const metriTubiTotali = metriTubiLong + metriTubiTrasv;
+  // Barre da 3m necessarie: long intere + trasv da tagliare
+  const barreLong = numTubiLong; // 1 barra per tubo longitudinale
+  const metriTrasv = numTubiTrasv * larghezza;
+  const barreTrasv = Math.ceil(metriTrasv / TUBO_LUNG);
+  const numBarreTotali = barreLong + barreTrasv;
+
+  // Peso piattaforma
+  const pesoTubi = metriTubiTotali * TUBO_PESO_M;
+  const areaPiattaforma = lunghezza * larghezza;
+  const pesoPannelli = areaPiattaforma * PANNELLO_PESO_MQ;
+  const pesoStrutturaPiattaforma = pesoTubi + pesoPannelli + PESO_LEGATURE;
+
+  // Spinta tubi PVC (galleggiano! risorsa preziosa)
+  const spintaTubi = metriTubiTotali * TUBO_SPINTA_M;
+
+  // ─── BOCCIONI: solo quanti ne servono per arrivare al target ───
+  const pesoBidoni = numBidoni * PESO_BIDONE;
+  // Calcolo iterativo (peso boccioni incide sul totale)
+  let numBoccioni = 0;
+  for (let iter = 0; iter < 15; iter++) {
+    const pesoBoccioni = numBoccioni * PESO_BOCCIONE;
+    const pesoTotaleCalc = pesoTotalePersone + pesoStrutturaPiattaforma + pesoBidoni + pesoBoccioni;
+    const spintaNecessaria = pesoTotaleCalc * margine;
+    const spintaTotaleCalc = numBoccioni * capienza + extraLitri + spintaTubi;
+    if (spintaTotaleCalc >= spintaNecessaria) break;
+    // Ne servono di più
+    const mancano = spintaNecessaria - spintaTotaleCalc;
+    const boccioniExtra = Math.ceil(mancano / (capienza - PESO_BOCCIONE * margine));
+    const nuovoBoccioni = numBoccioni + Math.max(1, boccioniExtra);
+    if (nuovoBoccioni === numBoccioni) break;
+    numBoccioni = nuovoBoccioni;
+  }
+  // Minimo 2 boccioni (stabilità)
+  numBoccioni = Math.max(numBoccioni, 2);
+  const pesoBoccioni = numBoccioni * PESO_BOCCIONE;
+
+  // ─── GALLEGGIAMENTO GAUGE ───
+  const pesoTotaleCompleto = pesoTotalePersone + pesoStrutturaPiattaforma + pesoBidoni + pesoBoccioni;
+  const spintaTotale = numBoccioni * capienza + extraLitri + spintaTubi;
+  const galleggiamentoPct = Math.round(spintaTotale / pesoTotaleCompleto * 100);
+  const gaugeDiv = document.getElementById('galleggiamentoGauge');
+  const gaugeFill = document.getElementById('gaugeFill');
+  const gaugePercent = document.getElementById('gaugePercent');
+  const gaugeDetail = document.getElementById('gaugeDetail');
+  if (gaugeDiv) {
+    gaugeDiv.style.display = '';
+    const pct = Math.min(galleggiamentoPct, 200);
+    gaugeFill.style.width = Math.min(pct, 100) + '%';
+    if (galleggiamentoPct < 100) {
+      gaugeFill.style.background = '#E53935';
+      gaugePercent.innerHTML = '<span style="color:#E53935">' + galleggiamentoPct + '% &#x26A0;&#xFE0F; AFFONDA</span>';
+    } else if (galleggiamentoPct < 120) {
+      gaugeFill.style.background = '#FF9800';
+      gaugePercent.innerHTML = '<span style="color:#E65100">' + galleggiamentoPct + '% &#x26A0;&#xFE0F; Margine basso</span>';
+    } else {
+      gaugeFill.style.background = 'linear-gradient(90deg, #43A047, #66BB6A)';
+      gaugePercent.innerHTML = '<span style="color:#2E7D32">' + galleggiamentoPct + '% &#x2705; OK</span>';
+    }
+    const parts = [numBoccioni + ' boccioni = ' + (numBoccioni * capienza) + 'L', 'tubi PVC = ' + Math.round(spintaTubi) + 'L'];
+    if (numBidoni > 0) parts.push(numBidoni + ' bidoni ' + capienzaBidone + 'L = ' + extraLitri + 'L');
+    const weightParts = ['Persone ' + pesoTotalePersone + 'kg', 'tubi ' + Math.round(pesoTubi) + 'kg', 'pannelli ' + Math.round(pesoPannelli) + 'kg', numBoccioni + ' bocc. ' + pesoBoccioni + 'kg'];
+    if (numBidoni > 0) weightParts.push(numBidoni + ' bidoni ' + pesoBidoni + 'kg');
+    weightParts.push('legature ' + PESO_LEGATURE + 'kg');
+    gaugeDetail.textContent = 'Spinta: ' + spintaTotale + 'L vs Peso: ' + pesoTotaleCompleto + 'kg (' + weightParts.join(' + ') + ') | ' + parts.join(' + ');
   }
 
-  const numCompensato = Math.ceil((lunghezza * larghezza) / (1.22 * 2.44));
+  // Warning
+  const warningBox = document.getElementById('warningBox');
+  if (galleggiamentoPct < 100) {
+    warningBox.style.display = '';
+    warningBox.innerHTML = '&#x26A0;&#xFE0F; <strong>Attenzione:</strong> spinta insufficiente! Mancano ' + Math.ceil(pesoTotaleCompleto - spintaTotale) + ' litri di galleggiamento. Aggiungi galleggianti extra o riduci le persone.';
+  } else if (galleggiamentoPct < 120) {
+    warningBox.style.display = '';
+    warningBox.innerHTML = '&#x26A0;&#xFE0F; <strong>Margine basso:</strong> consigliato almeno 120%. Aggiungi qualche galleggiante extra per sicurezza.';
+  } else {
+    warningBox.style.display = 'none';
+  }
 
   document.getElementById('risultati').innerHTML =
     '<div class="result-item"><div class="number">' + numBoccioni + '</div><div class="label">Boccioni da ' + capienza + 'L</div></div>' +
-    '<div class="result-item"><div class="number">' + pesoTotale + ' kg</div><div class="label">Peso totale</div></div>' +
-    '<div class="result-item"><div class="number">' + lunghezza + ' &times; ' + larghezza + ' m</div><div class="label">Dimensioni zattera</div></div>' +
-    '<div class="result-item"><div class="number">' + numCompensato + '</div><div class="label">Fogli compensato</div></div>';
+    '<div class="result-item"><div class="number">' + numBarreTotali + '</div><div class="label">Barre PVC &Oslash;125mm (3m)</div></div>' +
+    '<div class="result-item"><div class="number">' + lunghezza.toFixed(1) + ' &times; ' + larghezza.toFixed(1) + ' m</div><div class="label">Dimensioni zattera</div></div>' +
+    '<div class="result-item"><div class="number">' + galleggiamentoPct + '%</div><div class="label">Galleggiamento</div></div>';
 
   // Store render params (render only on save or init)
-  lastRenderParams = { lunghezza, larghezza, numBoccioni, capienza, jugDiam, numPersone, numCompensato };
+  lastRenderParams = { lunghezza, larghezza, numBoccioni, capienza, jugDiam, numPersone, numTubiLong, numTubiTrasv, TUBO_DIAM, PANNELLO_SPESSORE, numBidoni, capienzaBidone, metriTubiTotali, spintaTubi, numBarreTotali };
 
   // Fresh auto materials (used for init and for updating quantities)
   const freshMaterials = [
-    { _id: 'mat_boccioni', name: 'Boccioni acqua vuoti (' + capienza + 'L)', qty: numBoccioni + ' pezzi', note: 'Ben chiusi e sigillati', auto: true, key: 'boccioni' },
-    { _id: 'mat_compensato', name: 'Compensato marino 18mm (122x244 cm)', qty: numCompensato + ' fogli', note: 'Trattato con vernice marina', auto: true, key: 'compensato' },
-    { _id: 'mat_travetti', name: 'Travetti legno 5x5 cm', qty: '~' + Math.ceil((lunghezza + larghezza) * 3) + ' m lineari', note: 'Per telaio e griglia supporto', auto: true, key: 'travetti' },
-    { _id: 'mat_viti', name: 'Viti inox 4x50mm', qty: '~' + (numCompensato * 30) + ' pezzi', note: 'Resistenti alla salsedine', auto: true, key: 'viti' },
-    { _id: 'mat_corda', name: 'Corda nautica (8-10mm)', qty: '~' + Math.ceil(numBoccioni * 0.8) + ' m', note: 'Per fissaggio boccioni + perimetrale', auto: true, key: 'corda' },
+    { _id: 'mat_tubi', name: 'Tubi PVC \u00d8125mm sigillati (barre 3m)', qty: numBarreTotali + ' barre (' + numTubiLong + ' long. + ' + numTubiTrasv + ' trasv.)', note: 'Sigillati con tappi PVC + colla. Galleggiano!', auto: true, key: 'tubi' },
+    { _id: 'mat_pannelli', name: 'Pannelli plastica alveolare 200x100cm 8mm', qty: Math.ceil(areaPiattaforma / 2) + ' fogli', note: 'Sopra i tubi come pavimento. Leggeri e impermeabili', auto: true, key: 'pannelli' },
+    { _id: 'mat_boccioni', name: 'Boccioni acqua vuoti (' + capienza + 'L)', qty: numBoccioni + ' pezzi', note: 'Ben chiusi e sigillati sotto la griglia tubi', auto: true, key: 'boccioni' },
+  ];
+  if (numBidoni > 0) freshMaterials.push({ _id: 'mat_bidoni', name: 'Bidoni ' + capienzaBidone + 'L sigillati', qty: numBidoni + ' pezzi', note: 'Legati ai lati della zattera', auto: true, key: 'bidoni' });
+  freshMaterials.push(
+    { _id: 'mat_tappi', name: 'Tappi PVC \u00d8125mm', qty: (numTubiLong + numTubiTrasv) * 2 + ' pezzi', note: 'Per sigillare i tubi alle estremit\u00e0', auto: true, key: 'tappi' },
+    { _id: 'mat_colla', name: 'Colla PVC (per tubi)', qty: '2 tubetti', note: 'Per incollare i tappi ai tubi', auto: true, key: 'colla' },
+    { _id: 'mat_fascette', name: 'Fascette resistenti UV (lunghe)', qty: '~' + Math.ceil(metriTubiTotali * 2 + numBoccioni * 2) + ' pezzi', note: 'Per legare tubi tra loro e boccioni sotto', auto: true, key: 'fascette' },
+    { _id: 'mat_corda', name: 'Corda nautica (8-10mm)', qty: '~' + Math.ceil(numBoccioni * 0.5 + numBidoni * 0.8 + (lunghezza + larghezza) * 2) + ' m', note: 'Per fissaggio perimetrale + galleggianti', auto: true, key: 'corda' },
     { _id: 'mat_silicone', name: 'Silicone nautico', qty: '2 tubetti', note: 'Per sigillare tappi boccioni', auto: true, key: 'silicone' },
-    { _id: 'mat_vernice', name: 'Vernice marina impermeabilizzante', qty: '2 barattoli', note: '2 mani su tutto il legno', auto: true, key: 'vernice' },
     { _id: 'mat_nastro', name: 'Nastro americano impermeabile', qty: '2 rotoli', note: 'Rinforzo e riparazioni', auto: true, key: 'nastro' },
     { _id: 'mat_giubbotti', name: 'Giubbotti salvagente', qty: numPersone + ' pezzi', note: 'Omologati, uno per persona!', auto: true, key: 'giubbotti' }
-  ];
+  );
 
   const freshBudget = [
+    { _id: 'bud_tubi', name: 'Tubi PVC \u00d8125mm (barre 3m)', cost: 8, qty: numBarreTotali, where: 'Brico, ferramenta, idraulico', auto: true, key: 'tubi' },
+    { _id: 'bud_pannelli', name: 'Pannelli plastica alveolare 200x100cm', cost: 8, qty: Math.ceil(areaPiattaforma / 2), where: 'Brico, Leroy Merlin, online', auto: true, key: 'pannelli' },
     { _id: 'bud_boccioni', name: 'Boccioni acqua ' + capienza + 'L', cost: 0, qty: numBoccioni, where: 'Uffici, bar, distributori', auto: true, key: 'boccioni' },
-    { _id: 'bud_compensato', name: 'Compensato marino 18mm', cost: 35, qty: numCompensato, where: 'Brico, falegnameria', auto: true, key: 'compensato' },
-    { _id: 'bud_travetti', name: 'Travetti legno 5x5 cm', cost: 3, qty: Math.ceil((lunghezza + larghezza) * 3), where: 'Brico, falegnameria', auto: true, key: 'travetti' },
-    { _id: 'bud_viti', name: 'Viti inox 4x50mm (conf. 100)', cost: 12, qty: Math.ceil(numCompensato * 30 / 100), where: 'Ferramenta', auto: true, key: 'viti' },
-    { _id: 'bud_corda', name: 'Corda nautica 8-10mm (al metro)', cost: 1.5, qty: Math.ceil(numBoccioni * 0.8), where: 'Negozio nautico, online', auto: true, key: 'corda' },
+  ];
+  if (numBidoni > 0) freshBudget.push({ _id: 'bud_bidoni', name: 'Bidoni ' + capienzaBidone + 'L', cost: 5, qty: numBidoni, where: 'Aziende agricole, mercatini, online', auto: true, key: 'bidoni' });
+  freshBudget.push(
+    { _id: 'bud_tappi', name: 'Tappi PVC \u00d8125mm', cost: 2, qty: (numTubiLong + numTubiTrasv) * 2, where: 'Ferramenta, idraulico', auto: true, key: 'tappi' },
+    { _id: 'bud_colla', name: 'Colla PVC', cost: 6, qty: 2, where: 'Ferramenta, Brico', auto: true, key: 'colla' },
+    { _id: 'bud_fascette', name: 'Fascette UV (conf. 100)', cost: 8, qty: Math.ceil((metriTubiTotali * 2 + numBoccioni * 2) / 100), where: 'Ferramenta, online', auto: true, key: 'fascette' },
+    { _id: 'bud_corda', name: 'Corda nautica 8-10mm (al metro)', cost: 1.5, qty: Math.ceil(numBoccioni * 0.5 + numBidoni * 0.8 + (lunghezza + larghezza) * 2), where: 'Negozio nautico, online', auto: true, key: 'corda' },
     { _id: 'bud_silicone', name: 'Silicone nautico', cost: 8, qty: 2, where: 'Brico, ferramenta', auto: true, key: 'silicone' },
-    { _id: 'bud_vernice', name: 'Vernice marina (0.75L)', cost: 18, qty: 2, where: 'Brico, negozio nautico', auto: true, key: 'vernice' },
     { _id: 'bud_nastro', name: 'Nastro americano impermeabile', cost: 5, qty: 2, where: 'Brico, ferramenta', auto: true, key: 'nastro' },
     { _id: 'bud_giubbotti', name: 'Giubbotti salvagente', cost: 15, qty: numPersone, where: 'Decathlon, negozio nautico', auto: true, key: 'giubbotti' },
     { _id: 'bud_custodia', name: 'Custodia impermeabile cell.', cost: 8, qty: 2, where: 'Online, Decathlon', auto: true, key: 'custodia' }
-  ];
+  );
 
   // Initialize or update materials
   if (!materialsInitialized || materialsData.length === 0) {
@@ -1990,15 +2474,6 @@ function calcola(fromFirebase) {
     });
   }
   renderBudget();
-
-  // Warning
-  const warn = document.getElementById('warningBox');
-  if (numBoccioni > 80) {
-    warn.style.display = 'block';
-    warn.innerHTML = '&#x26A0;&#xFE0F; <strong>Attenzione:</strong> servono molti boccioni (' + numBoccioni + '). Valuta di usare boccioni pi&ugrave; grandi o ridurre il numero di persone.';
-  } else {
-    warn.style.display = 'none';
-  }
 }
 
 // =====================================================
@@ -2214,11 +2689,20 @@ function init() {
       const sb = localStorage.getItem('zattera_budgetData');
       if (sb) { budgetData = JSON.parse(sb); budgetInitialized = true; }
     } catch {}
+    try {
+      const sp = localStorage.getItem('zattera_planData');
+      if (sp) { planData = JSON.parse(sp); }
+    } catch {}
+    try {
+      const spc = localStorage.getItem('zattera_planChecked');
+      if (spc) { planChecked = JSON.parse(spc); }
+    } catch {}
     showSyncStatus('local');
   }
   calcola(true);
   renderChecklist();
   updateProgress();
+  renderPlan();
   // Initial render after first calcola
   if (lastRenderParams) renderAllViews(lastRenderParams);
 }
@@ -2340,19 +2824,25 @@ function drawTopView(p) {
   const ox = (W - rw) / 2;
   const oy = (H - rh) / 2 + 5;
 
-  // Wood fill
-  ctx.fillStyle = '#C49A6C';
-  ctx.strokeStyle = '#5D3A1A';
-  ctx.lineWidth = 2;
+  // Pannello plastica (deck surface)
+  ctx.fillStyle = '#E8E8E8'; ctx.strokeStyle = '#999'; ctx.lineWidth = 1;
   roundRect(ctx, ox, oy, rw, rh, 4);
 
-  // Plank lines
-  ctx.strokeStyle = '#A0764A';
-  ctx.lineWidth = 0.5;
-  const plankCount = Math.round(p.larghezza / 0.4);
-  for (let i = 1; i < plankCount; i++) {
-    const yy = oy + (rh / plankCount) * i;
-    ctx.beginPath(); ctx.moveTo(ox, yy); ctx.lineTo(ox + rw, yy); ctx.stroke();
+  // Griglia tubi PVC
+  const ntL = p.numTubiLong || 3, ntT = p.numTubiTrasv || 3;
+  const tubeW = (p.TUBO_DIAM || 0.11) * scale;
+  ctx.fillStyle = '#90A4AE'; ctx.strokeStyle = '#546E7A'; ctx.lineWidth = 0.8;
+  // Tubi longitudinali (lungo la lunghezza)
+  for (let i = 0; i < ntL; i++) {
+    const ty = oy + rh * (i + 0.5) / ntL;
+    ctx.fillRect(ox + 2, ty - tubeW/2, rw - 4, tubeW);
+    ctx.strokeRect(ox + 2, ty - tubeW/2, rw - 4, tubeW);
+  }
+  // Tubi trasversali (lungo la larghezza)
+  for (let i = 0; i < ntT; i++) {
+    const tx = ox + rw * (i + 0.5) / ntT;
+    ctx.fillRect(tx - tubeW/2, oy + 2, tubeW, rh - 4);
+    ctx.strokeRect(tx - tubeW/2, oy + 2, tubeW, rh - 4);
   }
 
   // Jugs SDRAIATI (rounded rects from above, long axis = lunghezza direction)
@@ -2386,10 +2876,10 @@ function drawFrontView(p) {
   const jl = jugLayout(p.numBoccioni, p.lunghezza, p.larghezza, p.jugDiam, p.capienza);
   const jd = jugDimensions(p.capienza);
   const margin = 35;
-  const deckThick = 0.018;
-  const beamThick = 0.05;
+  const tubeDiam = p.TUBO_DIAM || 0.11;
+  const panelH = p.PANNELLO_SPESSORE || 0.008;
   const jugD = jd.diam;
-  const totalH = deckThick + beamThick + jugD;
+  const totalH = panelH + tubeDiam + jugD;
   const scaleX = (W - margin * 2) / p.larghezza;
   const scaleY = (H - margin * 2 - 30) / totalH;
   const scale = Math.min(scaleX, scaleY);
@@ -2410,20 +2900,29 @@ function drawFrontView(p) {
   ctx.font = '9px Nunito, sans-serif'; ctx.fillStyle = '#1565A0';
   ctx.fillText('linea d\'acqua', W - 80, waterY + 12);
 
-  // Deck
-  const dh = Math.max(deckThick * scale, 6);
-  ctx.fillStyle = '#C49A6C'; ctx.strokeStyle = '#5D3A1A'; ctx.lineWidth = 1.5;
-  ctx.fillRect(ox, deckTop, rw, dh); ctx.strokeRect(ox, deckTop, rw, dh);
+  // Panel (top)
+  const panelPx = Math.max(3, panelH * scale);
+  ctx.fillStyle = '#E0E0E0'; ctx.strokeStyle = '#999'; ctx.lineWidth = 1;
+  ctx.fillRect(ox, deckTop, rw, panelPx); ctx.strokeRect(ox, deckTop, rw, panelPx);
 
-  // Beam
-  const bh = Math.max(beamThick * scale, 5);
-  const beamTop = deckTop + dh;
-  ctx.fillStyle = '#8B5E3C'; ctx.strokeStyle = '#5D3A1A'; ctx.lineWidth = 1;
-  ctx.fillRect(ox + 5, beamTop, rw - 10, bh); ctx.strokeRect(ox + 5, beamTop, rw - 10, bh);
+  // PVC tubes cross-section (circles)
+  const ntL = p.numTubiLong || 3;
+  const tubeR = (tubeDiam / 2) * scale;
+  const tubeCY = deckTop + panelPx + tubeR;
+  ctx.fillStyle = '#B0BEC5'; ctx.strokeStyle = '#546E7A'; ctx.lineWidth = 1.5;
+  for (let i = 0; i < ntL; i++) {
+    const cx = ox + rw * (i + 0.5) / ntL;
+    ctx.beginPath(); ctx.arc(cx, tubeCY, tubeR, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+    // Inner circle (hollow pipe look)
+    ctx.beginPath(); ctx.arc(cx, tubeCY, tubeR * 0.75, 0, Math.PI * 2);
+    ctx.strokeStyle = '#78909C'; ctx.lineWidth = 0.5; ctx.stroke();
+    ctx.strokeStyle = '#546E7A'; ctx.lineWidth = 1.5;
+  }
 
-  // Jugs — front view = circles (cross-section of laying jugs)
+  // Boccioni cross-section (circles below tubes)
   const jugRadius = (jugD / 2) * scale;
-  const jugCY = beamTop + bh + jugRadius;
+  const jugCY = tubeCY + tubeR + jugRadius + 2;
   const seenY = new Set();
   jl.positions.forEach(jp => {
     const colKey = Math.round(jp.y * 100);
@@ -2435,14 +2934,17 @@ function drawFrontView(p) {
     ctx.strokeStyle = '#1565A0'; ctx.lineWidth = 1.5; ctx.stroke();
     ctx.globalAlpha = 1;
 
-    // Rope
+    // Fascetta
     ctx.setLineDash([3, 2]);
-    ctx.strokeStyle = '#D4A86A'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(cx, beamTop); ctx.lineTo(cx, jugCY + jugRadius * 0.9); ctx.stroke();
+    ctx.strokeStyle = '#78909C'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(cx, tubeCY + tubeR); ctx.lineTo(cx, jugCY + jugRadius * 0.9); ctx.stroke();
     ctx.setLineDash([]);
   });
 
-  drawDimArrow(ctx, ox, deckTop - 15, ox + rw, deckTop - 15, p.larghezza.toFixed(1) + ' m');
+  ctx.font = 'bold 9px Nunito, sans-serif'; ctx.fillStyle = '#546E7A'; ctx.textAlign = 'center';
+  ctx.fillText('Tubi PVC + Pannello', ox + rw / 2, deckTop - 4);
+
+  drawDimArrow(ctx, ox, deckTop - 18, ox + rw, deckTop - 18, p.larghezza.toFixed(1) + ' m');
 }
 
 // ─── SIDE VIEW (boccioni sdraiati — si vede il profilo allungato) ───
@@ -2457,10 +2959,10 @@ function drawSideView(p) {
   const jd = jugDimensions(p.capienza);
   const jl = jugLayout(p.numBoccioni, p.lunghezza, p.larghezza, p.jugDiam, p.capienza);
   const margin = 35;
-  const deckThick = 0.018;
-  const beamThick = 0.05;
+  const tubeDiam = p.TUBO_DIAM || 0.11;
+  const panelH = p.PANNELLO_SPESSORE || 0.008;
   const jugD = jd.diam;
-  const totalH = deckThick + beamThick + jugD;
+  const totalH = panelH + tubeDiam + jugD;
   const scaleX = (W - margin * 2) / p.lunghezza;
   const scaleY = (H - margin * 2 - 30) / totalH;
   const scale = Math.min(scaleX, scaleY);
@@ -2470,7 +2972,6 @@ function drawSideView(p) {
   const waterY = H - 30;
 
   const deckTop = waterY - totalH * scale - 8;
-  const dh = Math.max(deckThick * scale, 6);
 
   // Water
   ctx.fillStyle = 'rgba(79,195,247,0.25)';
@@ -2482,23 +2983,32 @@ function drawSideView(p) {
   ctx.font = '9px Nunito, sans-serif'; ctx.fillStyle = '#1565A0';
   ctx.fillText('linea d\'acqua', W - 80, waterY + 12);
 
-  // Deck
-  ctx.fillStyle = '#C49A6C'; ctx.strokeStyle = '#5D3A1A'; ctx.lineWidth = 1.5;
-  ctx.fillRect(ox, deckTop, rw, dh); ctx.strokeRect(ox, deckTop, rw, dh);
+  // Panel (top)
+  const panelPx = Math.max(3, panelH * scale);
+  ctx.fillStyle = '#E0E0E0'; ctx.strokeStyle = '#999'; ctx.lineWidth = 1;
+  ctx.fillRect(ox, deckTop, rw, panelPx); ctx.strokeRect(ox, deckTop, rw, panelPx);
 
-  ctx.font = 'bold 9px Nunito, sans-serif'; ctx.fillStyle = '#5D3A1A'; ctx.textAlign = 'center';
-  ctx.fillText('Compensato 18mm', ox + rw / 2, deckTop - 4);
+  // PVC tubes cross-section (circles - trasversali, seen from side)
+  const ntT = p.numTubiTrasv || 3;
+  const tubeR = (tubeDiam / 2) * scale;
+  const tubeCY = deckTop + panelPx + tubeR;
+  ctx.fillStyle = '#B0BEC5'; ctx.strokeStyle = '#546E7A'; ctx.lineWidth = 1.5;
+  for (let i = 0; i < ntT; i++) {
+    const cx = ox + rw * (i + 0.5) / ntT;
+    ctx.beginPath(); ctx.arc(cx, tubeCY, tubeR, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, tubeCY, tubeR * 0.75, 0, Math.PI * 2);
+    ctx.strokeStyle = '#78909C'; ctx.lineWidth = 0.5; ctx.stroke();
+    ctx.strokeStyle = '#546E7A'; ctx.lineWidth = 1.5;
+  }
 
-  // Beams
-  const bh = Math.max(beamThick * scale, 5);
-  const beamTop = deckTop + dh;
-  ctx.fillStyle = '#8B5E3C'; ctx.strokeStyle = '#5D3A1A'; ctx.lineWidth = 1;
-  ctx.fillRect(ox + 5, beamTop, rw - 10, bh); ctx.strokeRect(ox + 5, beamTop, rw - 10, bh);
+  ctx.font = 'bold 9px Nunito, sans-serif'; ctx.fillStyle = '#546E7A'; ctx.textAlign = 'center';
+  ctx.fillText('Tubi PVC + Pannello', ox + rw / 2, deckTop - 4);
 
-  // Jugs — side view: SDRAIATI = rounded rects (profilo lungo)
+  // Boccioni side view: SDRAIATI = rounded rects (profilo lungo)
   const jugH = jugD * scale;
   const jugW = jd.len * scale;
-  const jugTopY = beamTop + bh;
+  const jugTopY = tubeCY + tubeR + 2;
   const seenX = new Set();
   jl.positions.forEach(jp => {
     const rowKey = Math.round(jp.x * 100);
@@ -2511,21 +3021,21 @@ function drawSideView(p) {
     roundRect(ctx, cx - jugW / 2, jugTopY, jugW, jugH * 0.9, jugH * 0.4);
     ctx.globalAlpha = 1;
 
-    // Neck (tappo) on left side
+    // Neck
     ctx.fillStyle = '#ddd'; ctx.strokeStyle = '#999'; ctx.lineWidth = 1;
     const neckW = jugW * 0.12;
     const neckH = jugH * 0.3;
     ctx.fillRect(cx - jugW / 2 - neckW, jugTopY + jugH * 0.3, neckW, neckH);
     ctx.strokeRect(cx - jugW / 2 - neckW, jugTopY + jugH * 0.3, neckW, neckH);
 
-    // Rope
+    // Fascetta
     ctx.setLineDash([3, 2]);
-    ctx.strokeStyle = '#D4A86A'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(cx, beamTop); ctx.lineTo(cx, jugTopY + jugH * 0.9); ctx.stroke();
+    ctx.strokeStyle = '#78909C'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(cx, tubeCY + tubeR); ctx.lineTo(cx, jugTopY + jugH * 0.9); ctx.stroke();
     ctx.setLineDash([]);
   });
 
-  drawDimArrow(ctx, ox, deckTop - 20, ox + rw, deckTop - 20, p.lunghezza.toFixed(1) + ' m');
+  drawDimArrow(ctx, ox, deckTop - 22, ox + rw, deckTop - 22, p.lunghezza.toFixed(1) + ' m');
 }
 
 // ─── LEGEND ───
@@ -2538,10 +3048,10 @@ function drawLegend(p) {
   ctx.clearRect(0, 0, W, H);
 
   const items = [
-    { type: 'rect', color: '#C49A6C', stroke: '#5D3A1A', label: 'Compensato marino' },
-    { type: 'rect', color: '#8B5E3C', stroke: '#5D3A1A', label: 'Travetti supporto' },
+    { type: 'rect', color: '#E0E0E0', stroke: '#999', label: 'Pannello plastica' },
+    { type: 'circle', color: '#B0BEC5', stroke: '#546E7A', label: 'Tubo PVC Ø125mm' },
     { type: 'jug', color: '#B3E5FC', stroke: '#1565A0', label: 'Boccione (sdraiato)' },
-    { type: 'line', color: '#D4A86A', label: 'Corde di fissaggio' },
+    { type: 'line', color: '#78909C', label: 'Fascette di fissaggio' },
   ];
 
   const lx = 20, startY = 30, gap = 32;
@@ -2556,6 +3066,11 @@ function drawLegend(p) {
       ctx.fillRect(lx, y, 24, 12);
       ctx.strokeStyle = item.stroke; ctx.lineWidth = 1;
       ctx.strokeRect(lx, y, 24, 12);
+    } else if (item.type === 'circle') {
+      ctx.fillStyle = item.color; ctx.strokeStyle = item.stroke; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(lx + 12, y + 6, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      // Inner circle
+      ctx.beginPath(); ctx.arc(lx + 12, y + 6, 5, 0, Math.PI * 2); ctx.strokeStyle = '#78909C'; ctx.lineWidth = 0.5; ctx.stroke();
     } else if (item.type === 'jug') {
       // Rounded rect (lying jug icon)
       ctx.fillStyle = item.color; ctx.strokeStyle = item.stroke; ctx.lineWidth = 1.5;
@@ -2578,8 +3093,14 @@ function drawLegend(p) {
   ctx.font = '10px Nunito, sans-serif'; ctx.fillStyle = '#555';
   ctx.fillText('Dimensioni: ' + p.lunghezza.toFixed(1) + ' x ' + p.larghezza.toFixed(1) + ' m', lx, sy + 16);
   ctx.fillText('Boccioni: ' + p.numBoccioni + ' da ' + p.capienza + 'L', lx, sy + 30);
-  ctx.fillText('Compensato: ' + p.numCompensato + ' fogli', lx, sy + 44);
+  ctx.fillText('Tubi PVC: ' + Math.round(p.metriTubiTotali || 0) + 'm (' + (p.numTubiLong||0) + 'L + ' + (p.numTubiTrasv||0) + 'T)', lx, sy + 44);
   ctx.fillText('Persone: ' + p.numPersone, lx, sy + 58);
+  let ey = sy + 72;
+  const extras = [];
+  if (p.numBidoni > 0) extras.push(p.numBidoni + ' bidoni ' + (p.capienzaBidone || 60) + 'L');
+  if (extras.length > 0) {
+    ctx.fillText('Extra: ' + extras.join(', '), lx, ey);
+  }
 }
 
 function roundRect(ctx, x, y, w, h, r) {
@@ -2605,40 +3126,120 @@ function render3D(p) {
     threeRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
     threeRenderer.setPixelRatio(window.devicePixelRatio);
     threeRenderer.shadowMap.enabled = true;
+    threeRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    threeRenderer.toneMapping = THREE.ACESFilmicToneMapping;
+    threeRenderer.toneMappingExposure = 1.1;
 
     threeScene = new THREE.Scene();
 
-    threeCamera = new THREE.PerspectiveCamera(40, W / H, 0.1, 200);
+    threeCamera = new THREE.PerspectiveCamera(35, W / H, 0.1, 500);
     threeCamera.position.set(6, 4, 6);
     threeCamera.lookAt(0, 0, 0);
 
-    // Lights
-    const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+    // ─── SKY DOME ───
+    const skyGeo = new THREE.SphereGeometry(150, 32, 20);
+    const skyCanvas = document.createElement('canvas');
+    skyCanvas.width = 512; skyCanvas.height = 512;
+    const skyCtx = skyCanvas.getContext('2d');
+    const grad = skyCtx.createLinearGradient(0, 0, 0, 512);
+    grad.addColorStop(0, '#1a5276');    // zenith deep blue
+    grad.addColorStop(0.3, '#5dade2');  // mid sky
+    grad.addColorStop(0.55, '#85c1e9'); // lighter
+    grad.addColorStop(0.7, '#f9e79f');  // warm horizon
+    grad.addColorStop(0.85, '#f5cba7'); // sunset glow
+    grad.addColorStop(1, '#e8daef');    // haze
+    skyCtx.fillStyle = grad;
+    skyCtx.fillRect(0, 0, 512, 512);
+    // Clouds on sky texture
+    skyCtx.fillStyle = 'rgba(255,255,255,0.25)';
+    for (let i = 0; i < 18; i++) {
+      const cx = Math.random() * 512, cy = 80 + Math.random() * 180;
+      const cw = 40 + Math.random() * 100, ch = 15 + Math.random() * 30;
+      skyCtx.beginPath(); skyCtx.ellipse(cx, cy, cw, ch, 0, 0, Math.PI * 2); skyCtx.fill();
+      skyCtx.beginPath(); skyCtx.ellipse(cx + cw * 0.3, cy - ch * 0.4, cw * 0.7, ch * 0.8, 0, 0, Math.PI * 2); skyCtx.fill();
+    }
+    const skyTex = new THREE.CanvasTexture(skyCanvas);
+    const skyMat = new THREE.MeshBasicMaterial({ map: skyTex, side: THREE.BackSide });
+    const skyDome = new THREE.Mesh(skyGeo, skyMat);
+    threeScene.add(skyDome);
+
+    // ─── SUN ───
+    const sunGeo = new THREE.SphereGeometry(4, 16, 16);
+    const sunMat = new THREE.MeshBasicMaterial({ color: 0xFFF8E1 });
+    const sunMesh = new THREE.Mesh(sunGeo, sunMat);
+    sunMesh.position.set(40, 35, -60);
+    threeScene.add(sunMesh);
+    // Sun glow
+    const glowGeo = new THREE.SphereGeometry(7, 16, 16);
+    const glowMat = new THREE.MeshBasicMaterial({ color: 0xFFF8E1, transparent: true, opacity: 0.15 });
+    const glow = new THREE.Mesh(glowGeo, glowMat);
+    glow.position.copy(sunMesh.position);
+    threeScene.add(glow);
+
+    // ─── LIGHTS (enhanced) ───
+    const ambient = new THREE.AmbientLight(0xC5CAE9, 0.4);
     threeScene.add(ambient);
-    const sun = new THREE.DirectionalLight(0xfff4e0, 1);
-    sun.position.set(5, 10, 5);
-    sun.castShadow = true;
-    threeScene.add(sun);
-    const hemi = new THREE.HemisphereLight(0x87CEEB, 0x1565A0, 0.3);
+    const sun3 = new THREE.DirectionalLight(0xfff0d0, 1.2);
+    sun3.position.set(40, 35, -60);
+    sun3.castShadow = true;
+    sun3.shadow.mapSize.width = 1024;
+    sun3.shadow.mapSize.height = 1024;
+    sun3.shadow.camera.near = 1;
+    sun3.shadow.camera.far = 120;
+    sun3.shadow.camera.left = -15;
+    sun3.shadow.camera.right = 15;
+    sun3.shadow.camera.top = 15;
+    sun3.shadow.camera.bottom = -15;
+    threeScene.add(sun3);
+    const hemi = new THREE.HemisphereLight(0x87CEEB, 0x0D47A1, 0.35);
     threeScene.add(hemi);
+    // Rim/fill light from opposite side
+    const fill = new THREE.DirectionalLight(0xB3E5FC, 0.3);
+    fill.position.set(-20, 8, 30);
+    threeScene.add(fill);
 
-    // Sky (fog)
-    threeScene.fog = new THREE.FogExp2(0x87CEEB, 0.015);
-    threeRenderer.setClearColor(0x87CEEB);
+    // Fog (subtle distance haze)
+    threeScene.fog = new THREE.FogExp2(0x87CEEB, 0.008);
 
-    // Water plane
-    const waterGeo = new THREE.PlaneGeometry(80, 80, 60, 60);
+    // ─── OCEAN (multi-layer) ───
+    // Deep water layer
+    const deepGeo = new THREE.PlaneGeometry(200, 200, 1, 1);
+    const deepMat = new THREE.MeshPhongMaterial({ color: 0x0A3D6B, shininess: 20 });
+    const deepMesh = new THREE.Mesh(deepGeo, deepMat);
+    deepMesh.rotation.x = -Math.PI / 2;
+    deepMesh.position.y = -0.8;
+    threeScene.add(deepMesh);
+
+    // Main water surface
+    const waterGeo = new THREE.PlaneGeometry(120, 120, 90, 90);
     const waterMat = new THREE.MeshPhongMaterial({
-      color: 0x1E90FF,
+      color: 0x1976D2,
+      specular: 0xFFFFFF,
+      shininess: 200,
       transparent: true,
-      opacity: 0.7,
-      shininess: 100,
-      flatShading: true
+      opacity: 0.78,
+      flatShading: true,
+      envMap: null
     });
     waterMesh = new THREE.Mesh(waterGeo, waterMat);
     waterMesh.rotation.x = -Math.PI / 2;
     waterMesh.position.y = -0.3;
+    waterMesh.receiveShadow = true;
     threeScene.add(waterMesh);
+
+    // Foam ring (near-raft white foam)
+    const foamGeo = new THREE.PlaneGeometry(20, 20, 30, 30);
+    const foamMat = new THREE.MeshPhongMaterial({
+      color: 0xE3F2FD,
+      transparent: true,
+      opacity: 0.2,
+      flatShading: true,
+      shininess: 10
+    });
+    threeScene.userData.foamMesh = new THREE.Mesh(foamGeo, foamMat);
+    threeScene.userData.foamMesh.rotation.x = -Math.PI / 2;
+    threeScene.userData.foamMesh.position.y = -0.28;
+    threeScene.add(threeScene.userData.foamMesh);
   }
 
   threeRenderer.setSize(W, H);
@@ -2651,120 +3252,501 @@ function render3D(p) {
 
   const L = p.lunghezza;
   const Wd = p.larghezza;
-  const deckH = 0.04;
-  const beamH = 0.08;
+  const tubeDiam = p.TUBO_DIAM || 0.11;
+  const tubeR = tubeDiam / 2;
+  const panelThick = p.PANNELLO_SPESSORE || 0.008;
+  const deckH = panelThick;
+  const beamH = tubeDiam; // tube diameter replaces old beam height
 
-  // Deck (compensato)
-  const deckGeo = new THREE.BoxGeometry(L, deckH, Wd);
-  const deckMat = new THREE.MeshPhongMaterial({ color: 0xC49A6C, flatShading: true });
-  const deck = new THREE.Mesh(deckGeo, deckMat);
-  deck.position.y = beamH + deckH / 2;
-  deck.castShadow = true;
-  deck.receiveShadow = true;
-  raftGroup.add(deck);
+  // ─── PANNELLO PLASTICA (top deck) ───
+  const panelGeo = new THREE.BoxGeometry(L, panelThick, Wd);
+  const panelMat = new THREE.MeshPhongMaterial({ color: 0xE0E0E0, transparent: true, opacity: 0.85, flatShading: true });
+  const panel = new THREE.Mesh(panelGeo, panelMat);
+  panel.position.y = tubeDiam + panelThick / 2;
+  panel.receiveShadow = true;
+  raftGroup.add(panel);
 
-  // Plank lines on deck
-  const plankCount = Math.round(Wd / 0.4);
-  for (let i = 1; i < plankCount; i++) {
-    const lineGeo = new THREE.BoxGeometry(L + 0.01, deckH + 0.005, 0.008);
-    const lineMat = new THREE.MeshPhongMaterial({ color: 0x8B5E3C });
-    const line = new THREE.Mesh(lineGeo, lineMat);
-    line.position.y = beamH + deckH / 2;
-    line.position.z = -Wd / 2 + (Wd / plankCount) * i;
-    raftGroup.add(line);
+  // ─── GRIGLIA TUBI PVC ───
+  const tubeMat = new THREE.MeshPhongMaterial({ color: 0x90A4AE, shininess: 60 });
+  const tubeCapMat = new THREE.MeshPhongMaterial({ color: 0x78909C });
+  const ntL = p.numTubiLong || 3, ntT = p.numTubiTrasv || 3;
+
+  // Tubi longitudinali (along X / length)
+  for (let i = 0; i < ntL; i++) {
+    const tubeGeo = new THREE.CylinderGeometry(tubeR, tubeR, L - 0.02, 12);
+    const tube = new THREE.Mesh(tubeGeo, tubeMat);
+    tube.rotation.z = Math.PI / 2;
+    const tz = -Wd / 2 + Wd * (i + 0.5) / ntL;
+    tube.position.set(0, tubeR, tz);
+    tube.castShadow = true;
+    raftGroup.add(tube);
+    // Caps
+    for (let s = -1; s <= 1; s += 2) {
+      const capGeo = new THREE.CylinderGeometry(tubeR + 0.005, tubeR + 0.005, 0.015, 12);
+      const cap = new THREE.Mesh(capGeo, tubeCapMat);
+      cap.rotation.z = Math.PI / 2;
+      cap.position.set(s * L / 2, tubeR, tz);
+      raftGroup.add(cap);
+    }
   }
 
-  // Beams (travetti) — 3 cross-beams
-  const beamCount = Math.max(3, Math.round(L / 0.8));
-  const beamMat = new THREE.MeshPhongMaterial({ color: 0x8B5E3C, flatShading: true });
-  for (let i = 0; i < beamCount; i++) {
-    const beamGeo = new THREE.BoxGeometry(0.05, beamH, Wd - 0.1);
-    const beam = new THREE.Mesh(beamGeo, beamMat);
-    beam.position.x = -L / 2 + L / (beamCount + 1) * (i + 1);
-    beam.position.y = beamH / 2;
-    beam.castShadow = true;
-    raftGroup.add(beam);
+  // Tubi trasversali (along Z / width)
+  for (let i = 0; i < ntT; i++) {
+    const tubeGeo = new THREE.CylinderGeometry(tubeR, tubeR, Wd - 0.02, 12);
+    const tube = new THREE.Mesh(tubeGeo, tubeMat);
+    tube.rotation.x = Math.PI / 2;
+    const tx = -L / 2 + L * (i + 0.5) / ntT;
+    tube.position.set(tx, tubeR, 0);
+    tube.castShadow = true;
+    raftGroup.add(tube);
+    // Caps
+    for (let s = -1; s <= 1; s += 2) {
+      const capGeo = new THREE.CylinderGeometry(tubeR + 0.005, tubeR + 0.005, 0.015, 12);
+      const cap = new THREE.Mesh(capGeo, tubeCapMat);
+      cap.rotation.x = Math.PI / 2;
+      cap.position.set(tx, tubeR, s * Wd / 2);
+      raftGroup.add(cap);
+    }
   }
 
-  // Longitudinal beams (2)
-  for (let i = 0; i < 2; i++) {
-    const lbGeo = new THREE.BoxGeometry(L - 0.1, beamH, 0.05);
-    const lb = new THREE.Mesh(lbGeo, beamMat);
-    lb.position.z = (i === 0 ? -1 : 1) * (Wd / 2 - 0.15);
-    lb.position.y = beamH / 2;
-    lb.castShadow = true;
-    raftGroup.add(lb);
-  }
-
-  // Boccioni SDRAIATI — laying on their side, axis along X (lunghezza)
+  // ─── BOCCIONI SDRAIATI — with proper spacing ───
   const jd = jugDimensions(p.capienza);
   const jugMat = new THREE.MeshPhongMaterial({
-    color: 0xB3E5FC,
-    transparent: true,
-    opacity: 0.75,
-    shininess: 60
+    color: 0x90CAF9, shininess: 80, transparent: true, opacity: 0.8
+  });
+  const jugCapMat = new THREE.MeshPhongMaterial({
+    color: 0xBBDEFB, shininess: 80, transparent: true, opacity: 0.8
   });
   const jugR = jd.diam / 2;
   const jugLen = jd.len;
   const jl = jugLayout(p.numBoccioni, L, Wd, p.jugDiam, p.capienza);
 
-  jl.positions.forEach(jp => {
+  // Compute actual spacing between jugs
+  const jugSpaceX = jl.positions.length > 1 ? Math.abs(jl.positions[1].x - jl.positions[0].x) : jugLen * 1.3;
+  const gap = jugSpaceX > jugLen ? (jugSpaceX - jugLen) * 0.3 : 0;
+
+  jl.positions.forEach((jp, idx) => {
     const jGroup = new THREE.Group();
 
-    // Body cylinder — built vertical then rotated
-    const bodyGeo = new THREE.CylinderGeometry(jugR * 0.85, jugR * 0.85, jugLen, 12);
+    // Main body (slightly tapered like a real jug)
+    const bodyGeo = new THREE.CylinderGeometry(jugR * 0.82, jugR * 0.85, jugLen * 0.85, 14);
     const body = new THREE.Mesh(bodyGeo, jugMat);
     jGroup.add(body);
 
-    // Cap ends (hemisphere)
-    const capGeo = new THREE.SphereGeometry(jugR * 0.85, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2);
+    // Shoulder (taper toward neck)
+    const shoulderGeo = new THREE.CylinderGeometry(jugR * 0.45, jugR * 0.82, jugLen * 0.12, 14);
+    const shoulder = new THREE.Mesh(shoulderGeo, jugCapMat);
+    shoulder.position.y = jugLen * 0.485;
+    jGroup.add(shoulder);
 
-    const capA = new THREE.Mesh(capGeo, jugMat);
-    capA.position.y = jugLen / 2;
-    jGroup.add(capA);
+    // Bottom dome
+    const bottomGeo = new THREE.SphereGeometry(jugR * 0.85, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2);
+    const bottom = new THREE.Mesh(bottomGeo, jugMat);
+    bottom.rotation.x = Math.PI;
+    bottom.position.y = -jugLen * 0.425;
+    jGroup.add(bottom);
 
-    const capB = new THREE.Mesh(capGeo, jugMat);
-    capB.rotation.x = Math.PI;
-    capB.position.y = -jugLen / 2;
-    jGroup.add(capB);
-
-    // Neck (on one end)
-    const neckGeo = new THREE.CylinderGeometry(jugR * 0.2, jugR * 0.35, jugLen * 0.1, 8);
-    const neckMat = new THREE.MeshPhongMaterial({ color: 0xeeeeee });
-    const neck = new THREE.Mesh(neckGeo, neckMat);
-    neck.position.y = jugLen / 2 + jugLen * 0.05;
+    // Neck
+    const neckGeo = new THREE.CylinderGeometry(jugR * 0.2, jugR * 0.3, jugLen * 0.08, 10);
+    const neckMat2 = new THREE.MeshPhongMaterial({ color: 0xeeeeee, shininess: 40 });
+    const neck = new THREE.Mesh(neckGeo, neckMat2);
+    neck.position.y = jugLen * 0.58;
     jGroup.add(neck);
 
-    // SDRAIARSI: rotate 90° so cylinder axis is along X
+    // Cap/handle ring
+    const handleGeo = new THREE.TorusGeometry(jugR * 0.18, 0.008, 6, 12);
+    const handleMat = new THREE.MeshPhongMaterial({ color: 0x1565A0 });
+    const handle = new THREE.Mesh(handleGeo, handleMat);
+    handle.position.y = jugLen * 0.60;
+    handle.rotation.x = Math.PI / 2;
+    jGroup.add(handle);
+
+    // Label stripe (blue band)
+    const labelGeo = new THREE.CylinderGeometry(jugR * 0.86, jugR * 0.86, jugLen * 0.1, 14, 1, true);
+    const labelMat = new THREE.MeshPhongMaterial({ color: 0x1565A0, transparent: true, opacity: 0.5 });
+    const label = new THREE.Mesh(labelGeo, labelMat);
+    label.position.y = jugLen * 0.1;
+    jGroup.add(label);
+
+    // SDRAIATO: rotate so axis along X (lunghezza direction)
     jGroup.rotation.z = Math.PI / 2;
 
-    // Position under deck
+    // Position with proper gap from beams
     jGroup.position.x = jp.x - L / 2;
     jGroup.position.z = jp.y - Wd / 2;
-    jGroup.position.y = -jugR;  // center of jug just below beams
+    jGroup.position.y = -(jugR * 0.85 + 0.02);
 
     raftGroup.add(jGroup);
   });
 
-  // Ropes (visual)
-  const ropeMat = new THREE.MeshPhongMaterial({ color: 0xD4A86A });
-  for (let i = 0; i < beamCount; i++) {
-    const bx = -L / 2 + L / (beamCount + 1) * (i + 1);
-    const ropeGeo = new THREE.CylinderGeometry(0.008, 0.008, jugR * 2 + beamH, 4);
-    const rope = new THREE.Mesh(ropeGeo, ropeMat);
-    rope.position.x = bx;
-    rope.position.y = -(jugR);
+  // Fascette (simplified as thin connections)
+  const fascetteMat = new THREE.MeshPhongMaterial({ color: 0x78909C });
+  for (let i = 0; i < Math.min(6, ntT); i++) {
+    const fx = -L / 2 + L * (i + 0.5) / ntT;
+    const fGeo = new THREE.CylinderGeometry(0.004, 0.004, tubeR * 2 + jugR * 2 + 0.1, 4);
+    const fasc = new THREE.Mesh(fGeo, fascetteMat);
+    fasc.position.set(fx, -(jugR * 0.3), 0);
+    raftGroup.add(fasc);
+  }
+
+  // Perimeter rope
+  const ropePerimMat = new THREE.MeshPhongMaterial({ color: 0xC49A6C });
+  const perimPoints = [
+    [-L/2+0.05, 0, -Wd/2+0.05], [L/2-0.05, 0, -Wd/2+0.05],
+    [L/2-0.05, 0, Wd/2-0.05], [-L/2+0.05, 0, Wd/2-0.05]
+  ];
+  for (let i = 0; i < 4; i++) {
+    const a = perimPoints[i], b = perimPoints[(i+1)%4];
+    const dx = b[0]-a[0], dz = b[2]-a[2];
+    const len = Math.sqrt(dx*dx + dz*dz);
+    const ropeGeo = new THREE.CylinderGeometry(0.01, 0.01, len, 4);
+    const rope = new THREE.Mesh(ropeGeo, ropePerimMat);
+    rope.position.set((a[0]+b[0])/2, tubeDiam + panelThick + 0.03, (a[2]+b[2])/2);
+    rope.rotation.z = Math.PI/2;
+    if (Math.abs(dz) > Math.abs(dx)) { rope.rotation.z = 0; rope.rotation.x = Math.PI/2; }
     raftGroup.add(rope);
   }
 
+  // ─── BIDONI EXTRA (ai lati della zattera) ───
+  if (p.numBidoni > 0) {
+    const capBid = p.capienzaBidone || 60;
+    // Scale drum size by capacity (60L=baseline)
+    const drumScale = Math.pow(capBid / 60, 0.33);
+    const drumR = 0.18 * drumScale, drumH = 0.50 * drumScale;
+    const drumMat = new THREE.MeshPhongMaterial({ color: 0x1565A0, shininess: 60 });
+    const drumCapMat = new THREE.MeshPhongMaterial({ color: 0x0D47A1 });
+    const extraFloatY = -(jugR * 0.85 + 0.02);
+    for (let i = 0; i < p.numBidoni; i++) {
+      const dg = new THREE.Group();
+      const bodyG = new THREE.CylinderGeometry(drumR, drumR, drumH, 12);
+      dg.add(new THREE.Mesh(bodyG, drumMat));
+      const capG = new THREE.CylinderGeometry(drumR + 0.01, drumR + 0.01, 0.02, 12);
+      const topCap = new THREE.Mesh(capG, drumCapMat); topCap.position.y = drumH / 2 + 0.01; dg.add(topCap);
+      const botCap = new THREE.Mesh(capG, drumCapMat); botCap.position.y = -(drumH / 2 + 0.01); dg.add(botCap);
+      // Lying on side
+      dg.rotation.z = Math.PI / 2;
+      const side = (i % 2 === 0) ? -1 : 1;
+      const perSide = Math.ceil(p.numBidoni / 2);
+      const idx = Math.floor(i / 2);
+      const along = -L / 2 + L * (idx + 0.5) / Math.max(1, perSide);
+      dg.position.set(along, extraFloatY, side * (Wd / 2 + drumR + 0.06));
+      raftGroup.add(dg);
+    }
+  }
+
+  // ─── ALBERO + VELA (center mast with sail) ───
+  const mastH = Math.max(L, Wd) * 0.9;
+  const mastMat = new THREE.MeshPhongMaterial({ color: 0x6D4C41 });
+  const deckY = tubeDiam + panelThick;
+
+  // Mast pole (tapered)
+  const mastGeo = new THREE.CylinderGeometry(0.025, 0.045, mastH, 10);
+  const mast = new THREE.Mesh(mastGeo, mastMat);
+  mast.position.y = deckY + mastH / 2;
+  mast.castShadow = true;
+  raftGroup.add(mast);
+
+  // Mast base reinforcement
+  const baseGeo = new THREE.CylinderGeometry(0.06, 0.07, 0.05, 10);
+  const base = new THREE.Mesh(baseGeo, mastMat);
+  base.position.y = deckY + 0.025;
+  raftGroup.add(base);
+
+  // Cross beam (pennone)
+  const yardLen = Math.min(L * 0.65, 1.8);
+  const yardGeo = new THREE.CylinderGeometry(0.015, 0.02, yardLen, 8);
+  const yard = new THREE.Mesh(yardGeo, mastMat);
+  yard.rotation.z = Math.PI / 2;
+  yard.position.y = deckY + mastH * 0.82;
+  yard.castShadow = true;
+  raftGroup.add(yard);
+
+  // Sail (curved shape using custom geometry for billowing effect)
+  const sailW = yardLen * 0.45;
+  const sailH = mastH * 0.6;
+  const sailGeo = new THREE.PlaneGeometry(sailW, sailH, 8, 12);
+  // Curve the sail to simulate wind
+  const sailPos = sailGeo.attributes.position;
+  for (let i = 0; i < sailPos.count; i++) {
+    const x = sailPos.getX(i);
+    const y = sailPos.getY(i);
+    const bulge = Math.sin((x / sailW + 0.5) * Math.PI) * Math.sin((y / sailH + 0.5) * Math.PI) * 0.12;
+    sailPos.setZ(i, bulge);
+  }
+  sailGeo.computeVertexNormals();
+  const sailMat = new THREE.MeshPhongMaterial({
+    color: 0xFFF3E0, side: THREE.DoubleSide, transparent: true, opacity: 0.92
+  });
+  const sail = new THREE.Mesh(sailGeo, sailMat);
+  sail.position.set(sailW * 0.5, deckY + mastH * 0.82 - sailH * 0.5, 0.05);
+  sail.castShadow = true;
+  raftGroup.add(sail);
+
+  // Mast flag top — bandierina
+  const flagShape = new THREE.Shape();
+  flagShape.moveTo(0, 0);
+  flagShape.lineTo(0.35, 0.05);
+  flagShape.lineTo(0.3, -0.05);
+  flagShape.lineTo(0, -0.02);
+  flagShape.closePath();
+  const flagGeo = new THREE.ShapeGeometry(flagShape);
+  const flagMat = new THREE.MeshPhongMaterial({ color: 0xFF5722, side: THREE.DoubleSide });
+  const flag = new THREE.Mesh(flagGeo, flagMat);
+  flag.position.set(0, deckY + mastH + 0.01, 0);
+  raftGroup.add(flag);
+
+  // ─── REMI (oars) — detailed with grip + shaft + blade ───
+  const oarWoodMat = new THREE.MeshPhongMaterial({ color: 0x8D6E63 });
+  const oarBladeMat = new THREE.MeshPhongMaterial({ color: 0xBCAAA4 });
+  const oarGripMat = new THREE.MeshPhongMaterial({ color: 0x5D4037 });
+  const oarCount = Math.max(2, Math.min(4, Math.ceil(p.numPersone / 3)));
+  for (let side = -1; side <= 1; side += 2) {
+    for (let i = 0; i < oarCount / 2; i++) {
+      const oarGroup = new THREE.Group();
+
+      // Shaft
+      const shaftGeo = new THREE.CylinderGeometry(0.012, 0.015, 1.4, 6);
+      const shaft = new THREE.Mesh(shaftGeo, oarWoodMat);
+      oarGroup.add(shaft);
+
+      // Grip (top)
+      const gripGeo = new THREE.CylinderGeometry(0.02, 0.018, 0.12, 6);
+      const grip = new THREE.Mesh(gripGeo, oarGripMat);
+      grip.position.y = 0.7;
+      oarGroup.add(grip);
+
+      // Blade (bottom, flat oval)
+      const bladeShape = new THREE.Shape();
+      bladeShape.ellipse(0, 0, 0.06, 0.18, 0, Math.PI * 2, false, 0);
+      const bladeGeo = new THREE.ExtrudeGeometry(bladeShape, { depth: 0.015, bevelEnabled: false });
+      const blade = new THREE.Mesh(bladeGeo, oarBladeMat);
+      blade.position.set(0, -0.8, -0.008);
+      oarGroup.add(blade);
+
+      const spacing = oarCount > 2 ? L * 0.6 / Math.max(1, oarCount / 2 - 1) : 0;
+      const oarX = oarCount <= 2 ? 0 : -L * 0.3 + i * spacing;
+      oarGroup.position.set(oarX, deckY + 0.15, side * (Wd / 2 + 0.1));
+      oarGroup.rotation.x = side * 0.45;
+      oarGroup.rotation.z = side * -0.25;
+      raftGroup.add(oarGroup);
+    }
+  }
+
+  // ─── PERSONE (detailed mini figures) ───
+  const tShirtColors = [0xE53935, 0x1E88E5, 0x43A047, 0xFDD835, 0xF57C00, 0x8E24AA, 0x00ACC1, 0xD81B60,
+                        0x5E35B1, 0x00897B, 0xC0CA33, 0x6D4C41, 0x3949AB, 0xEF6C00, 0x00838F];
+  const skinColors = [0xFFCC80, 0xF5D0A9, 0xD4A76A, 0xE8C49A, 0xC6956B];
+  const hairColors = [0x3E2723, 0x5D4037, 0x4E342E, 0xBF360C, 0xFFD54F, 0x212121, 0x6D4C41];
+  const pantsColors = [0x1A237E, 0x263238, 0x4E342E, 0x0D47A1, 0x37474F];
+
+  function buildPerson(idx) {
+    const pg = new THREE.Group();
+    const skin = new THREE.MeshPhongMaterial({ color: skinColors[idx % skinColors.length] });
+    const shirt = new THREE.MeshPhongMaterial({ color: tShirtColors[idx % tShirtColors.length] });
+    const pants = new THREE.MeshPhongMaterial({ color: pantsColors[idx % pantsColors.length] });
+    const hairMat = new THREE.MeshPhongMaterial({ color: hairColors[idx % hairColors.length] });
+    const shoeMat = new THREE.MeshPhongMaterial({ color: 0x212121 });
+
+    // Legs (2 cylinders)
+    for (let s = -1; s <= 1; s += 2) {
+      const legGeo = new THREE.CylinderGeometry(0.022, 0.025, 0.16, 6);
+      const leg = new THREE.Mesh(legGeo, pants);
+      leg.position.set(s * 0.025, 0.08, 0);
+      pg.add(leg);
+      // Shoe
+      const shoeGeo = new THREE.BoxGeometry(0.035, 0.02, 0.05);
+      const shoe = new THREE.Mesh(shoeGeo, shoeMat);
+      shoe.position.set(s * 0.025, 0.005, 0.01);
+      pg.add(shoe);
+    }
+
+    // Torso (t-shirt)
+    const torsoGeo = new THREE.CylinderGeometry(0.04, 0.035, 0.18, 8);
+    const torso = new THREE.Mesh(torsoGeo, shirt);
+    torso.position.y = 0.25;
+    pg.add(torso);
+
+    // Arms (2 cylinders, slightly angled)
+    for (let s = -1; s <= 1; s += 2) {
+      const armGeo = new THREE.CylinderGeometry(0.015, 0.012, 0.16, 6);
+      const arm = new THREE.Mesh(armGeo, skin);
+      arm.position.set(s * 0.06, 0.22, 0);
+      arm.rotation.z = s * 0.25;
+      pg.add(arm);
+      // Hand
+      const handGeo = new THREE.SphereGeometry(0.015, 6, 6);
+      const hand = new THREE.Mesh(handGeo, skin);
+      hand.position.set(s * 0.08, 0.14, 0);
+      pg.add(hand);
+    }
+
+    // Neck
+    const neckGeo = new THREE.CylinderGeometry(0.018, 0.022, 0.04, 6);
+    const neckM = new THREE.Mesh(neckGeo, skin);
+    neckM.position.y = 0.36;
+    pg.add(neckM);
+
+    // Head
+    const headGeo = new THREE.SphereGeometry(0.05, 10, 10);
+    const head = new THREE.Mesh(headGeo, skin);
+    head.position.y = 0.42;
+    pg.add(head);
+
+    // Hair (cap on top half of head)
+    const hairGeo = new THREE.SphereGeometry(0.052, 10, 6, 0, Math.PI * 2, 0, Math.PI * 0.55);
+    const hair = new THREE.Mesh(hairGeo, hairMat);
+    hair.position.y = 0.42;
+    pg.add(hair);
+
+    // Eyes (2 tiny dots)
+    const eyeMat = new THREE.MeshPhongMaterial({ color: 0x212121 });
+    for (let s = -1; s <= 1; s += 2) {
+      const eyeGeo = new THREE.SphereGeometry(0.006, 4, 4);
+      const eye = new THREE.Mesh(eyeGeo, eyeMat);
+      eye.position.set(s * 0.018, 0.43, 0.045);
+      pg.add(eye);
+    }
+
+    pg.castShadow = true;
+    return pg;
+  }
+
+  // Place people on deck
+  const ppCols = Math.ceil(Math.sqrt(p.numPersone));
+  const ppRows = Math.ceil(p.numPersone / ppCols);
+  for (let i = 0; i < p.numPersone; i++) {
+    const person = buildPerson(i);
+    const row = Math.floor(i / ppCols);
+    const col = i % ppCols;
+    const colsInRow = (row < ppRows - 1) ? ppCols : (p.numPersone - row * ppCols);
+    let px = -L * 0.35 + (col / Math.max(1, colsInRow - 1)) * L * 0.7;
+    let pz = -Wd * 0.3 + (row / Math.max(1, ppRows - 1)) * Wd * 0.6;
+    if (p.numPersone === 1) { px = -L * 0.2; pz = 0; }
+    if (colsInRow === 1) px = 0;
+    // Avoid mast center
+    if (Math.abs(px) < 0.15 && Math.abs(pz) < 0.15) px += 0.25;
+    // Slight random rotation for variety
+    person.rotation.y = (Math.random() - 0.5) * 0.6;
+    person.position.set(px, deckY, pz);
+    raftGroup.add(person);
+  }
+
+  // ─── WILSON! (detailed volleyball on a stick/perch) ───
+  const wilsonGroup = new THREE.Group();
+
+  // Ball (volleyball)
+  const ballGeo = new THREE.SphereGeometry(0.1, 24, 24);
+  const ballMat = new THREE.MeshPhongMaterial({ color: 0xFFFDE7, shininess: 40 });
+  const ball = new THREE.Mesh(ballGeo, ballMat);
+  wilsonGroup.add(ball);
+
+  // Volleyball panel lines (3 great circles)
+  const vballLineMat = new THREE.MeshPhongMaterial({ color: 0x90A4AE });
+  const panelAngles = [
+    { rx: 0, ry: 0 },
+    { rx: Math.PI / 3, ry: Math.PI / 4 },
+    { rx: -Math.PI / 3, ry: -Math.PI / 4 }
+  ];
+  panelAngles.forEach(a => {
+    const tGeo = new THREE.TorusGeometry(0.1, 0.003, 4, 32);
+    const t = new THREE.Mesh(tGeo, vballLineMat);
+    t.rotation.x = a.rx; t.rotation.y = a.ry;
+    wilsonGroup.add(t);
+  });
+
+  // BLOODY HANDPRINT FACE
+  const bloodMat = new THREE.MeshPhongMaterial({ color: 0xB71C1C });
+  const bloodLightMat = new THREE.MeshPhongMaterial({ color: 0xD32F2F });
+
+  // Left eye (oval blood smear)
+  const eyeLGeo = new THREE.SphereGeometry(0.018, 8, 6);
+  const eyeL = new THREE.Mesh(eyeLGeo, bloodMat);
+  eyeL.position.set(-0.032, 0.028, 0.092);
+  eyeL.scale.set(1, 1.3, 0.4);
+  wilsonGroup.add(eyeL);
+
+  // Right eye
+  const eyeR = new THREE.Mesh(eyeLGeo, bloodMat);
+  eyeR.position.set(0.032, 0.028, 0.092);
+  eyeR.scale.set(1, 1.3, 0.4);
+  wilsonGroup.add(eyeR);
+
+  // Nose (small blood dot)
+  const noseGeo = new THREE.SphereGeometry(0.008, 6, 6);
+  const nose = new THREE.Mesh(noseGeo, bloodLightMat);
+  nose.position.set(0, 0.008, 0.097);
+  wilsonGroup.add(nose);
+
+  // Mouth (curved blood smear — wider, sad shape)
+  const mouthGeo = new THREE.TorusGeometry(0.025, 0.006, 4, 12, Math.PI);
+  const mouth = new THREE.Mesh(mouthGeo, bloodMat);
+  mouth.position.set(0, -0.02, 0.088);
+  mouth.rotation.z = Math.PI;
+  wilsonGroup.add(mouth);
+
+  // Blood drip streaks (5 fingers + palm)
+  for (let f = 0; f < 5; f++) {
+    const fAngle = -0.35 + (f / 4) * 0.7;
+    const fLen = 0.06 + Math.random() * 0.04;
+    const fingerGeo = new THREE.CylinderGeometry(0.005, 0.002, fLen, 4);
+    const finger = new THREE.Mesh(fingerGeo, f < 3 ? bloodMat : bloodLightMat);
+    finger.position.set(
+      Math.sin(fAngle) * 0.035,
+      0.05 - f * 0.012,
+      0.091
+    );
+    finger.rotation.z = fAngle * 0.4;
+    finger.rotation.x = -0.25;
+    wilsonGroup.add(finger);
+  }
+
+  // Palm smear (flattened sphere behind the face features)
+  const palmGeo = new THREE.SphereGeometry(0.04, 8, 8);
+  const palm = new THREE.Mesh(palmGeo, bloodLightMat);
+  palm.position.set(0, 0.01, 0.085);
+  palm.scale.set(1.2, 1.5, 0.15);
+  wilsonGroup.add(palm);
+
+  // "Hair" — palm leaves / dried grass on top (like the movie)
+  const leafMat = new THREE.MeshPhongMaterial({ color: 0x558B2F });
+  const leafDryMat = new THREE.MeshPhongMaterial({ color: 0x8D6E63 });
+  for (let h = 0; h < 7; h++) {
+    const angle = (h / 6) * Math.PI * 1.2 - Math.PI * 0.6;
+    const hLen = 0.1 + Math.random() * 0.06;
+    const hairGeo = new THREE.CylinderGeometry(0.004, 0.001, hLen, 4);
+    const isGreen = h % 3 !== 0;
+    const hMesh = new THREE.Mesh(hairGeo, isGreen ? leafMat : leafDryMat);
+    hMesh.position.set(
+      Math.sin(angle) * 0.03,
+      0.1 + Math.random() * 0.02,
+      Math.cos(angle) * 0.02
+    );
+    hMesh.rotation.z = Math.sin(angle) * 0.6;
+    hMesh.rotation.x = -0.4 + Math.random() * 0.3;
+    wilsonGroup.add(hMesh);
+  }
+
+  // Stick/perch that Wilson sits on (like in the movie — a stick in the ground)
+  const stickGeo = new THREE.CylinderGeometry(0.012, 0.015, 0.35, 6);
+  const stickMat = new THREE.MeshPhongMaterial({ color: 0x795548 });
+  const stick = new THREE.Mesh(stickGeo, stickMat);
+  stick.position.y = -0.18;
+  wilsonGroup.add(stick);
+
+  // Position Wilson on front-right corner, up on his stick
+  wilsonGroup.position.set(L / 2 - 0.2, deckY + 0.28, Wd / 2 - 0.2);
+  // Tilt slightly for character
+  wilsonGroup.rotation.z = 0.08;
+  wilsonGroup.rotation.x = 0.05;
+  raftGroup.add(wilsonGroup);
+
   threeScene.add(raftGroup);
 
-  // Camera distance based on raft size
+  // Camera
   const maxDim = Math.max(L, Wd);
-  threeCamera.position.set(maxDim * 1.5, maxDim * 1, maxDim * 1.5);
-  threeCamera.lookAt(0, 0, 0);
+  threeCamera.position.set(maxDim * 1.5, maxDim * 1.2, maxDim * 1.5);
+  threeCamera.lookAt(0, mastH * 0.3, 0);
 
-  // Start animation
   if (threeAnimId) cancelAnimationFrame(threeAnimId);
   animateRaft();
 }
@@ -2773,33 +3755,57 @@ function animateRaft() {
   threeAnimId = requestAnimationFrame(animateRaft);
   const t = Date.now() * 0.001;
 
-  // Raft bobbing
+  // Raft bobbing (realistic wave-following)
   if (raftGroup) {
-    raftGroup.position.y = Math.sin(t * 0.8) * 0.06;
-    raftGroup.rotation.z = Math.sin(t * 0.5) * 0.015;
-    raftGroup.rotation.x = Math.sin(t * 0.6 + 1) * 0.01;
+    const bobY = Math.sin(t * 0.7) * 0.07 + Math.sin(t * 1.3) * 0.03;
+    raftGroup.position.y = bobY;
+    raftGroup.rotation.z = Math.sin(t * 0.5) * 0.018;
+    raftGroup.rotation.x = Math.sin(t * 0.6 + 1) * 0.012;
   }
 
-  // Water waves
+  // Ocean waves (multi-frequency for realism)
   if (waterMesh) {
     const pos = waterMesh.geometry.attributes.position;
     for (let i = 0; i < pos.count; i++) {
       const x = pos.getX(i);
       const y = pos.getY(i);
-      const z = Math.sin(x * 0.5 + t) * 0.08 + Math.sin(y * 0.3 + t * 0.7) * 0.06;
+      // Primary swell
+      let z = Math.sin(x * 0.3 + t * 0.6) * 0.12;
+      // Secondary wave
+      z += Math.sin(y * 0.4 + t * 0.8 + 1.5) * 0.08;
+      // Fine ripples
+      z += Math.sin(x * 1.2 + y * 0.8 + t * 2.0) * 0.025;
+      // Distant larger swells
+      z += Math.sin(x * 0.08 + y * 0.06 + t * 0.3) * 0.2;
       pos.setZ(i, z);
     }
     pos.needsUpdate = true;
+    waterMesh.geometry.computeVertexNormals();
+  }
+
+  // Foam animation (subtle near-raft sparkle)
+  if (threeScene && threeScene.userData.foamMesh) {
+    const fp = threeScene.userData.foamMesh.geometry.attributes.position;
+    for (let i = 0; i < fp.count; i++) {
+      const x = fp.getX(i);
+      const y = fp.getY(i);
+      const z = Math.sin(x * 2.0 + t * 3.0) * 0.015 + Math.sin(y * 1.8 + t * 2.5) * 0.01;
+      fp.setZ(i, z);
+    }
+    fp.needsUpdate = true;
+    // Pulse foam opacity
+    threeScene.userData.foamMesh.material.opacity = 0.12 + Math.sin(t * 1.5) * 0.06;
   }
 
   // Slow camera orbit
   if (threeCamera && lastRenderParams) {
     const md = Math.max(lastRenderParams.lunghezza, lastRenderParams.larghezza);
-    const dist = md * 1.8;
-    threeCamera.position.x = Math.cos(t * 0.15) * dist;
-    threeCamera.position.z = Math.sin(t * 0.15) * dist;
-    threeCamera.position.y = md * 0.9 + Math.sin(t * 0.2) * 0.3;
-    threeCamera.lookAt(0, 0, 0);
+    const dist = md * 2.2;
+    const orbitSpeed = 0.1;
+    threeCamera.position.x = Math.cos(t * orbitSpeed) * dist;
+    threeCamera.position.z = Math.sin(t * orbitSpeed) * dist;
+    threeCamera.position.y = md * 1.0 + Math.sin(t * 0.15) * 0.4;
+    threeCamera.lookAt(0, md * 0.2, 0);
   }
 
   threeRenderer.render(threeScene, threeCamera);
