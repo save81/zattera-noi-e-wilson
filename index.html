@@ -298,13 +298,12 @@
     display: flex;
     align-items: center;
     gap: 0.8rem;
-    padding: 0.7rem 0;
+    padding: 0.7rem 0.5rem;
     border-bottom: 1px solid #f0f0f0;
     cursor: pointer;
     user-select: none;
     transition: background 0.2s;
     border-radius: 8px;
-    padding-left: 0.5rem;
   }
   .checklist-item:hover { background: #f7fafc; }
   .checklist-item input[type="checkbox"] {
@@ -312,12 +311,13 @@
     height: 22px;
     accent-color: var(--green);
     cursor: pointer;
+    flex-shrink: 0;
   }
   .checklist-item.done .item-text {
     text-decoration: line-through;
     color: #aaa;
   }
-  .item-text { font-size: 0.95rem; }
+  .item-text { font-size: 0.95rem; flex: 1; }
   .item-category {
     font-size: 0.7rem;
     font-weight: 700;
@@ -325,7 +325,6 @@
     color: white;
     padding: 0.15rem 0.5rem;
     border-radius: 6px;
-    margin-left: auto;
     flex-shrink: 0;
   }
   .item-category.safety { background: var(--coral); }
@@ -474,6 +473,223 @@
     color: rgba(255,255,255,0.6);
     font-size: 0.85rem;
   }
+
+  /* =====================================================
+     FLOATING SAVE BUTTON
+     ===================================================== */
+  .fab-save {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--green), #388E3C);
+    color: white;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(76, 175, 80, 0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .fab-save:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 28px rgba(76, 175, 80, 0.6);
+  }
+  .fab-save:active { transform: scale(0.95); }
+  .fab-save .fab-label {
+    position: absolute;
+    right: 72px;
+    background: #333;
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .fab-save:hover .fab-label { opacity: 1; }
+
+  /* Toast notification */
+  .toast {
+    position: fixed;
+    bottom: 6rem;
+    right: 2rem;
+    background: #333;
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    z-index: 1001;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .toast.success { background: var(--green); }
+  .toast.error { background: var(--red); }
+
+  /* =====================================================
+     EDITABLE TABLE / CHECKLIST BUTTONS
+     ===================================================== */
+  .row-actions {
+    display: flex;
+    gap: 0.3rem;
+    flex-shrink: 0;
+  }
+  .btn-icon {
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn-icon:hover { transform: scale(1.1); }
+  .btn-icon:active { transform: scale(0.9); }
+  .btn-edit { background: #E3F2FD; color: var(--ocean-mid); }
+  .btn-edit:hover { background: #BBDEFB; }
+  .btn-delete { background: #FFEBEE; color: var(--red); }
+  .btn-delete:hover { background: #FFCDD2; }
+
+  .btn-add-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.8rem;
+    margin-top: 0.8rem;
+    border: 2px dashed #ccc;
+    border-radius: 12px;
+    background: transparent;
+    color: #888;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+  }
+  .btn-add-row:hover {
+    border-color: var(--ocean-mid);
+    color: var(--ocean-mid);
+    background: #f0f8ff;
+  }
+
+  /* Edit modal/overlay */
+  .edit-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .edit-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .edit-panel {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    width: 90%;
+    max-width: 480px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    transform: translateY(20px);
+    transition: transform 0.25s;
+  }
+  .edit-overlay.open .edit-panel {
+    transform: translateY(0);
+  }
+  .edit-panel h3 {
+    font-size: 1.2rem;
+    color: var(--ocean-deep);
+    margin-bottom: 1rem;
+  }
+  .edit-panel .form-group {
+    margin-bottom: 0.8rem;
+  }
+  .edit-panel .form-group label {
+    display: block;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #555;
+    margin-bottom: 0.3rem;
+  }
+  .edit-panel .form-group input,
+  .edit-panel .form-group select {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-family: 'Nunito', sans-serif;
+  }
+  .edit-panel .form-group input:focus,
+  .edit-panel .form-group select:focus {
+    outline: none;
+    border-color: var(--ocean-light);
+  }
+  .edit-panel .btn-row {
+    display: flex;
+    gap: 0.8rem;
+    margin-top: 1.2rem;
+  }
+  .edit-panel .btn-confirm {
+    flex: 1;
+    padding: 0.7rem;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .edit-panel .btn-confirm.primary {
+    background: var(--ocean-mid);
+    color: white;
+  }
+  .edit-panel .btn-confirm.primary:hover { background: var(--ocean-deep); }
+  .edit-panel .btn-confirm.secondary {
+    background: #eee;
+    color: #555;
+  }
+  .edit-panel .btn-confirm.secondary:hover { background: #ddd; }
+
+  /* Section label for auto vs manual materials */
+  .section-label {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 6px;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+  .section-label.auto { background: #E3F2FD; color: var(--ocean-mid); }
+  .section-label.custom { background: #E8F5E9; color: var(--green); }
 </style>
 </head>
 <body>
@@ -487,27 +703,27 @@
 <div class="container">
 
   <div class="header">
-    <h1>🚣 Progetto Zattera NOI E WILSON </h1>
+    <h1>&#x1F6A3; Progetto Zattera NOI E WILSON </h1>
     <p class="subtitle">Estate 2026 — L'avventura in famiglia</p>
-    <div class="castaway-badge">🏝️ ISPIRAZIONE CAST AWAY</div>
+    <div class="castaway-badge">&#x1F3DD;&#xFE0F; ISPIRAZIONE CAST AWAY</div>
   </div>
 
   <!-- CALCULATOR -->
   <div class="card" style="animation-delay: 0.1s">
-    <div class="card-title"><span class="icon">🧮</span> Calcolatore Galleggiamento</div>
+    <div class="card-title"><span class="icon">&#x1F9EE;</span> Calcolatore Galleggiamento</div>
     <p style="color:#666; margin-bottom:1rem; font-size:0.9rem;">Inserisci i dati per calcolare quanti boccioni servono e le dimensioni della zattera.</p>
 
     <div class="calc-grid">
       <div class="calc-field">
-        <label>👥 Numero persone</label>
+        <label>&#x1F465; Numero persone</label>
         <input type="number" id="numPersone" value="8" min="1" max="15" onchange="calcola()">
       </div>
       <div class="calc-field">
-        <label>⚖️ Peso medio per persona (kg)</label>
+        <label>&#x2696;&#xFE0F; Peso medio per persona (kg)</label>
         <input type="number" id="pesoMedio" value="75" min="30" max="150" onchange="calcola()">
       </div>
       <div class="calc-field">
-        <label>💧 Capienza boccioni (litri)</label>
+        <label>&#x1F4A7; Capienza boccioni (litri)</label>
         <select id="capienzaBoccione" onchange="calcola()">
           <option value="10">10 litri</option>
           <option value="15">15 litri</option>
@@ -516,7 +732,7 @@
         </select>
       </div>
       <div class="calc-field">
-        <label>📐 Margine di sicurezza</label>
+        <label>&#x1F4D0; Margine di sicurezza</label>
         <select id="margine" onchange="calcola()">
           <option value="1.3">30% (consigliato)</option>
           <option value="1.5">50% (extra sicuro)</option>
@@ -534,7 +750,7 @@
 
   <!-- SCHEMA VISIVO -->
   <div class="card" style="animation-delay: 0.2s">
-    <div class="card-title"><span class="icon">📐</span> Schema della Zattera</div>
+    <div class="card-title"><span class="icon">&#x1F4D0;</span> Schema della Zattera</div>
     <p style="color:#666; margin-bottom:1rem; font-size:0.9rem;">Vista dall'alto e laterale con disposizione dei boccioni sotto il compensato.</p>
 
     <div class="raft-visual">
@@ -572,21 +788,18 @@
             <circle cx="165" cy="60" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
             <circle cx="190" cy="60" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
             <circle cx="215" cy="60" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-
             <circle cx="90" cy="85" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
             <circle cx="115" cy="85" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
             <circle cx="140" cy="85" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
             <circle cx="165" cy="85" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
             <circle cx="190" cy="85" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
             <circle cx="215" cy="85" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-
             <circle cx="90" cy="110" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
             <circle cx="115" cy="110" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
             <circle cx="140" cy="110" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
             <circle cx="165" cy="110" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
             <circle cx="190" cy="110" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
             <circle cx="215" cy="110" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
-
             <circle cx="90" cy="135" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
             <circle cx="115" cy="135" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
             <circle cx="140" cy="135" r="10" fill="#4FC3F7" stroke="#1565A0" stroke-width="1"/>
@@ -625,7 +838,6 @@
           <text x="430" y="350" font-family="Nunito" font-size="10" fill="#1565A0" font-weight="700">MARE</text>
 
           <!-- Side view raft -->
-          <!-- Plywood deck -->
           <rect x="80" y="280" width="280" height="12" rx="2" fill="#C49A6C" stroke="#5D3A1A" stroke-width="1.5"/>
           <text x="185" y="276" font-family="Nunito" font-size="10" fill="#8B5E3C" font-weight="700" text-anchor="middle">Compensato 18mm</text>
 
@@ -675,25 +887,28 @@
 
   <!-- MATERIALS -->
   <div class="card" style="animation-delay: 0.3s">
-    <div class="card-title"><span class="icon">🪵</span> Lista Materiali</div>
+    <div class="card-title"><span class="icon">&#x1FAB5;</span> Lista Materiali <span class="section-label auto" id="matAutoLabel">auto dal calcolatore</span></div>
+    <p style="color:#666; margin-bottom:0.5rem; font-size:0.9rem;">I materiali base vengono calcolati automaticamente. Puoi aggiungere, modificare o rimuovere righe.</p>
     <table class="materials-table" id="materialsTable">
       <thead>
         <tr>
           <th>Materiale</th>
-          <th>Quantità</th>
+          <th>Quantit&agrave;</th>
           <th>Note</th>
+          <th style="width:80px; text-align:center;">Azioni</th>
         </tr>
       </thead>
       <tbody id="materialsBody">
         <!-- filled by JS -->
       </tbody>
     </table>
+    <button class="btn-add-row" onclick="openMaterialEditor(-1)">+ Aggiungi materiale</button>
   </div>
 
   <!-- BUDGET ESTIMATE -->
   <div class="card" style="animation-delay: 0.35s">
-    <div class="card-title"><span class="icon">💰</span> Stima Budget</div>
-    <p style="color:#666; margin-bottom:1rem; font-size:0.9rem;">Costi indicativi per i materiali. I boccioni si possono spesso recuperare gratis da uffici e aziende!</p>
+    <div class="card-title"><span class="icon">&#x1F4B0;</span> Stima Budget</div>
+    <p style="color:#666; margin-bottom:1rem; font-size:0.9rem;">Costi indicativi per i materiali. Puoi modificare i costi unitari nella lista materiali!</p>
 
     <table class="materials-table" id="budgetTable">
       <thead>
@@ -701,24 +916,26 @@
           <th>Materiale</th>
           <th>Costo stimato</th>
           <th>Dove trovarlo</th>
+          <th style="width:80px; text-align:center;">Azioni</th>
         </tr>
       </thead>
       <tbody id="budgetBody">
         <!-- filled by JS -->
       </tbody>
     </table>
+    <button class="btn-add-row" onclick="openBudgetEditor(-1)">+ Aggiungi voce di spesa</button>
 
     <div class="budget-total" id="budgetTotal"></div>
     <p class="budget-note">* Prezzi indicativi estate 2026. I boccioni possono essere gratuiti se recuperati da uffici, bar o distributori automatici.</p>
 
     <div class="info-box" style="margin-top:1rem">
-      💡 <strong>Suggerimento:</strong> Chiedete a parenti, amici e colleghi di conservare i boccioni vuoti nelle settimane prima del progetto. Potrete risparmiare la voce di spesa principale!
+      &#x1F4A1; <strong>Suggerimento:</strong> Chiedete a parenti, amici e colleghi di conservare i boccioni vuoti nelle settimane prima del progetto. Potrete risparmiare la voce di spesa principale!
     </div>
   </div>
 
   <!-- CONSTRUCTION STEPS -->
   <div class="card" style="animation-delay: 0.4s">
-    <div class="card-title"><span class="icon">🔨</span> Fasi di Costruzione</div>
+    <div class="card-title"><span class="icon">&#x1F528;</span> Fasi di Costruzione</div>
 
     <div class="step">
       <div class="step-num">1</div>
@@ -732,7 +949,7 @@
       <div class="step-num">2</div>
       <div class="step-content">
         <h3>Costruire il telaio</h3>
-        <p>Tagliare le tavole di compensato (18mm marino) nelle dimensioni calcolate. Creare una cornice con travetti in legno (listelli 5×5 cm) sotto il compensato, formando una griglia che accoglierà i boccioni. Fissare con viti inox.</p>
+        <p>Tagliare le tavole di compensato (18mm marino) nelle dimensioni calcolate. Creare una cornice con travetti in legno (listelli 5x5 cm) sotto il compensato, formando una griglia che accoglier&agrave; i boccioni. Fissare con viti inox.</p>
       </div>
     </div>
 
@@ -764,51 +981,52 @@
       <div class="step-num">6</div>
       <div class="step-content">
         <h3>Test in acqua bassa!</h3>
-        <p>Prima del grande viaggio, testare la zattera in acqua bassa con carico progressivo: prima 2 persone, poi 4, poi tutti. Verificare stabilità, galleggiamento e tenuta dei boccioni.</p>
+        <p>Prima del grande viaggio, testare la zattera in acqua bassa con carico progressivo: prima 2 persone, poi 4, poi tutti. Verificare stabilit&agrave;, galleggiamento e tenuta dei boccioni.</p>
       </div>
     </div>
   </div>
 
   <!-- CHECKLIST -->
   <div class="card" style="animation-delay: 0.5s">
-    <div class="card-title"><span class="icon">✅</span> Checklist Preparazione</div>
-    <p style="color:#666; margin-bottom:0.5rem; font-size:0.9rem;" id="checklistDesc">Spunta le voci man mano che procedi!</p>
+    <div class="card-title"><span class="icon">&#x2705;</span> Checklist Preparazione</div>
+    <p style="color:#666; margin-bottom:0.5rem; font-size:0.9rem;" id="checklistDesc">Spunta le voci man mano che procedi! Puoi aggiungere, modificare o rimuovere voci.</p>
     <div id="syncStatus" style="display:none; margin-bottom:0.8rem; padding:0.5rem 1rem; border-radius:10px; font-size:0.8rem; font-weight:700;"></div>
 
     <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
     <div class="progress-text" id="progressText">0% completato</div>
 
     <div id="checklistContainer"></div>
+    <button class="btn-add-row" onclick="openChecklistEditor(-1)">+ Aggiungi voce</button>
   </div>
 
   <!-- TIMELINE -->
   <div class="card" style="animation-delay: 0.55s">
-    <div class="card-title"><span class="icon">📅</span> Pianificazione — 3 Weekend</div>
+    <div class="card-title"><span class="icon">&#x1F4C5;</span> Pianificazione &mdash; 3 Weekend</div>
     <p style="color:#666; margin-bottom:1rem; font-size:0.9rem;">Un piano realistico su 3 weekend per costruire la zattera senza fretta.</p>
 
     <div class="timeline">
       <div class="timeline-item">
-        <div class="timeline-when">Weekend 1 — Sabato</div>
+        <div class="timeline-when">Weekend 1 &mdash; Sabato</div>
         <div class="timeline-what">Raccolta boccioni + acquisto materiali al brico/ferramenta</div>
         <div class="timeline-who">Tutti insieme</div>
       </div>
       <div class="timeline-item">
-        <div class="timeline-when">Weekend 1 — Domenica</div>
+        <div class="timeline-when">Weekend 1 &mdash; Domenica</div>
         <div class="timeline-what">Lavare, asciugare e sigillare tutti i boccioni con silicone</div>
         <div class="timeline-who">Adulti + ragazzi</div>
       </div>
       <div class="timeline-item">
         <div class="timeline-when">Infrasettimanale</div>
-        <div class="timeline-what">Asciugatura silicone (24-48h) — niente da fare!</div>
-        <div class="timeline-who">—</div>
+        <div class="timeline-what">Asciugatura silicone (24-48h) &mdash; niente da fare!</div>
+        <div class="timeline-who">&mdash;</div>
       </div>
       <div class="timeline-item">
-        <div class="timeline-when">Weekend 2 — Sabato</div>
+        <div class="timeline-when">Weekend 2 &mdash; Sabato</div>
         <div class="timeline-what">Taglio compensato + costruzione telaio con travetti</div>
         <div class="timeline-who">Adulti (attrezzi elettrici)</div>
       </div>
       <div class="timeline-item">
-        <div class="timeline-when">Weekend 2 — Domenica</div>
+        <div class="timeline-when">Weekend 2 &mdash; Domenica</div>
         <div class="timeline-what">Fissaggio boccioni alla griglia + 1a mano di vernice marina</div>
         <div class="timeline-who">Tutti insieme</div>
       </div>
@@ -818,64 +1036,79 @@
         <div class="timeline-who">1 persona (15 min)</div>
       </div>
       <div class="timeline-item highlight">
-        <div class="timeline-when">Weekend 3 — IL GRANDE GIORNO!</div>
+        <div class="timeline-when">Weekend 3 &mdash; IL GRANDE GIORNO!</div>
         <div class="timeline-what">Accessori di sicurezza + TEST IN ACQUA + VARO!</div>
-        <div class="timeline-who">TUTTI! 🎉</div>
+        <div class="timeline-who">TUTTI! &#x1F389;</div>
       </div>
     </div>
 
     <div class="info-box">
-      💡 <strong>Meteo:</strong> Controllate le previsioni a inizio settimana per il weekend 3. Vento &lt; 10 nodi e mare calmo sono le condizioni ideali. In caso di maltempo, rimandate di una settimana — la zattera aspetta!
+      &#x1F4A1; <strong>Meteo:</strong> Controllate le previsioni a inizio settimana per il weekend 3. Vento &lt; 10 nodi e mare calmo sono le condizioni ideali. In caso di maltempo, rimandate di una settimana &mdash; la zattera aspetta!
     </div>
   </div>
 
   <!-- SAFETY -->
   <div class="card" style="animation-delay: 0.6s">
-    <div class="card-title"><span class="icon">⚠️</span> Sicurezza in Mare</div>
+    <div class="card-title"><span class="icon">&#x26A0;&#xFE0F;</span> Sicurezza in Mare</div>
     <p style="color:#666; margin-bottom:1rem; font-size:0.9rem;">Regole fondamentali per divertirsi in sicurezza.</p>
 
     <div class="safety-grid">
       <div class="safety-item">
-        <h4>🦺 Giubbotti salvagente</h4>
+        <h4>&#x1F9BA; Giubbotti salvagente</h4>
         <p>OBBLIGATORI per tutti, specialmente bambini. Un giubbotto per persona, omologato.</p>
       </div>
       <div class="safety-item">
-        <h4>📱 Comunicazione</h4>
+        <h4>&#x1F4F1; Comunicazione</h4>
         <p>Portare cellulare in custodia impermeabile. Avvisare qualcuno a terra del percorso.</p>
       </div>
       <div class="safety-item">
-        <h4>🧭 Non allontanarsi troppo</h4>
+        <h4>&#x1F9ED; Non allontanarsi troppo</h4>
         <p>Restare entro 300m dalla riva. Controllare le condizioni meteo prima di partire.</p>
       </div>
       <div class="safety-item">
-        <h4>☀️ Protezione solare</h4>
-        <p>Crema solare SPF 50+, cappelli, acqua potabile in abbondanza. Il sole in mare è implacabile.</p>
+        <h4>&#x2600;&#xFE0F; Protezione solare</h4>
+        <p>Crema solare SPF 50+, cappelli, acqua potabile in abbondanza. Il sole in mare &egrave; implacabile.</p>
       </div>
       <div class="safety-item">
-        <h4>🪢 Cima di sicurezza</h4>
+        <h4>&#x1FAA2; Cima di sicurezza</h4>
         <p>Legare una corda lunga (30m+) ancorata a riva o a un'imbarcazione di appoggio.</p>
       </div>
       <div class="safety-item">
-        <h4>🏊 Saper nuotare</h4>
+        <h4>&#x1F3CA; Saper nuotare</h4>
         <p>Tutti i partecipanti devono saper nuotare. Bambini piccoli sempre con adulto dedicato.</p>
       </div>
     </div>
   </div>
 
   <div class="footer">
-    Progetto Zattera Estate 2026 — Buon divertimento in famiglia! 🌊
+    Progetto Zattera Estate 2026 &mdash; Buon divertimento in famiglia! &#x1F30A;
   </div>
 
 </div>
 
-<!-- Firebase SDK (caricato solo se configurato) -->
+<!-- FLOATING SAVE BUTTON -->
+<button class="fab-save" onclick="saveAll()" title="Salva tutto su Firebase">
+  &#x1F4BE;
+  <span class="fab-label">SALVA TUTTO</span>
+</button>
+
+<!-- TOAST NOTIFICATION -->
+<div class="toast" id="toast"></div>
+
+<!-- EDIT OVERLAY (modal for editing) -->
+<div class="edit-overlay" id="editOverlay" onclick="if(event.target===this)closeEditor()">
+  <div class="edit-panel" id="editPanel">
+    <!-- dynamically filled -->
+  </div>
+</div>
+
+<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
 <script>
 // =====================================================
-// CONFIGURAZIONE FIREBASE — COMPILARE CON I PROPRI DATI
-// (vedi guida-setup.html per le istruzioni passo-passo)
+// CONFIGURAZIONE FIREBASE
 // =====================================================
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyB8XN_EE3FyeSTDJRF3pJxrYRwp1ZpIc1E",
@@ -887,7 +1120,6 @@ const FIREBASE_CONFIG = {
   appId: "1:136898685704:web:a97cbc5e94c27e749e1abd"
 };
 
-// Se tutti i campi sono vuoti, usa localStorage (modalità offline)
 const FIREBASE_ENABLED = FIREBASE_CONFIG.apiKey !== "" && FIREBASE_CONFIG.databaseURL !== "";
 
 // =====================================================
@@ -896,40 +1128,107 @@ const FIREBASE_ENABLED = FIREBASE_CONFIG.apiKey !== "" && FIREBASE_CONFIG.databa
 let db = null;
 let checklistRef = null;
 let settingsRef = null;
-let checklistState = {}; // stato condiviso: { "0": true, "5": true, ... }
-let ignoreSettingsUpdate = false; // evita loop quando aggiorniamo noi stessi
+let materialsRef = null;
+let budgetRef = null;
+let checklistDataRef = null;
+let ignoreSettingsUpdate = false;
+let ignoreMaterialsUpdate = false;
+let ignoreBudgetUpdate = false;
+let ignoreChecklistDataUpdate = false;
 
+// =====================================================
+// DEFAULT DATA
+// =====================================================
+const DEFAULT_CHECKLIST = [
+  { text: "Raccogliere i boccioni (minimo calcolato)", cat: "Materiale", done: false },
+  { text: "Acquistare compensato marino 18mm", cat: "Materiale", done: false },
+  { text: "Acquistare travetti in legno 5x5 cm", cat: "Materiale", done: false },
+  { text: "Procurare viti inox e bulloni", cat: "Materiale", done: false },
+  { text: "Comprare corda nautica (30m+)", cat: "Materiale", done: false },
+  { text: "Silicone o nastro americano impermeabile", cat: "Materiale", done: false },
+  { text: "Vernice marina impermeabilizzante", cat: "Materiale", done: false },
+  { text: "Giubbotti salvagente per tutti", cat: "Sicurezza", done: false },
+  { text: "Custodia impermeabile per cellulare", cat: "Sicurezza", done: false },
+  { text: "Crema solare SPF 50+", cat: "Sicurezza", done: false },
+  { text: "Acqua potabile e snack", cat: "Sicurezza", done: false },
+  { text: "Remi o pagaie", cat: "Attrezzi", done: false },
+  { text: "Trapano con punte per legno", cat: "Attrezzi", done: false },
+  { text: "Seghetto circolare o a mano", cat: "Attrezzi", done: false },
+  { text: "Metro, matita, squadra", cat: "Attrezzi", done: false },
+  { text: "Verificare tenuta ermetica boccioni", cat: "Test", done: false },
+  { text: "Trattare compensato (2 mani vernice)", cat: "Costruzione", done: false },
+  { text: "Assemblare telaio + boccioni", cat: "Costruzione", done: false },
+  { text: "Test in acqua bassa (carico progressivo)", cat: "Test", done: false },
+  { text: "Controllare meteo il giorno del varo", cat: "Varo", done: false },
+  { text: "Avvisare qualcuno del percorso", cat: "Varo", done: false },
+  { text: "DIVERTIRSI!", cat: "Varo", done: false }
+];
+
+const CATEGORIES = ["Materiale", "Sicurezza", "Attrezzi", "Test", "Costruzione", "Varo", "Altro"];
+
+// Current editable data
+let checklistData = JSON.parse(JSON.stringify(DEFAULT_CHECKLIST));
+let customMaterials = []; // extra materials added by user
+let customBudget = [];    // extra budget items added by user
+
+// =====================================================
+// FIREBASE INIT
+// =====================================================
 if (FIREBASE_ENABLED) {
   try {
     firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.database();
-    checklistRef = db.ref('zattera/checklist');
+    checklistRef = db.ref('zattera/checklist');  // legacy - will migrate
     settingsRef = db.ref('zattera/settings');
+    materialsRef = db.ref('zattera/customMaterials');
+    budgetRef = db.ref('zattera/customBudget');
+    checklistDataRef = db.ref('zattera/checklistData');
 
-    // Ascolta i cambiamenti alla checklist in tempo reale
-    checklistRef.on('value', (snapshot) => {
-      checklistState = snapshot.val() || {};
+    // Listen for checklist data (new format with editable items)
+    checklistDataRef.on('value', (snapshot) => {
+      if (ignoreChecklistDataUpdate) return;
+      const data = snapshot.val();
+      if (data && Array.isArray(data)) {
+        checklistData = data;
+      } else if (data) {
+        // Convert object to array if needed
+        checklistData = Object.values(data);
+      }
       renderChecklist();
       updateProgress();
       showSyncStatus('online');
     });
 
-    // Ascolta i cambiamenti ai parametri del calcolatore
+    // Listen for custom materials
+    materialsRef.on('value', (snapshot) => {
+      if (ignoreMaterialsUpdate) return;
+      const data = snapshot.val();
+      customMaterials = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
+      renderMaterials();
+    });
+
+    // Listen for custom budget items
+    budgetRef.on('value', (snapshot) => {
+      if (ignoreBudgetUpdate) return;
+      const data = snapshot.val();
+      customBudget = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
+      renderBudget();
+    });
+
+    // Listen for calculator settings
     settingsRef.on('value', (snapshot) => {
       if (ignoreSettingsUpdate) return;
       const settings = snapshot.val();
       if (settings) {
-        // Aggiorna i campi con i valori dal database
         if (settings.numPersone) document.getElementById('numPersone').value = settings.numPersone;
         if (settings.pesoMedio) document.getElementById('pesoMedio').value = settings.pesoMedio;
         if (settings.capienzaBoccione) document.getElementById('capienzaBoccione').value = settings.capienzaBoccione;
         if (settings.margine) document.getElementById('margine').value = settings.margine;
-        // Ricalcola tutto con i nuovi valori
-        calcola(true); // true = non salvare di nuovo su Firebase
+        calcola(true);
       }
     });
 
-    // Mostra stato connessione
+    // Connection status
     db.ref('.info/connected').on('value', (snap) => {
       showSyncStatus(snap.val() ? 'online' : 'offline');
     });
@@ -939,7 +1238,9 @@ if (FIREBASE_ENABLED) {
   }
 }
 
-// Salva i parametri del calcolatore su Firebase
+// =====================================================
+// SAVE FUNCTIONS
+// =====================================================
 function saveSettings() {
   if (!FIREBASE_ENABLED || !settingsRef) return;
   ignoreSettingsUpdate = true;
@@ -953,113 +1254,355 @@ function saveSettings() {
   });
 }
 
+function saveChecklistData() {
+  if (FIREBASE_ENABLED && checklistDataRef) {
+    ignoreChecklistDataUpdate = true;
+    checklistDataRef.set(checklistData).then(() => {
+      setTimeout(() => { ignoreChecklistDataUpdate = false; }, 500);
+    });
+  } else {
+    try { localStorage.setItem('zattera_checklistData', JSON.stringify(checklistData)); } catch {}
+  }
+}
+
+function saveCustomMaterials() {
+  if (FIREBASE_ENABLED && materialsRef) {
+    ignoreMaterialsUpdate = true;
+    materialsRef.set(customMaterials).then(() => {
+      setTimeout(() => { ignoreMaterialsUpdate = false; }, 500);
+    });
+  } else {
+    try { localStorage.setItem('zattera_customMaterials', JSON.stringify(customMaterials)); } catch {}
+  }
+}
+
+function saveCustomBudget() {
+  if (FIREBASE_ENABLED && budgetRef) {
+    ignoreBudgetUpdate = true;
+    budgetRef.set(customBudget).then(() => {
+      setTimeout(() => { ignoreBudgetUpdate = false; }, 500);
+    });
+  } else {
+    try { localStorage.setItem('zattera_customBudget', JSON.stringify(customBudget)); } catch {}
+  }
+}
+
+// SAVE ALL (floating button)
+function saveAll() {
+  saveSettings();
+  saveChecklistData();
+  saveCustomMaterials();
+  saveCustomBudget();
+  showToast('Tutto salvato!', 'success');
+}
+
+// =====================================================
+// TOAST
+// =====================================================
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (type || '');
+  t.classList.add('show');
+  setTimeout(() => { t.classList.remove('show'); }, 2500);
+}
+
+// =====================================================
+// SYNC STATUS
+// =====================================================
 function showSyncStatus(status) {
   const el = document.getElementById('syncStatus');
   const desc = document.getElementById('checklistDesc');
   if (!FIREBASE_ENABLED) {
     el.style.display = 'none';
-    desc.textContent = 'Spunta le voci man mano che procedi! Progressi salvati localmente nel browser.';
+    desc.textContent = 'Spunta le voci man mano che procedi! Puoi aggiungere, modificare o rimuovere voci. Progressi salvati localmente.';
     return;
   }
   el.style.display = 'block';
   if (status === 'online') {
     el.style.background = '#E8F5E9';
     el.style.color = '#2E7D32';
-    el.innerHTML = '🟢 Sincronizzato — Le modifiche sono condivise con tutta la famiglia in tempo reale';
-    desc.textContent = 'Spunta le voci man mano che procedi! Tutti i familiari vedono i progressi in tempo reale.';
+    el.innerHTML = '&#x1F7E2; Sincronizzato — Le modifiche sono condivise con tutta la famiglia in tempo reale';
+    desc.textContent = 'Spunta le voci man mano che procedi! Puoi aggiungere, modificare o rimuovere voci.';
   } else if (status === 'offline') {
     el.style.background = '#FFF3E0';
     el.style.color = '#E65100';
-    el.innerHTML = '🟠 Offline — Le modifiche verranno sincronizzate appena torni online';
+    el.innerHTML = '&#x1F7E0; Offline — Le modifiche verranno sincronizzate appena torni online';
   } else {
     el.style.background = '#FFEBEE';
     el.style.color = '#C62828';
-    el.innerHTML = '🔴 Firebase non configurato — Usando salvataggio locale. Vedi guida-setup.html';
+    el.innerHTML = '&#x1F534; Firebase non configurato — Usando salvataggio locale. Vedi guida-setup.html';
   }
 }
 
 // =====================================================
-// CHECKLIST
+// EDITOR (MODAL)
 // =====================================================
-const checklistItems = [
-  { text: "Raccogliere i boccioni (minimo calcolato)", cat: "Materiale" },
-  { text: "Acquistare compensato marino 18mm", cat: "Materiale" },
-  { text: "Acquistare travetti in legno 5×5 cm", cat: "Materiale" },
-  { text: "Procurare viti inox e bulloni", cat: "Materiale" },
-  { text: "Comprare corda nautica (30m+)", cat: "Materiale" },
-  { text: "Silicone o nastro americano impermeabile", cat: "Materiale" },
-  { text: "Vernice marina impermeabilizzante", cat: "Materiale" },
-  { text: "Giubbotti salvagente per tutti (8 pz)", cat: "Sicurezza", safety: true },
-  { text: "Custodia impermeabile per cellulare", cat: "Sicurezza", safety: true },
-  { text: "Crema solare SPF 50+", cat: "Sicurezza", safety: true },
-  { text: "Acqua potabile e snack", cat: "Sicurezza", safety: true },
-  { text: "Remi o pagaie", cat: "Attrezzi", tool: true },
-  { text: "Trapano con punte per legno", cat: "Attrezzi", tool: true },
-  { text: "Seghetto circolare o a mano", cat: "Attrezzi", tool: true },
-  { text: "Metro, matita, squadra", cat: "Attrezzi", tool: true },
-  { text: "Verificare tenuta ermetica boccioni", cat: "Test" },
-  { text: "Trattare compensato (2 mani vernice)", cat: "Costruzione" },
-  { text: "Assemblare telaio + boccioni", cat: "Costruzione" },
-  { text: "Test in acqua bassa (carico progressivo)", cat: "Test" },
-  { text: "Controllare meteo il giorno del varo", cat: "Varo" },
-  { text: "Avvisare qualcuno del percorso", cat: "Varo" },
-  { text: "DIVERTIRSI! 🎉", cat: "Varo" }
-];
-
-function getCheck(i) {
-  if (FIREBASE_ENABLED) {
-    return checklistState[String(i)] === true;
-  }
-  try { return JSON.parse(localStorage.getItem('zattera_check_' + i)); } catch { return false; }
+function openEditor(html) {
+  document.getElementById('editPanel').innerHTML = html;
+  document.getElementById('editOverlay').classList.add('open');
 }
 
-function toggleCheck(i, el) {
-  const checked = el.checked;
-  if (FIREBASE_ENABLED) {
-    // Scrivi su Firebase — l'aggiornamento arriva via listener
-    checklistRef.child(String(i)).set(checked);
+function closeEditor() {
+  document.getElementById('editOverlay').classList.remove('open');
+}
+
+// =====================================================
+// MATERIALS (EDITABLE)
+// =====================================================
+// Auto-generated materials from calculator (read-only base, but user can add extras)
+let autoMaterials = []; // filled by calcola()
+
+function renderMaterials() {
+  const tbody = document.getElementById('materialsBody');
+  let html = '';
+
+  // Auto materials from calculator
+  autoMaterials.forEach((m, i) => {
+    html += '<tr>' +
+      '<td>' + m.name + '</td>' +
+      '<td><strong>' + m.qty + '</strong></td>' +
+      '<td>' + m.note + '</td>' +
+      '<td style="text-align:center"><span style="font-size:0.7rem;color:#aaa;">auto</span></td>' +
+    '</tr>';
+  });
+
+  // Custom materials
+  customMaterials.forEach((m, i) => {
+    html += '<tr style="background:#f0fff0;">' +
+      '<td>' + escHtml(m.name) + '</td>' +
+      '<td><strong>' + escHtml(m.qty) + '</strong></td>' +
+      '<td>' + escHtml(m.note) + '</td>' +
+      '<td style="text-align:center"><div class="row-actions" style="justify-content:center">' +
+        '<button class="btn-icon btn-edit" onclick="openMaterialEditor(' + i + ')" title="Modifica">&#x270F;&#xFE0F;</button>' +
+        '<button class="btn-icon btn-delete" onclick="deleteMaterial(' + i + ')" title="Elimina">&#x1F5D1;&#xFE0F;</button>' +
+      '</div></td>' +
+    '</tr>';
+  });
+
+  tbody.innerHTML = html;
+}
+
+function openMaterialEditor(idx) {
+  const isNew = idx === -1;
+  const m = isNew ? { name: '', qty: '', note: '' } : customMaterials[idx];
+  openEditor(
+    '<h3>' + (isNew ? 'Aggiungi Materiale' : 'Modifica Materiale') + '</h3>' +
+    '<div class="form-group"><label>Materiale</label><input id="edMatName" value="' + escAttr(m.name) + '" placeholder="Es: Vernice extra"></div>' +
+    '<div class="form-group"><label>Quantit&agrave;</label><input id="edMatQty" value="' + escAttr(m.qty) + '" placeholder="Es: 3 barattoli"></div>' +
+    '<div class="form-group"><label>Note</label><input id="edMatNote" value="' + escAttr(m.note) + '" placeholder="Es: Per rinforzo"></div>' +
+    '<div class="btn-row">' +
+      '<button class="btn-confirm secondary" onclick="closeEditor()">Annulla</button>' +
+      '<button class="btn-confirm primary" onclick="saveMaterialEdit(' + idx + ')">Salva</button>' +
+    '</div>'
+  );
+  document.getElementById('edMatName').focus();
+}
+
+function saveMaterialEdit(idx) {
+  const name = document.getElementById('edMatName').value.trim();
+  const qty = document.getElementById('edMatQty').value.trim();
+  const note = document.getElementById('edMatNote').value.trim();
+  if (!name) { showToast('Inserisci il nome del materiale', 'error'); return; }
+  const item = { name, qty, note };
+  if (idx === -1) {
+    customMaterials.push(item);
   } else {
-    try { localStorage.setItem('zattera_check_' + i, checked); } catch {}
+    customMaterials[idx] = item;
   }
-  el.closest('.checklist-item').classList.toggle('done', checked);
-  updateProgress();
+  saveCustomMaterials();
+  renderMaterials();
+  closeEditor();
+  showToast(idx === -1 ? 'Materiale aggiunto!' : 'Materiale modificato!', 'success');
+}
+
+function deleteMaterial(idx) {
+  if (!confirm('Eliminare "' + customMaterials[idx].name + '"?')) return;
+  customMaterials.splice(idx, 1);
+  saveCustomMaterials();
+  renderMaterials();
+  showToast('Materiale eliminato', 'success');
+}
+
+// =====================================================
+// BUDGET (EDITABLE)
+// =====================================================
+let autoBudget = []; // filled by calcola()
+
+function renderBudget() {
+  const budgetBody = document.getElementById('budgetBody');
+  let totalCost = 0;
+  let html = '';
+
+  // Auto budget from calculator
+  autoBudget.forEach((item) => {
+    const subtotal = item.cost * item.qty;
+    totalCost += subtotal;
+    html += '<tr>' +
+      '<td>' + item.name + ' (x' + item.qty + ')</td>' +
+      '<td><strong>' + (subtotal === 0 ? 'GRATIS*' : '~' + subtotal + ' \u20AC') + '</strong></td>' +
+      '<td>' + item.where + '</td>' +
+      '<td style="text-align:center"><span style="font-size:0.7rem;color:#aaa;">auto</span></td>' +
+    '</tr>';
+  });
+
+  // Custom budget items
+  customBudget.forEach((item, i) => {
+    const subtotal = (parseFloat(item.cost) || 0) * (parseInt(item.qty) || 1);
+    totalCost += subtotal;
+    html += '<tr style="background:#f0fff0;">' +
+      '<td>' + escHtml(item.name) + (item.qty > 1 ? ' (x' + item.qty + ')' : '') + '</td>' +
+      '<td><strong>' + (subtotal === 0 ? 'GRATIS' : '~' + subtotal.toFixed(0) + ' \u20AC') + '</strong></td>' +
+      '<td>' + escHtml(item.where || '') + '</td>' +
+      '<td style="text-align:center"><div class="row-actions" style="justify-content:center">' +
+        '<button class="btn-icon btn-edit" onclick="openBudgetEditor(' + i + ')" title="Modifica">&#x270F;&#xFE0F;</button>' +
+        '<button class="btn-icon btn-delete" onclick="deleteBudgetItem(' + i + ')" title="Elimina">&#x1F5D1;&#xFE0F;</button>' +
+      '</div></td>' +
+    '</tr>';
+  });
+
+  budgetBody.innerHTML = html;
+
+  document.getElementById('budgetTotal').innerHTML =
+    '<div class="total-label">BUDGET TOTALE STIMATO</div>' +
+    '<div class="total-number">~' + totalCost + ' \u20AC</div>' +
+    '<div class="total-label" style="margin-top:0.3rem; opacity:0.7">Esclusi attrezzi (trapano, seghetto) che probabilmente avete gi&agrave;</div>';
+}
+
+function openBudgetEditor(idx) {
+  const isNew = idx === -1;
+  const b = isNew ? { name: '', cost: '', qty: 1, where: '' } : customBudget[idx];
+  openEditor(
+    '<h3>' + (isNew ? 'Aggiungi Voce di Spesa' : 'Modifica Voce di Spesa') + '</h3>' +
+    '<div class="form-group"><label>Descrizione</label><input id="edBudName" value="' + escAttr(b.name) + '" placeholder="Es: Pagaia extra"></div>' +
+    '<div class="form-group"><label>Costo unitario (&euro;)</label><input id="edBudCost" type="number" step="0.5" value="' + (b.cost || '') + '" placeholder="0 = gratis"></div>' +
+    '<div class="form-group"><label>Quantit&agrave;</label><input id="edBudQty" type="number" min="1" value="' + (b.qty || 1) + '"></div>' +
+    '<div class="form-group"><label>Dove trovarlo</label><input id="edBudWhere" value="' + escAttr(b.where || '') + '" placeholder="Es: Amazon, Decathlon"></div>' +
+    '<div class="btn-row">' +
+      '<button class="btn-confirm secondary" onclick="closeEditor()">Annulla</button>' +
+      '<button class="btn-confirm primary" onclick="saveBudgetEdit(' + idx + ')">Salva</button>' +
+    '</div>'
+  );
+  document.getElementById('edBudName').focus();
+}
+
+function saveBudgetEdit(idx) {
+  const name = document.getElementById('edBudName').value.trim();
+  const cost = parseFloat(document.getElementById('edBudCost').value) || 0;
+  const qty = parseInt(document.getElementById('edBudQty').value) || 1;
+  const where = document.getElementById('edBudWhere').value.trim();
+  if (!name) { showToast('Inserisci la descrizione', 'error'); return; }
+  const item = { name, cost, qty, where };
+  if (idx === -1) {
+    customBudget.push(item);
+  } else {
+    customBudget[idx] = item;
+  }
+  saveCustomBudget();
+  renderBudget();
+  closeEditor();
+  showToast(idx === -1 ? 'Voce aggiunta!' : 'Voce modificata!', 'success');
+}
+
+function deleteBudgetItem(idx) {
+  if (!confirm('Eliminare "' + customBudget[idx].name + '"?')) return;
+  customBudget.splice(idx, 1);
+  saveCustomBudget();
+  renderBudget();
+  showToast('Voce eliminata', 'success');
+}
+
+// =====================================================
+// CHECKLIST (EDITABLE)
+// =====================================================
+function getCatClass(cat) {
+  if (['Sicurezza'].includes(cat)) return 'safety';
+  if (['Attrezzi'].includes(cat)) return 'tool';
+  return '';
 }
 
 function renderChecklist() {
   const container = document.getElementById('checklistContainer');
   container.innerHTML = '';
-  checklistItems.forEach((item, i) => {
-    const checked = getCheck(i);
+  checklistData.forEach((item, i) => {
     const div = document.createElement('div');
-    div.className = 'checklist-item' + (checked ? ' done' : '');
-    const catClass = item.safety ? 'safety' : (item.tool ? 'tool' : '');
-    div.innerHTML = `
-      <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleCheck(${i}, this)">
-      <span class="item-text">${item.text}</span>
-      <span class="item-category ${catClass}">${item.cat}</span>
-    `;
+    div.className = 'checklist-item' + (item.done ? ' done' : '');
+    const catClass = getCatClass(item.cat);
+    div.innerHTML =
+      '<input type="checkbox" ' + (item.done ? 'checked' : '') + ' onchange="toggleCheck(' + i + ', this)">' +
+      '<span class="item-text">' + escHtml(item.text) + '</span>' +
+      '<span class="item-category ' + catClass + '">' + escHtml(item.cat) + '</span>' +
+      '<div class="row-actions">' +
+        '<button class="btn-icon btn-edit" onclick="event.stopPropagation();openChecklistEditor(' + i + ')" title="Modifica">&#x270F;&#xFE0F;</button>' +
+        '<button class="btn-icon btn-delete" onclick="event.stopPropagation();deleteChecklistItem(' + i + ')" title="Elimina">&#x1F5D1;&#xFE0F;</button>' +
+      '</div>';
     container.appendChild(div);
   });
 }
 
-function initChecklist() {
-  renderChecklist();
+function toggleCheck(i, el) {
+  checklistData[i].done = el.checked;
+  el.closest('.checklist-item').classList.toggle('done', el.checked);
   updateProgress();
-  if (!FIREBASE_ENABLED) {
-    showSyncStatus('local');
-  }
+  saveChecklistData();
 }
 
 function updateProgress() {
-  let done = 0;
-  checklistItems.forEach((_, i) => { if (getCheck(i)) done++; });
-  const pct = Math.round(done / checklistItems.length * 100);
+  let done = checklistData.filter(item => item.done).length;
+  const total = checklistData.length;
+  const pct = total > 0 ? Math.round(done / total * 100) : 0;
   document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressText').textContent = pct + '% completato (' + done + '/' + checklistItems.length + ')';
+  document.getElementById('progressText').textContent = pct + '% completato (' + done + '/' + total + ')';
 }
 
+function openChecklistEditor(idx) {
+  const isNew = idx === -1;
+  const item = isNew ? { text: '', cat: 'Altro' } : checklistData[idx];
+  let catOptions = CATEGORIES.map(c =>
+    '<option value="' + c + '"' + (c === item.cat ? ' selected' : '') + '>' + c + '</option>'
+  ).join('');
+  openEditor(
+    '<h3>' + (isNew ? 'Aggiungi Voce Checklist' : 'Modifica Voce Checklist') + '</h3>' +
+    '<div class="form-group"><label>Descrizione</label><input id="edChkText" value="' + escAttr(item.text) + '" placeholder="Es: Comprare colla epossidica"></div>' +
+    '<div class="form-group"><label>Categoria</label><select id="edChkCat">' + catOptions + '</select></div>' +
+    '<div class="btn-row">' +
+      '<button class="btn-confirm secondary" onclick="closeEditor()">Annulla</button>' +
+      '<button class="btn-confirm primary" onclick="saveChecklistEdit(' + idx + ')">Salva</button>' +
+    '</div>'
+  );
+  document.getElementById('edChkText').focus();
+}
+
+function saveChecklistEdit(idx) {
+  const text = document.getElementById('edChkText').value.trim();
+  const cat = document.getElementById('edChkCat').value;
+  if (!text) { showToast('Inserisci la descrizione', 'error'); return; }
+  if (idx === -1) {
+    checklistData.push({ text, cat, done: false });
+  } else {
+    checklistData[idx].text = text;
+    checklistData[idx].cat = cat;
+  }
+  saveChecklistData();
+  renderChecklist();
+  updateProgress();
+  closeEditor();
+  showToast(idx === -1 ? 'Voce aggiunta!' : 'Voce modificata!', 'success');
+}
+
+function deleteChecklistItem(idx) {
+  if (!confirm('Eliminare "' + checklistData[idx].text + '"?')) return;
+  checklistData.splice(idx, 1);
+  saveChecklistData();
+  renderChecklist();
+  updateProgress();
+  showToast('Voce eliminata', 'success');
+}
+
+// =====================================================
+// CALCULATOR
+// =====================================================
 function calcola(fromFirebase) {
-  // Se la modifica viene dall'utente (non da Firebase), salva su Firebase
   if (!fromFirebase && FIREBASE_ENABLED) saveSettings();
   const numPersone = parseInt(document.getElementById('numPersone').value) || 8;
   const pesoMedio = parseInt(document.getElementById('pesoMedio').value) || 75;
@@ -1073,14 +1616,13 @@ function calcola(fromFirebase) {
   const numBoccioni = Math.ceil(spintaNecessaria / capienza);
 
   // Calculate raft dimensions
-  const areaPerPersona = 0.7; // m² per person
+  const areaPerPersona = 0.7;
   const areaMinima = numPersone * areaPerPersona;
   let larghezza, lunghezza;
   if (numPersone <= 4) { larghezza = 2.0; lunghezza = Math.max(2.0, Math.ceil(areaMinima / 2.0 * 10) / 10); }
   else if (numPersone <= 8) { larghezza = 2.5; lunghezza = Math.max(2.5, Math.ceil(areaMinima / 2.5 * 10) / 10); }
   else { larghezza = 3.0; lunghezza = Math.max(3.0, Math.ceil(areaMinima / 3.0 * 10) / 10); }
 
-  // Ensure enough space for jugs
   const jugDiam = capienza >= 15 ? 0.30 : 0.22;
   const colsMax = Math.floor(lunghezza / jugDiam);
   const rowsMax = Math.floor(larghezza / jugDiam);
@@ -1091,74 +1633,92 @@ function calcola(fromFirebase) {
 
   const numCompensato = Math.ceil((lunghezza * larghezza) / (1.22 * 2.44));
 
-  document.getElementById('risultati').innerHTML = `
-    <div class="result-item"><div class="number">${numBoccioni}</div><div class="label">Boccioni da ${capienza}L</div></div>
-    <div class="result-item"><div class="number">${pesoTotale} kg</div><div class="label">Peso totale</div></div>
-    <div class="result-item"><div class="number">${lunghezza} × ${larghezza} m</div><div class="label">Dimensioni zattera</div></div>
-    <div class="result-item"><div class="number">${numCompensato}</div><div class="label">Fogli compensato</div></div>
-  `;
+  document.getElementById('risultati').innerHTML =
+    '<div class="result-item"><div class="number">' + numBoccioni + '</div><div class="label">Boccioni da ' + capienza + 'L</div></div>' +
+    '<div class="result-item"><div class="number">' + pesoTotale + ' kg</div><div class="label">Peso totale</div></div>' +
+    '<div class="result-item"><div class="number">' + lunghezza + ' &times; ' + larghezza + ' m</div><div class="label">Dimensioni zattera</div></div>' +
+    '<div class="result-item"><div class="number">' + numCompensato + '</div><div class="label">Fogli compensato</div></div>';
 
-  // Update SVG dimensions
   document.getElementById('dimW').textContent = lunghezza.toFixed(1) + ' m';
   document.getElementById('dimH').textContent = larghezza.toFixed(1) + ' m';
 
-  // Update materials
-  const tbody = document.getElementById('materialsBody');
-  tbody.innerHTML = `
-    <tr><td>Boccioni acqua vuoti (${capienza}L)</td><td><strong>${numBoccioni} pezzi</strong></td><td>Ben chiusi e sigillati</td></tr>
-    <tr><td>Compensato marino 18mm (122×244 cm)</td><td><strong>${numCompensato} fogli</strong></td><td>Trattato con vernice marina</td></tr>
-    <tr><td>Travetti legno 5×5 cm</td><td><strong>~${Math.ceil((lunghezza + larghezza) * 3)} m lineari</strong></td><td>Per telaio e griglia supporto</td></tr>
-    <tr><td>Viti inox 4×50mm</td><td><strong>~${numCompensato * 30} pezzi</strong></td><td>Resistenti alla salsedine</td></tr>
-    <tr><td>Corda nautica (Ø 8-10mm)</td><td><strong>~${Math.ceil(numBoccioni * 0.8)} m</strong></td><td>Per fissaggio boccioni + perimetrale</td></tr>
-    <tr><td>Silicone nautico</td><td><strong>2 tubetti</strong></td><td>Per sigillare tappi boccioni</td></tr>
-    <tr><td>Vernice marina impermeabilizzante</td><td><strong>2 barattoli</strong></td><td>2 mani su tutto il legno</td></tr>
-    <tr><td>Nastro americano impermeabile</td><td><strong>2 rotoli</strong></td><td>Rinforzo e riparazioni</td></tr>
-    <tr><td>Giubbotti salvagente</td><td><strong>${numPersone} pezzi</strong></td><td>Omologati, uno per persona!</td></tr>
-  `;
-
-  // Budget
-  const budgetItems = [
-    { name: `Boccioni acqua ${capienza}L`, cost: 0, qty: numBoccioni, note: "Gratis se recuperati*", where: "Uffici, bar, distributori" },
-    { name: "Compensato marino 18mm", cost: 35, qty: numCompensato, note: "", where: "Brico, falegnameria" },
-    { name: "Travetti legno 5x5 cm", cost: 3, qty: Math.ceil((lunghezza + larghezza) * 3), note: "al metro", where: "Brico, falegnameria" },
-    { name: "Viti inox 4x50mm (conf. 100)", cost: 12, qty: Math.ceil(numCompensato * 30 / 100), note: "", where: "Ferramenta" },
-    { name: "Corda nautica 8-10mm (al metro)", cost: 1.5, qty: Math.ceil(numBoccioni * 0.8), note: "", where: "Negozio nautico, online" },
-    { name: "Silicone nautico", cost: 8, qty: 2, note: "", where: "Brico, ferramenta" },
-    { name: "Vernice marina (0.75L)", cost: 18, qty: 2, note: "", where: "Brico, negozio nautico" },
-    { name: "Nastro americano impermeabile", cost: 5, qty: 2, note: "", where: "Brico, ferramenta" },
-    { name: "Giubbotti salvagente", cost: 15, qty: numPersone, note: "Omologati!", where: "Decathlon, negozio nautico" },
-    { name: "Custodia impermeabile cell.", cost: 8, qty: 2, note: "", where: "Online, Decathlon" },
+  // Auto materials
+  autoMaterials = [
+    { name: 'Boccioni acqua vuoti (' + capienza + 'L)', qty: numBoccioni + ' pezzi', note: 'Ben chiusi e sigillati' },
+    { name: 'Compensato marino 18mm (122x244 cm)', qty: numCompensato + ' fogli', note: 'Trattato con vernice marina' },
+    { name: 'Travetti legno 5x5 cm', qty: '~' + Math.ceil((lunghezza + larghezza) * 3) + ' m lineari', note: 'Per telaio e griglia supporto' },
+    { name: 'Viti inox 4x50mm', qty: '~' + (numCompensato * 30) + ' pezzi', note: 'Resistenti alla salsedine' },
+    { name: 'Corda nautica (8-10mm)', qty: '~' + Math.ceil(numBoccioni * 0.8) + ' m', note: 'Per fissaggio boccioni + perimetrale' },
+    { name: 'Silicone nautico', qty: '2 tubetti', note: 'Per sigillare tappi boccioni' },
+    { name: 'Vernice marina impermeabilizzante', qty: '2 barattoli', note: '2 mani su tutto il legno' },
+    { name: 'Nastro americano impermeabile', qty: '2 rotoli', note: 'Rinforzo e riparazioni' },
+    { name: 'Giubbotti salvagente', qty: numPersone + ' pezzi', note: 'Omologati, uno per persona!' }
   ];
-  const budgetBody = document.getElementById('budgetBody');
-  let totalCost = 0;
-  budgetBody.innerHTML = budgetItems.map(item => {
-    const subtotal = item.cost * item.qty;
-    totalCost += subtotal;
-    return `<tr>
-      <td>${item.name} (x${item.qty})</td>
-      <td><strong>${subtotal === 0 ? 'GRATIS*' : '~' + subtotal + ' \u20AC'}</strong></td>
-      <td>${item.where}</td>
-    </tr>`;
-  }).join('');
-  document.getElementById('budgetTotal').innerHTML = `
-    <div class="total-label">BUDGET TOTALE STIMATO</div>
-    <div class="total-number">~${totalCost} \u20AC</div>
-    <div class="total-label" style="margin-top:0.3rem; opacity:0.7">Esclusi attrezzi (trapano, seghetto) che probabilmente avete gia</div>
-  `;
+  renderMaterials();
+
+  // Auto budget
+  autoBudget = [
+    { name: 'Boccioni acqua ' + capienza + 'L', cost: 0, qty: numBoccioni, where: 'Uffici, bar, distributori' },
+    { name: 'Compensato marino 18mm', cost: 35, qty: numCompensato, where: 'Brico, falegnameria' },
+    { name: 'Travetti legno 5x5 cm', cost: 3, qty: Math.ceil((lunghezza + larghezza) * 3), where: 'Brico, falegnameria' },
+    { name: 'Viti inox 4x50mm (conf. 100)', cost: 12, qty: Math.ceil(numCompensato * 30 / 100), where: 'Ferramenta' },
+    { name: 'Corda nautica 8-10mm (al metro)', cost: 1.5, qty: Math.ceil(numBoccioni * 0.8), where: 'Negozio nautico, online' },
+    { name: 'Silicone nautico', cost: 8, qty: 2, where: 'Brico, ferramenta' },
+    { name: 'Vernice marina (0.75L)', cost: 18, qty: 2, where: 'Brico, negozio nautico' },
+    { name: 'Nastro americano impermeabile', cost: 5, qty: 2, where: 'Brico, ferramenta' },
+    { name: 'Giubbotti salvagente', cost: 15, qty: numPersone, where: 'Decathlon, negozio nautico' },
+    { name: 'Custodia impermeabile cell.', cost: 8, qty: 2, where: 'Online, Decathlon' }
+  ];
+  renderBudget();
 
   // Warning
   const warn = document.getElementById('warningBox');
   if (numBoccioni > 80) {
     warn.style.display = 'block';
-    warn.innerHTML = '⚠️ <strong>Attenzione:</strong> servono molti boccioni (' + numBoccioni + '). Valuta di usare boccioni più grandi o ridurre il numero di persone per rendere il progetto più gestibile.';
+    warn.innerHTML = '&#x26A0;&#xFE0F; <strong>Attenzione:</strong> servono molti boccioni (' + numBoccioni + '). Valuta di usare boccioni pi&ugrave; grandi o ridurre il numero di persone.';
   } else {
     warn.style.display = 'none';
   }
 }
 
-// Initialize
-calcola();
-initChecklist();
+// =====================================================
+// UTILITIES
+// =====================================================
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// =====================================================
+// INITIALIZE
+// =====================================================
+function init() {
+  // Load localStorage fallback if no Firebase
+  if (!FIREBASE_ENABLED) {
+    try {
+      const savedChecklist = localStorage.getItem('zattera_checklistData');
+      if (savedChecklist) checklistData = JSON.parse(savedChecklist);
+    } catch {}
+    try {
+      const savedMats = localStorage.getItem('zattera_customMaterials');
+      if (savedMats) customMaterials = JSON.parse(savedMats);
+    } catch {}
+    try {
+      const savedBudget = localStorage.getItem('zattera_customBudget');
+      if (savedBudget) customBudget = JSON.parse(savedBudget);
+    } catch {}
+    showSyncStatus('local');
+  }
+  calcola(true); // true = don't save on first load
+  renderChecklist();
+  updateProgress();
+}
+
+init();
 </script>
 </body>
 </html>
