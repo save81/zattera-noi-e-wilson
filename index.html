@@ -690,6 +690,55 @@
   }
   .section-label.auto { background: #E3F2FD; color: var(--ocean-mid); }
   .section-label.custom { background: #E8F5E9; color: var(--green); }
+
+  /* =====================================================
+     DRAG AND DROP
+     ===================================================== */
+  .drag-handle {
+    cursor: grab;
+    color: #ccc;
+    font-size: 1.1rem;
+    padding: 0 0.3rem;
+    flex-shrink: 0;
+    user-select: none;
+    touch-action: none;
+    transition: color 0.2s;
+    line-height: 1;
+  }
+  .drag-handle:hover { color: var(--ocean-mid); }
+  .drag-handle:active { cursor: grabbing; }
+
+  .checklist-item.dragging,
+  tr.dragging {
+    opacity: 0.4;
+    background: #e3f2fd !important;
+  }
+  .checklist-item.drag-over {
+    border-top: 3px solid var(--ocean-mid);
+    padding-top: calc(0.7rem - 3px);
+  }
+  tr.drag-over td {
+    border-top: 3px solid var(--ocean-mid) !important;
+  }
+  /* Mobile touch: ghost preview */
+  .drag-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    background: white;
+    border-radius: 12px;
+    padding: 0.6rem 1rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ocean-deep);
+    max-width: 280px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0.9;
+  }
 </style>
 </head>
 <body>
@@ -1369,8 +1418,8 @@ function renderMaterials() {
 
   // Custom materials
   customMaterials.forEach((m, i) => {
-    html += '<tr style="background:#f0fff0;">' +
-      '<td>' + escHtml(m.name) + '</td>' +
+    html += '<tr style="background:#f0fff0;" data-idx="' + i + '" data-list="materials">' +
+      '<td><span class="drag-handle" title="Trascina">&#x2630;</span> ' + escHtml(m.name) + '</td>' +
       '<td><strong>' + escHtml(m.qty) + '</strong></td>' +
       '<td>' + escHtml(m.note) + '</td>' +
       '<td style="text-align:center"><div class="row-actions" style="justify-content:center">' +
@@ -1381,6 +1430,8 @@ function renderMaterials() {
   });
 
   tbody.innerHTML = html;
+  // Setup drag on custom rows
+  setTimeout(function() { setupTableDrag('materialsBody', 'materials'); }, 0);
 }
 
 function openMaterialEditor(idx) {
@@ -1450,8 +1501,8 @@ function renderBudget() {
   customBudget.forEach((item, i) => {
     const subtotal = (parseFloat(item.cost) || 0) * (parseInt(item.qty) || 1);
     totalCost += subtotal;
-    html += '<tr style="background:#f0fff0;">' +
-      '<td>' + escHtml(item.name) + (item.qty > 1 ? ' (x' + item.qty + ')' : '') + '</td>' +
+    html += '<tr style="background:#f0fff0;" data-idx="' + i + '" data-list="budget">' +
+      '<td><span class="drag-handle" title="Trascina">&#x2630;</span> ' + escHtml(item.name) + (item.qty > 1 ? ' (x' + item.qty + ')' : '') + '</td>' +
       '<td><strong>' + (subtotal === 0 ? 'GRATIS' : '~' + subtotal.toFixed(0) + ' \u20AC') + '</strong></td>' +
       '<td>' + escHtml(item.where || '') + '</td>' +
       '<td style="text-align:center"><div class="row-actions" style="justify-content:center">' +
@@ -1467,6 +1518,8 @@ function renderBudget() {
     '<div class="total-label">BUDGET TOTALE STIMATO</div>' +
     '<div class="total-number">~' + totalCost + ' \u20AC</div>' +
     '<div class="total-label" style="margin-top:0.3rem; opacity:0.7">Esclusi attrezzi (trapano, seghetto) che probabilmente avete gi&agrave;</div>';
+  // Setup drag on custom rows
+  setTimeout(function() { setupTableDrag('budgetBody', 'budget'); }, 0);
 }
 
 function openBudgetEditor(idx) {
@@ -1527,8 +1580,11 @@ function renderChecklist() {
   checklistData.forEach((item, i) => {
     const div = document.createElement('div');
     div.className = 'checklist-item' + (item.done ? ' done' : '');
+    div.setAttribute('data-idx', i);
+    div.setAttribute('data-list', 'checklist');
     const catClass = getCatClass(item.cat);
     div.innerHTML =
+      '<span class="drag-handle" title="Trascina per riordinare">&#x2630;</span>' +
       '<input type="checkbox" ' + (item.done ? 'checked' : '') + ' onchange="toggleCheck(' + i + ', this)">' +
       '<span class="item-text">' + escHtml(item.text) + '</span>' +
       '<span class="item-category ' + catClass + '">' + escHtml(item.cat) + '</span>' +
@@ -1536,8 +1592,13 @@ function renderChecklist() {
         '<button class="btn-icon btn-edit" onclick="event.stopPropagation();openChecklistEditor(' + i + ')" title="Modifica">&#x270F;&#xFE0F;</button>' +
         '<button class="btn-icon btn-delete" onclick="event.stopPropagation();deleteChecklistItem(' + i + ')" title="Elimina">&#x1F5D1;&#xFE0F;</button>' +
       '</div>';
+    // Attach touch drag events to handle
+    const handle = div.querySelector('.drag-handle');
+    handle.addEventListener('touchstart', function(e) { touchDragStart(e, div, 'checklist'); }, {passive: false});
     container.appendChild(div);
   });
+  // Setup HTML5 drag on handles
+  setupDragHandles(container, 'checklist');
 }
 
 function toggleCheck(i, el) {
@@ -1679,6 +1740,194 @@ function calcola(fromFirebase) {
   } else {
     warn.style.display = 'none';
   }
+}
+
+// =====================================================
+// DRAG AND DROP
+// =====================================================
+let dragSrcIdx = null;
+let dragListType = null;
+
+function getListData(type) {
+  if (type === 'checklist') return checklistData;
+  if (type === 'materials') return customMaterials;
+  if (type === 'budget') return customBudget;
+  return [];
+}
+
+function saveListData(type) {
+  if (type === 'checklist') saveChecklistData();
+  else if (type === 'materials') saveCustomMaterials();
+  else if (type === 'budget') saveCustomBudget();
+}
+
+function rerenderList(type) {
+  if (type === 'checklist') { renderChecklist(); updateProgress(); }
+  else if (type === 'materials') renderMaterials();
+  else if (type === 'budget') renderBudget();
+}
+
+function moveItem(list, fromIdx, toIdx) {
+  if (fromIdx === toIdx) return;
+  const item = list.splice(fromIdx, 1)[0];
+  list.splice(toIdx, 0, item);
+}
+
+// HTML5 Drag and Drop (desktop)
+function setupDragHandles(container, listType) {
+  const items = container.querySelectorAll('[data-list="' + listType + '"]');
+  items.forEach(el => {
+    const handle = el.querySelector('.drag-handle');
+    if (!handle) return;
+
+    handle.addEventListener('mousedown', function() {
+      el.setAttribute('draggable', 'true');
+    });
+    el.addEventListener('dragstart', function(e) {
+      dragSrcIdx = parseInt(el.getAttribute('data-idx'));
+      dragListType = listType;
+      el.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', dragSrcIdx);
+    });
+    el.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      // Clear all drag-over
+      items.forEach(x => x.classList.remove('drag-over'));
+      if (parseInt(el.getAttribute('data-idx')) !== dragSrcIdx) {
+        el.classList.add('drag-over');
+      }
+    });
+    el.addEventListener('dragleave', function() {
+      el.classList.remove('drag-over');
+    });
+    el.addEventListener('drop', function(e) {
+      e.preventDefault();
+      el.classList.remove('drag-over');
+      const toIdx = parseInt(el.getAttribute('data-idx'));
+      if (dragSrcIdx !== null && dragSrcIdx !== toIdx && dragListType === listType) {
+        const list = getListData(listType);
+        moveItem(list, dragSrcIdx, toIdx);
+        saveListData(listType);
+        rerenderList(listType);
+        showToast('Ordine aggiornato!', 'success');
+      }
+    });
+    el.addEventListener('dragend', function() {
+      el.classList.remove('dragging');
+      el.setAttribute('draggable', 'false');
+      items.forEach(x => x.classList.remove('drag-over'));
+      dragSrcIdx = null;
+      dragListType = null;
+    });
+  });
+}
+
+// Touch Drag and Drop (mobile)
+let touchDragEl = null;
+let touchGhost = null;
+let touchListType = null;
+let touchStartIdx = null;
+let touchCurrentTarget = null;
+
+function touchDragStart(e, el, listType) {
+  e.preventDefault();
+  touchDragEl = el;
+  touchListType = listType;
+  touchStartIdx = parseInt(el.getAttribute('data-idx'));
+  el.classList.add('dragging');
+
+  // Create ghost
+  touchGhost = document.createElement('div');
+  touchGhost.className = 'drag-ghost';
+  const textEl = el.querySelector('.item-text') || el.querySelector('td');
+  touchGhost.textContent = textEl ? textEl.textContent.trim().substring(0, 40) : '...';
+  document.body.appendChild(touchGhost);
+
+  const touch = e.touches[0];
+  touchGhost.style.left = (touch.clientX + 10) + 'px';
+  touchGhost.style.top = (touch.clientY - 20) + 'px';
+
+  document.addEventListener('touchmove', touchDragMove, {passive: false});
+  document.addEventListener('touchend', touchDragEnd);
+}
+
+function touchDragMove(e) {
+  e.preventDefault();
+  const touch = e.touches[0];
+  if (touchGhost) {
+    touchGhost.style.left = (touch.clientX + 10) + 'px';
+    touchGhost.style.top = (touch.clientY - 20) + 'px';
+  }
+
+  // Find element under finger
+  if (touchGhost) touchGhost.style.display = 'none';
+  const elUnder = document.elementFromPoint(touch.clientX, touch.clientY);
+  if (touchGhost) touchGhost.style.display = '';
+
+  // Find closest list item
+  const container = touchDragEl.parentElement;
+  const items = container.querySelectorAll('[data-list="' + touchListType + '"]');
+  items.forEach(x => x.classList.remove('drag-over'));
+
+  if (elUnder) {
+    const listItem = elUnder.closest('[data-list="' + touchListType + '"]');
+    if (listItem && listItem !== touchDragEl) {
+      listItem.classList.add('drag-over');
+      touchCurrentTarget = listItem;
+    } else {
+      touchCurrentTarget = null;
+    }
+  }
+}
+
+function touchDragEnd(e) {
+  document.removeEventListener('touchmove', touchDragMove);
+  document.removeEventListener('touchend', touchDragEnd);
+
+  if (touchDragEl) touchDragEl.classList.remove('dragging');
+
+  if (touchGhost) {
+    document.body.removeChild(touchGhost);
+    touchGhost = null;
+  }
+
+  // Clear all drag-over
+  if (touchDragEl) {
+    const container = touchDragEl.parentElement;
+    const items = container.querySelectorAll('[data-list="' + touchListType + '"]');
+    items.forEach(x => x.classList.remove('drag-over'));
+  }
+
+  if (touchCurrentTarget && touchDragEl) {
+    const toIdx = parseInt(touchCurrentTarget.getAttribute('data-idx'));
+    if (touchStartIdx !== null && touchStartIdx !== toIdx) {
+      const list = getListData(touchListType);
+      moveItem(list, touchStartIdx, toIdx);
+      saveListData(touchListType);
+      rerenderList(touchListType);
+      showToast('Ordine aggiornato!', 'success');
+    }
+  }
+
+  touchDragEl = null;
+  touchCurrentTarget = null;
+  touchStartIdx = null;
+  touchListType = null;
+}
+
+// Setup drag for table rows (materials & budget) after render
+function setupTableDrag(tableId, listType) {
+  const tbody = document.getElementById(tableId);
+  if (!tbody) return;
+  const rows = tbody.querySelectorAll('tr[data-list="' + listType + '"]');
+  rows.forEach(tr => {
+    const handle = tr.querySelector('.drag-handle');
+    if (!handle) return;
+    handle.addEventListener('touchstart', function(e) { touchDragStart(e, tr, listType); }, {passive: false});
+  });
+  setupDragHandles(tbody, listType);
 }
 
 // =====================================================
