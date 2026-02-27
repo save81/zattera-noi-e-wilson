@@ -523,6 +523,89 @@
     display: none;
   }
   .fab-save.unsaved .unsaved-badge { display: block; }
+
+  /* Nickname bar */
+  .nickname-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.8);
+  }
+  .nickname-bar .nick-name {
+    font-weight: 800;
+    color: var(--sun);
+    cursor: pointer;
+    border-bottom: 1px dashed rgba(255,255,255,0.4);
+  }
+  .nickname-bar .nick-name:hover { color: white; }
+
+  /* Nickname modal */
+  .nick-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .nick-overlay.open { opacity: 1; pointer-events: auto; }
+  .nick-panel {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    width: 90%;
+    max-width: 360px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .nick-panel h3 { color: var(--ocean-deep); margin-bottom: 0.5rem; }
+  .nick-panel p { color: #666; font-size: 0.9rem; margin-bottom: 1rem; }
+  .nick-panel input {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-family: 'Nunito', sans-serif;
+    text-align: center;
+    font-weight: 700;
+  }
+  .nick-panel input:focus { outline: none; border-color: var(--ocean-light); }
+  .nick-panel button {
+    margin-top: 1rem;
+    padding: 0.7rem 2rem;
+    border: none;
+    border-radius: 12px;
+    background: var(--ocean-mid);
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .nick-panel button:hover { background: var(--ocean-deep); }
+
+  /* Modified-by label */
+  .mod-by {
+    font-size: 0.65rem;
+    color: #aaa;
+    font-style: italic;
+    margin-left: 0.3rem;
+  }
+  .mod-by-row {
+    font-size: 0.65rem;
+    color: #aaa;
+    font-style: italic;
+    display: block;
+    margin-top: 2px;
+  }
   .fab-save .fab-label {
     position: absolute;
     right: 72px;
@@ -777,6 +860,7 @@
     <h1>&#x1F6A3; Progetto Zattera NOI E WILSON </h1>
     <p class="subtitle">Estate 2026 — L'avventura in famiglia</p>
     <div class="castaway-badge">&#x1F3DD;&#xFE0F; ISPIRAZIONE CAST AWAY</div>
+    <div class="nickname-bar">&#x1F464; Stai lavorando come: <span class="nick-name" id="nickDisplay" onclick="promptNickname()" title="Clicca per cambiare nome">...</span></div>
   </div>
 
   <!-- CALCULATOR -->
@@ -1174,6 +1258,17 @@
   </div>
 </div>
 
+<!-- NICKNAME MODAL -->
+<div class="nick-overlay" id="nickOverlay">
+  <div class="nick-panel">
+    <h3>&#x1F44B; Come ti chiami?</h3>
+    <p>Il tuo nome apparir&agrave; accanto alle modifiche che fai, cos&igrave; la famiglia sa chi ha cambiato cosa.</p>
+    <input id="nickInput" placeholder="Es: Save, Mamma, Marco..." maxlength="20">
+    <br>
+    <button onclick="confirmNickname()">Conferma</button>
+  </div>
+</div>
+
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
@@ -1192,182 +1287,241 @@ const FIREBASE_CONFIG = {
   appId: "1:136898685704:web:a97cbc5e94c27e749e1abd"
 };
 
+// =====================================================
+// NICKNAME SYSTEM
+// =====================================================
+let currentNickname = '';
+
+function loadNickname() {
+  currentNickname = localStorage.getItem('zattera_nickname') || '';
+  document.getElementById('nickDisplay').textContent = currentNickname || '...';
+  if (!currentNickname) {
+    setTimeout(function() { document.getElementById('nickOverlay').classList.add('open'); }, 600);
+  }
+}
+
+function promptNickname() {
+  document.getElementById('nickInput').value = currentNickname;
+  document.getElementById('nickOverlay').classList.add('open');
+  document.getElementById('nickInput').focus();
+}
+
+function confirmNickname() {
+  const name = document.getElementById('nickInput').value.trim();
+  if (!name) { document.getElementById('nickInput').style.borderColor = '#E53935'; return; }
+  currentNickname = name;
+  localStorage.setItem('zattera_nickname', name);
+  document.getElementById('nickDisplay').textContent = name;
+  document.getElementById('nickOverlay').classList.remove('open');
+}
+
+// Enter key on nickname input
+document.getElementById('nickInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') confirmNickname();
+});
+
 const FIREBASE_ENABLED = FIREBASE_CONFIG.apiKey !== "" && FIREBASE_CONFIG.databaseURL !== "";
 
 // =====================================================
-// INIZIALIZZAZIONE FIREBASE
+// UTILITY: generate unique IDs
+// =====================================================
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
+}
+
+function stampItem(item) {
+  item._by = currentNickname || '?';
+  item._at = Date.now();
+  return item;
+}
+
+function timeAgo(ts) {
+  if (!ts) return '';
+  const diff = Math.floor((Date.now() - ts) / 1000);
+  if (diff < 60) return 'ora';
+  if (diff < 3600) return Math.floor(diff / 60) + ' min fa';
+  if (diff < 86400) return Math.floor(diff / 3600) + ' ore fa';
+  return Math.floor(diff / 86400) + ' gg fa';
+}
+
+function modLabel(item) {
+  if (!item._by) return '';
+  return '<span class="mod-by">' + escHtml(item._by) + ', ' + timeAgo(item._at) + '</span>';
+}
+
+function modLabelBlock(item) {
+  if (!item._by) return '';
+  return '<span class="mod-by-row">' + escHtml(item._by) + ', ' + timeAgo(item._at) + '</span>';
+}
+
+// =====================================================
+// FIREBASE + DATA
 // =====================================================
 let db = null;
 let settingsRef = null;
 let materialsDataRef = null;
 let budgetDataRef = null;
 let checklistDataRef = null;
-let ignoreSettingsUpdate = false;
-let ignoreMaterialsUpdate = false;
-let ignoreBudgetUpdate = false;
-let ignoreChecklistDataUpdate = false;
+let ignoreSettings = false;
+let ignoreMaterials = false;
+let ignoreBudget = false;
+let ignoreChecklist = false;
+
+// Deleted IDs tracked per section (for merge)
+let deletedMaterialIds = new Set();
+let deletedBudgetIds = new Set();
+let deletedChecklistIds = new Set();
 
 // =====================================================
-// DEFAULT DATA
+// DEFAULT DATA (with _id fields)
 // =====================================================
 const DEFAULT_CHECKLIST = [
-  { text: "Raccogliere i boccioni (minimo calcolato)", cat: "Materiale", done: false },
-  { text: "Acquistare compensato marino 18mm", cat: "Materiale", done: false },
-  { text: "Acquistare travetti in legno 5x5 cm", cat: "Materiale", done: false },
-  { text: "Procurare viti inox e bulloni", cat: "Materiale", done: false },
-  { text: "Comprare corda nautica (30m+)", cat: "Materiale", done: false },
-  { text: "Silicone o nastro americano impermeabile", cat: "Materiale", done: false },
-  { text: "Vernice marina impermeabilizzante", cat: "Materiale", done: false },
-  { text: "Giubbotti salvagente per tutti", cat: "Sicurezza", done: false },
-  { text: "Custodia impermeabile per cellulare", cat: "Sicurezza", done: false },
-  { text: "Crema solare SPF 50+", cat: "Sicurezza", done: false },
-  { text: "Acqua potabile e snack", cat: "Sicurezza", done: false },
-  { text: "Remi o pagaie", cat: "Attrezzi", done: false },
-  { text: "Trapano con punte per legno", cat: "Attrezzi", done: false },
-  { text: "Seghetto circolare o a mano", cat: "Attrezzi", done: false },
-  { text: "Metro, matita, squadra", cat: "Attrezzi", done: false },
-  { text: "Verificare tenuta ermetica boccioni", cat: "Test", done: false },
-  { text: "Trattare compensato (2 mani vernice)", cat: "Costruzione", done: false },
-  { text: "Assemblare telaio + boccioni", cat: "Costruzione", done: false },
-  { text: "Test in acqua bassa (carico progressivo)", cat: "Test", done: false },
-  { text: "Controllare meteo il giorno del varo", cat: "Varo", done: false },
-  { text: "Avvisare qualcuno del percorso", cat: "Varo", done: false },
-  { text: "DIVERTIRSI!", cat: "Varo", done: false }
+  { _id: "chk_boccioni", text: "Raccogliere i boccioni (minimo calcolato)", cat: "Materiale", done: false },
+  { _id: "chk_compensato", text: "Acquistare compensato marino 18mm", cat: "Materiale", done: false },
+  { _id: "chk_travetti", text: "Acquistare travetti in legno 5x5 cm", cat: "Materiale", done: false },
+  { _id: "chk_viti", text: "Procurare viti inox e bulloni", cat: "Materiale", done: false },
+  { _id: "chk_corda", text: "Comprare corda nautica (30m+)", cat: "Materiale", done: false },
+  { _id: "chk_silicone", text: "Silicone o nastro americano impermeabile", cat: "Materiale", done: false },
+  { _id: "chk_vernice", text: "Vernice marina impermeabilizzante", cat: "Materiale", done: false },
+  { _id: "chk_giubbotti", text: "Giubbotti salvagente per tutti", cat: "Sicurezza", done: false },
+  { _id: "chk_custodia", text: "Custodia impermeabile per cellulare", cat: "Sicurezza", done: false },
+  { _id: "chk_crema", text: "Crema solare SPF 50+", cat: "Sicurezza", done: false },
+  { _id: "chk_acqua", text: "Acqua potabile e snack", cat: "Sicurezza", done: false },
+  { _id: "chk_remi", text: "Remi o pagaie", cat: "Attrezzi", done: false },
+  { _id: "chk_trapano", text: "Trapano con punte per legno", cat: "Attrezzi", done: false },
+  { _id: "chk_seghetto", text: "Seghetto circolare o a mano", cat: "Attrezzi", done: false },
+  { _id: "chk_metro", text: "Metro, matita, squadra", cat: "Attrezzi", done: false },
+  { _id: "chk_tenuta", text: "Verificare tenuta ermetica boccioni", cat: "Test", done: false },
+  { _id: "chk_trattare", text: "Trattare compensato (2 mani vernice)", cat: "Costruzione", done: false },
+  { _id: "chk_assemblare", text: "Assemblare telaio + boccioni", cat: "Costruzione", done: false },
+  { _id: "chk_testacqua", text: "Test in acqua bassa (carico progressivo)", cat: "Test", done: false },
+  { _id: "chk_meteo", text: "Controllare meteo il giorno del varo", cat: "Varo", done: false },
+  { _id: "chk_avvisare", text: "Avvisare qualcuno del percorso", cat: "Varo", done: false },
+  { _id: "chk_divertirsi", text: "DIVERTIRSI!", cat: "Varo", done: false }
 ];
 
 const CATEGORIES = ["Materiale", "Sicurezza", "Attrezzi", "Test", "Costruzione", "Varo", "Altro"];
 
 // =====================================================
-// UNIFIED DATA ARRAYS (auto + custom in one list)
-// Each item can have auto:true and key:'xxx' for auto-generated items
+// DATA ARRAYS (unified: auto + custom, all with _id)
 // =====================================================
 let checklistData = JSON.parse(JSON.stringify(DEFAULT_CHECKLIST));
-let materialsData = [];  // unified: auto + custom
-let budgetData = [];     // unified: auto + custom
+let materialsData = [];
+let budgetData = [];
 let materialsInitialized = false;
 let budgetInitialized = false;
 
 // =====================================================
-// FIREBASE INIT
+// FIREBASE INIT — listeners receive remote changes
 // =====================================================
 if (FIREBASE_ENABLED) {
   try {
     firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.database();
-    settingsRef = db.ref('zattera/settings');
-    materialsDataRef = db.ref('zattera/materialsData');
-    budgetDataRef = db.ref('zattera/budgetData');
-    checklistDataRef = db.ref('zattera/checklistData');
+    settingsRef = db.ref('zattera/v2/settings');
+    materialsDataRef = db.ref('zattera/v2/materials');
+    budgetDataRef = db.ref('zattera/v2/budget');
+    checklistDataRef = db.ref('zattera/v2/checklist');
 
-    // Listen for checklist data
-    checklistDataRef.on('value', (snapshot) => {
-      if (ignoreChecklistDataUpdate) return;
-      const data = snapshot.val();
-      if (data && Array.isArray(data)) {
-        checklistData = data;
-      } else if (data) {
-        checklistData = Object.values(data);
+    checklistDataRef.on('value', (snap) => {
+      if (ignoreChecklist) return;
+      const d = snap.val();
+      if (d) {
+        checklistData = Array.isArray(d) ? d : Object.values(d);
+        renderChecklist(); updateProgress();
       }
-      renderChecklist();
-      updateProgress();
       showSyncStatus('online');
     });
 
-    // Listen for unified materials data
-    materialsDataRef.on('value', (snapshot) => {
-      if (ignoreMaterialsUpdate) return;
-      const data = snapshot.val();
-      if (data) {
-        materialsData = Array.isArray(data) ? data : Object.values(data);
+    materialsDataRef.on('value', (snap) => {
+      if (ignoreMaterials) return;
+      const d = snap.val();
+      if (d) {
+        materialsData = Array.isArray(d) ? d : Object.values(d);
         materialsInitialized = true;
         renderMaterials();
       }
     });
 
-    // Listen for unified budget data
-    budgetDataRef.on('value', (snapshot) => {
-      if (ignoreBudgetUpdate) return;
-      const data = snapshot.val();
-      if (data) {
-        budgetData = Array.isArray(data) ? data : Object.values(data);
+    budgetDataRef.on('value', (snap) => {
+      if (ignoreBudget) return;
+      const d = snap.val();
+      if (d) {
+        budgetData = Array.isArray(d) ? d : Object.values(d);
         budgetInitialized = true;
         renderBudget();
       }
     });
 
-    // Listen for calculator settings
-    settingsRef.on('value', (snapshot) => {
-      if (ignoreSettingsUpdate) return;
-      const settings = snapshot.val();
-      if (settings) {
-        if (settings.numPersone) document.getElementById('numPersone').value = settings.numPersone;
-        if (settings.pesoMedio) document.getElementById('pesoMedio').value = settings.pesoMedio;
-        if (settings.capienzaBoccione) document.getElementById('capienzaBoccione').value = settings.capienzaBoccione;
-        if (settings.margine) document.getElementById('margine').value = settings.margine;
+    settingsRef.on('value', (snap) => {
+      if (ignoreSettings) return;
+      const s = snap.val();
+      if (s) {
+        if (s.numPersone) document.getElementById('numPersone').value = s.numPersone;
+        if (s.pesoMedio) document.getElementById('pesoMedio').value = s.pesoMedio;
+        if (s.capienzaBoccione) document.getElementById('capienzaBoccione').value = s.capienzaBoccione;
+        if (s.margine) document.getElementById('margine').value = s.margine;
         calcola(true);
       }
     });
 
-    // Connection status
     db.ref('.info/connected').on('value', (snap) => {
       showSyncStatus(snap.val() ? 'online' : 'offline');
     });
   } catch (e) {
-    console.warn('Firebase init failed, using localStorage:', e);
+    console.warn('Firebase init failed:', e);
     showSyncStatus('error');
   }
 }
 
 // =====================================================
-// SAVE FUNCTIONS
+// MERGE SAVE — per section, preserves other users' items
 // =====================================================
-function saveSettings() {
-  if (!FIREBASE_ENABLED || !settingsRef) return;
-  ignoreSettingsUpdate = true;
-  settingsRef.set({
-    numPersone: parseInt(document.getElementById('numPersone').value) || 8,
-    pesoMedio: parseInt(document.getElementById('pesoMedio').value) || 75,
-    capienzaBoccione: parseInt(document.getElementById('capienzaBoccione').value) || 18,
-    margine: parseFloat(document.getElementById('margine').value) || 1.3
-  }).then(() => {
-    setTimeout(() => { ignoreSettingsUpdate = false; }, 500);
+function toArr(val) {
+  if (!val) return [];
+  return Array.isArray(val) ? val : Object.values(val);
+}
+
+async function mergeSave(ref, localItems, deletedIds, ignoreFlag) {
+  if (!FIREBASE_ENABLED || !ref) return localItems;
+
+  // Read current remote state
+  const snap = await ref.once('value');
+  const remote = toArr(snap.val());
+
+  // Build set of local IDs
+  const localIds = new Set(localItems.map(i => i._id).filter(Boolean));
+
+  // Start with local items (user's order)
+  const merged = localItems.map(item => Object.assign({}, item));
+
+  // Append remote-only items (added by others, not deleted by us)
+  remote.forEach(ri => {
+    if (ri._id && !localIds.has(ri._id) && !deletedIds.has(ri._id)) {
+      merged.push(ri);
+    }
   });
+
+  // Write merged result
+  if (ignoreFlag === 'checklist') ignoreChecklist = true;
+  else if (ignoreFlag === 'materials') ignoreMaterials = true;
+  else if (ignoreFlag === 'budget') ignoreBudget = true;
+
+  await ref.set(merged);
+
+  setTimeout(() => {
+    if (ignoreFlag === 'checklist') ignoreChecklist = false;
+    else if (ignoreFlag === 'materials') ignoreMaterials = false;
+    else if (ignoreFlag === 'budget') ignoreBudget = false;
+  }, 500);
+
+  deletedIds.clear();
+  return merged;
 }
 
-function saveChecklistData() {
-  if (FIREBASE_ENABLED && checklistDataRef) {
-    ignoreChecklistDataUpdate = true;
-    checklistDataRef.set(checklistData).then(() => {
-      setTimeout(() => { ignoreChecklistDataUpdate = false; }, 500);
-    });
-  } else {
-    try { localStorage.setItem('zattera_checklistData', JSON.stringify(checklistData)); } catch {}
-  }
-}
-
-function saveMaterialsData() {
-  if (FIREBASE_ENABLED && materialsDataRef) {
-    ignoreMaterialsUpdate = true;
-    materialsDataRef.set(materialsData).then(() => {
-      setTimeout(() => { ignoreMaterialsUpdate = false; }, 500);
-    });
-  } else {
-    try { localStorage.setItem('zattera_materialsData', JSON.stringify(materialsData)); } catch {}
-  }
-}
-
-function saveBudgetData() {
-  if (FIREBASE_ENABLED && budgetDataRef) {
-    ignoreBudgetUpdate = true;
-    budgetDataRef.set(budgetData).then(() => {
-      setTimeout(() => { ignoreBudgetUpdate = false; }, 500);
-    });
-  } else {
-    try { localStorage.setItem('zattera_budgetData', JSON.stringify(budgetData)); } catch {}
-  }
-}
-
-// Track unsaved changes
+// =====================================================
+// UNSAVED CHANGES TRACKING
+// =====================================================
 let hasUnsavedChanges = false;
 
 function markUnsaved() {
@@ -1382,14 +1536,52 @@ function markSaved() {
   document.getElementById('fabSave').classList.remove('unsaved');
 }
 
-// SAVE ALL (floating button)
-function saveAll() {
-  saveSettings();
-  saveChecklistData();
-  saveMaterialsData();
-  saveBudgetData();
-  markSaved();
-  showToast('Tutto salvato!', 'success');
+// =====================================================
+// SAVE ALL — merges per section, only on button press
+// =====================================================
+async function saveAll() {
+  const fab = document.getElementById('fabSave');
+  fab.style.pointerEvents = 'none';
+  fab.style.opacity = '0.6';
+  showToast('Salvataggio in corso...', '');
+
+  try {
+    if (FIREBASE_ENABLED) {
+      // Save settings (simple overwrite)
+      ignoreSettings = true;
+      await settingsRef.set({
+        numPersone: parseInt(document.getElementById('numPersone').value) || 8,
+        pesoMedio: parseInt(document.getElementById('pesoMedio').value) || 75,
+        capienzaBoccione: parseInt(document.getElementById('capienzaBoccione').value) || 18,
+        margine: parseFloat(document.getElementById('margine').value) || 1.3,
+        _by: currentNickname, _at: Date.now()
+      });
+      setTimeout(() => { ignoreSettings = false; }, 500);
+
+      // Merge-save each section
+      checklistData = await mergeSave(checklistDataRef, checklistData, deletedChecklistIds, 'checklist');
+      materialsData = await mergeSave(materialsDataRef, materialsData, deletedMaterialIds, 'materials');
+      budgetData = await mergeSave(budgetDataRef, budgetData, deletedBudgetIds, 'budget');
+
+      renderChecklist(); updateProgress();
+      renderMaterials();
+      renderBudget();
+    } else {
+      // localStorage fallback
+      localStorage.setItem('zattera_checklistData', JSON.stringify(checklistData));
+      localStorage.setItem('zattera_materialsData', JSON.stringify(materialsData));
+      localStorage.setItem('zattera_budgetData', JSON.stringify(budgetData));
+    }
+
+    markSaved();
+    showToast('Tutto salvato!', 'success');
+  } catch (e) {
+    console.error('Save error:', e);
+    showToast('Errore nel salvataggio!', 'error');
+  }
+
+  fab.style.pointerEvents = '';
+  fab.style.opacity = '';
 }
 
 // =====================================================
@@ -1453,7 +1645,8 @@ function renderMaterials() {
     const isAuto = m.auto;
     html += '<tr' + (isAuto ? '' : ' style="background:#f0fff0;"') + ' data-idx="' + i + '" data-list="materials">' +
       '<td><span class="drag-handle" title="Trascina per riordinare">&#x2630;</span> ' + escHtml(m.name) +
-        (isAuto ? ' <span style="font-size:0.65rem;color:#aaa;background:#f0f0f0;padding:1px 5px;border-radius:4px;">auto</span>' : '') + '</td>' +
+        (isAuto ? ' <span style="font-size:0.65rem;color:#aaa;background:#f0f0f0;padding:1px 5px;border-radius:4px;">auto</span>' : '') +
+        modLabelBlock(m) + '</td>' +
       '<td><strong>' + escHtml(m.qty) + '</strong></td>' +
       '<td>' + escHtml(m.note || '') + '</td>' +
       '<td style="text-align:center"><div class="row-actions" style="justify-content:center">' +
@@ -1488,16 +1681,13 @@ function saveMaterialEdit(idx) {
   const note = document.getElementById('edMatNote').value.trim();
   if (!name) { showToast('Inserisci il nome del materiale', 'error'); return; }
   if (idx === -1) {
-    materialsData.push({ name, qty, note, auto: false });
+    materialsData.push(stampItem({ _id: genId(), name, qty, note, auto: false }));
   } else {
     materialsData[idx].name = name;
     materialsData[idx].qty = qty;
     materialsData[idx].note = note;
-    // Once user edits an auto item, it becomes custom
-    if (materialsData[idx].auto) {
-      materialsData[idx].auto = false;
-      delete materialsData[idx].key;
-    }
+    if (materialsData[idx].auto) { materialsData[idx].auto = false; delete materialsData[idx].key; }
+    stampItem(materialsData[idx]);
   }
   markUnsaved();
   renderMaterials();
@@ -1507,6 +1697,7 @@ function saveMaterialEdit(idx) {
 
 function deleteMaterial(idx) {
   if (!confirm('Eliminare "' + materialsData[idx].name + '"?')) return;
+  if (materialsData[idx]._id) deletedMaterialIds.add(materialsData[idx]._id);
   materialsData.splice(idx, 1);
   markUnsaved();
   renderMaterials();
@@ -1529,7 +1720,8 @@ function renderBudget() {
     totalCost += subtotal;
     html += '<tr' + (isAuto ? '' : ' style="background:#f0fff0;"') + ' data-idx="' + i + '" data-list="budget">' +
       '<td><span class="drag-handle" title="Trascina per riordinare">&#x2630;</span> ' + escHtml(item.name) + (qty > 1 ? ' (x' + qty + ')' : '') +
-        (isAuto ? ' <span style="font-size:0.65rem;color:#aaa;background:#f0f0f0;padding:1px 5px;border-radius:4px;">auto</span>' : '') + '</td>' +
+        (isAuto ? ' <span style="font-size:0.65rem;color:#aaa;background:#f0f0f0;padding:1px 5px;border-radius:4px;">auto</span>' : '') +
+        modLabelBlock(item) + '</td>' +
       '<td><strong>' + (subtotal === 0 ? 'GRATIS*' : '~' + subtotal.toFixed(0) + ' \u20AC') + '</strong></td>' +
       '<td>' + escHtml(item.where || '') + '</td>' +
       '<td style="text-align:center"><div class="row-actions" style="justify-content:center">' +
@@ -1572,16 +1764,14 @@ function saveBudgetEdit(idx) {
   const where = document.getElementById('edBudWhere').value.trim();
   if (!name) { showToast('Inserisci la descrizione', 'error'); return; }
   if (idx === -1) {
-    budgetData.push({ name, cost, qty, where, auto: false });
+    budgetData.push(stampItem({ _id: genId(), name, cost, qty, where, auto: false }));
   } else {
     budgetData[idx].name = name;
     budgetData[idx].cost = cost;
     budgetData[idx].qty = qty;
     budgetData[idx].where = where;
-    if (budgetData[idx].auto) {
-      budgetData[idx].auto = false;
-      delete budgetData[idx].key;
-    }
+    if (budgetData[idx].auto) { budgetData[idx].auto = false; delete budgetData[idx].key; }
+    stampItem(budgetData[idx]);
   }
   markUnsaved();
   renderBudget();
@@ -1591,6 +1781,7 @@ function saveBudgetEdit(idx) {
 
 function deleteBudgetItem(idx) {
   if (!confirm('Eliminare "' + budgetData[idx].name + '"?')) return;
+  if (budgetData[idx]._id) deletedBudgetIds.add(budgetData[idx]._id);
   budgetData.splice(idx, 1);
   markUnsaved();
   renderBudget();
@@ -1618,7 +1809,7 @@ function renderChecklist() {
     div.innerHTML =
       '<span class="drag-handle" title="Trascina per riordinare">&#x2630;</span>' +
       '<input type="checkbox" ' + (item.done ? 'checked' : '') + ' onchange="toggleCheck(' + i + ', this)">' +
-      '<span class="item-text">' + escHtml(item.text) + '</span>' +
+      '<span class="item-text">' + escHtml(item.text) + modLabel(item) + '</span>' +
       '<span class="item-category ' + catClass + '">' + escHtml(item.cat) + '</span>' +
       '<div class="row-actions">' +
         '<button class="btn-icon btn-edit" onclick="event.stopPropagation();openChecklistEditor(' + i + ')" title="Modifica">&#x270F;&#xFE0F;</button>' +
@@ -1635,6 +1826,7 @@ function renderChecklist() {
 
 function toggleCheck(i, el) {
   checklistData[i].done = el.checked;
+  stampItem(checklistData[i]);
   el.closest('.checklist-item').classList.toggle('done', el.checked);
   updateProgress();
   markUnsaved();
@@ -1671,10 +1863,11 @@ function saveChecklistEdit(idx) {
   const cat = document.getElementById('edChkCat').value;
   if (!text) { showToast('Inserisci la descrizione', 'error'); return; }
   if (idx === -1) {
-    checklistData.push({ text, cat, done: false });
+    checklistData.push(stampItem({ _id: genId(), text, cat, done: false }));
   } else {
     checklistData[idx].text = text;
     checklistData[idx].cat = cat;
+    stampItem(checklistData[idx]);
   }
   markUnsaved();
   renderChecklist();
@@ -1685,6 +1878,7 @@ function saveChecklistEdit(idx) {
 
 function deleteChecklistItem(idx) {
   if (!confirm('Eliminare "' + checklistData[idx].text + '"?')) return;
+  if (checklistData[idx]._id) deletedChecklistIds.add(checklistData[idx]._id);
   checklistData.splice(idx, 1);
   markUnsaved();
   renderChecklist();
@@ -1737,29 +1931,28 @@ function calcola(fromFirebase) {
 
   // Fresh auto materials (used for init and for updating quantities)
   const freshMaterials = [
-    { name: 'Boccioni acqua vuoti (' + capienza + 'L)', qty: numBoccioni + ' pezzi', note: 'Ben chiusi e sigillati', auto: true, key: 'boccioni' },
-    { name: 'Compensato marino 18mm (122x244 cm)', qty: numCompensato + ' fogli', note: 'Trattato con vernice marina', auto: true, key: 'compensato' },
-    { name: 'Travetti legno 5x5 cm', qty: '~' + Math.ceil((lunghezza + larghezza) * 3) + ' m lineari', note: 'Per telaio e griglia supporto', auto: true, key: 'travetti' },
-    { name: 'Viti inox 4x50mm', qty: '~' + (numCompensato * 30) + ' pezzi', note: 'Resistenti alla salsedine', auto: true, key: 'viti' },
-    { name: 'Corda nautica (8-10mm)', qty: '~' + Math.ceil(numBoccioni * 0.8) + ' m', note: 'Per fissaggio boccioni + perimetrale', auto: true, key: 'corda' },
-    { name: 'Silicone nautico', qty: '2 tubetti', note: 'Per sigillare tappi boccioni', auto: true, key: 'silicone' },
-    { name: 'Vernice marina impermeabilizzante', qty: '2 barattoli', note: '2 mani su tutto il legno', auto: true, key: 'vernice' },
-    { name: 'Nastro americano impermeabile', qty: '2 rotoli', note: 'Rinforzo e riparazioni', auto: true, key: 'nastro' },
-    { name: 'Giubbotti salvagente', qty: numPersone + ' pezzi', note: 'Omologati, uno per persona!', auto: true, key: 'giubbotti' }
+    { _id: 'mat_boccioni', name: 'Boccioni acqua vuoti (' + capienza + 'L)', qty: numBoccioni + ' pezzi', note: 'Ben chiusi e sigillati', auto: true, key: 'boccioni' },
+    { _id: 'mat_compensato', name: 'Compensato marino 18mm (122x244 cm)', qty: numCompensato + ' fogli', note: 'Trattato con vernice marina', auto: true, key: 'compensato' },
+    { _id: 'mat_travetti', name: 'Travetti legno 5x5 cm', qty: '~' + Math.ceil((lunghezza + larghezza) * 3) + ' m lineari', note: 'Per telaio e griglia supporto', auto: true, key: 'travetti' },
+    { _id: 'mat_viti', name: 'Viti inox 4x50mm', qty: '~' + (numCompensato * 30) + ' pezzi', note: 'Resistenti alla salsedine', auto: true, key: 'viti' },
+    { _id: 'mat_corda', name: 'Corda nautica (8-10mm)', qty: '~' + Math.ceil(numBoccioni * 0.8) + ' m', note: 'Per fissaggio boccioni + perimetrale', auto: true, key: 'corda' },
+    { _id: 'mat_silicone', name: 'Silicone nautico', qty: '2 tubetti', note: 'Per sigillare tappi boccioni', auto: true, key: 'silicone' },
+    { _id: 'mat_vernice', name: 'Vernice marina impermeabilizzante', qty: '2 barattoli', note: '2 mani su tutto il legno', auto: true, key: 'vernice' },
+    { _id: 'mat_nastro', name: 'Nastro americano impermeabile', qty: '2 rotoli', note: 'Rinforzo e riparazioni', auto: true, key: 'nastro' },
+    { _id: 'mat_giubbotti', name: 'Giubbotti salvagente', qty: numPersone + ' pezzi', note: 'Omologati, uno per persona!', auto: true, key: 'giubbotti' }
   ];
 
-  // Fresh auto budget
   const freshBudget = [
-    { name: 'Boccioni acqua ' + capienza + 'L', cost: 0, qty: numBoccioni, where: 'Uffici, bar, distributori', auto: true, key: 'boccioni' },
-    { name: 'Compensato marino 18mm', cost: 35, qty: numCompensato, where: 'Brico, falegnameria', auto: true, key: 'compensato' },
-    { name: 'Travetti legno 5x5 cm', cost: 3, qty: Math.ceil((lunghezza + larghezza) * 3), where: 'Brico, falegnameria', auto: true, key: 'travetti' },
-    { name: 'Viti inox 4x50mm (conf. 100)', cost: 12, qty: Math.ceil(numCompensato * 30 / 100), where: 'Ferramenta', auto: true, key: 'viti' },
-    { name: 'Corda nautica 8-10mm (al metro)', cost: 1.5, qty: Math.ceil(numBoccioni * 0.8), where: 'Negozio nautico, online', auto: true, key: 'corda' },
-    { name: 'Silicone nautico', cost: 8, qty: 2, where: 'Brico, ferramenta', auto: true, key: 'silicone' },
-    { name: 'Vernice marina (0.75L)', cost: 18, qty: 2, where: 'Brico, negozio nautico', auto: true, key: 'vernice' },
-    { name: 'Nastro americano impermeabile', cost: 5, qty: 2, where: 'Brico, ferramenta', auto: true, key: 'nastro' },
-    { name: 'Giubbotti salvagente', cost: 15, qty: numPersone, where: 'Decathlon, negozio nautico', auto: true, key: 'giubbotti' },
-    { name: 'Custodia impermeabile cell.', cost: 8, qty: 2, where: 'Online, Decathlon', auto: true, key: 'custodia' }
+    { _id: 'bud_boccioni', name: 'Boccioni acqua ' + capienza + 'L', cost: 0, qty: numBoccioni, where: 'Uffici, bar, distributori', auto: true, key: 'boccioni' },
+    { _id: 'bud_compensato', name: 'Compensato marino 18mm', cost: 35, qty: numCompensato, where: 'Brico, falegnameria', auto: true, key: 'compensato' },
+    { _id: 'bud_travetti', name: 'Travetti legno 5x5 cm', cost: 3, qty: Math.ceil((lunghezza + larghezza) * 3), where: 'Brico, falegnameria', auto: true, key: 'travetti' },
+    { _id: 'bud_viti', name: 'Viti inox 4x50mm (conf. 100)', cost: 12, qty: Math.ceil(numCompensato * 30 / 100), where: 'Ferramenta', auto: true, key: 'viti' },
+    { _id: 'bud_corda', name: 'Corda nautica 8-10mm (al metro)', cost: 1.5, qty: Math.ceil(numBoccioni * 0.8), where: 'Negozio nautico, online', auto: true, key: 'corda' },
+    { _id: 'bud_silicone', name: 'Silicone nautico', cost: 8, qty: 2, where: 'Brico, ferramenta', auto: true, key: 'silicone' },
+    { _id: 'bud_vernice', name: 'Vernice marina (0.75L)', cost: 18, qty: 2, where: 'Brico, negozio nautico', auto: true, key: 'vernice' },
+    { _id: 'bud_nastro', name: 'Nastro americano impermeabile', cost: 5, qty: 2, where: 'Brico, ferramenta', auto: true, key: 'nastro' },
+    { _id: 'bud_giubbotti', name: 'Giubbotti salvagente', cost: 15, qty: numPersone, where: 'Decathlon, negozio nautico', auto: true, key: 'giubbotti' },
+    { _id: 'bud_custodia', name: 'Custodia impermeabile cell.', cost: 8, qty: 2, where: 'Online, Decathlon', auto: true, key: 'custodia' }
   ];
 
   // Initialize or update materials
@@ -2005,23 +2198,24 @@ function escAttr(s) {
 // INITIALIZE
 // =====================================================
 function init() {
+  loadNickname();
   // Load localStorage fallback if no Firebase
   if (!FIREBASE_ENABLED) {
     try {
-      const savedChecklist = localStorage.getItem('zattera_checklistData');
-      if (savedChecklist) checklistData = JSON.parse(savedChecklist);
+      const sc = localStorage.getItem('zattera_checklistData');
+      if (sc) checklistData = JSON.parse(sc);
     } catch {}
     try {
-      const savedMats = localStorage.getItem('zattera_materialsData');
-      if (savedMats) { materialsData = JSON.parse(savedMats); materialsInitialized = true; }
+      const sm = localStorage.getItem('zattera_materialsData');
+      if (sm) { materialsData = JSON.parse(sm); materialsInitialized = true; }
     } catch {}
     try {
-      const savedBudget = localStorage.getItem('zattera_budgetData');
-      if (savedBudget) { budgetData = JSON.parse(savedBudget); budgetInitialized = true; }
+      const sb = localStorage.getItem('zattera_budgetData');
+      if (sb) { budgetData = JSON.parse(sb); budgetInitialized = true; }
     } catch {}
     showSyncStatus('local');
   }
-  calcola(true); // true = don't save on first load
+  calcola(true);
   renderChecklist();
   updateProgress();
 }
