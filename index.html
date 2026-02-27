@@ -936,8 +936,8 @@
 
   <!-- MATERIALS -->
   <div class="card" style="animation-delay: 0.3s">
-    <div class="card-title"><span class="icon">&#x1FAB5;</span> Lista Materiali <span class="section-label auto" id="matAutoLabel">auto dal calcolatore</span></div>
-    <p style="color:#666; margin-bottom:0.5rem; font-size:0.9rem;">I materiali base vengono calcolati automaticamente. Puoi aggiungere, modificare o rimuovere righe.</p>
+    <div class="card-title"><span class="icon">&#x1FAB5;</span> Lista Materiali</div>
+    <p style="color:#666; margin-bottom:0.5rem; font-size:0.9rem;">Trascina le righe per riordinarle. Le voci "auto" si aggiornano con il calcolatore. Puoi modificare, eliminare o aggiungere qualsiasi riga.</p>
     <table class="materials-table" id="materialsTable">
       <thead>
         <tr>
@@ -1175,10 +1175,9 @@ const FIREBASE_ENABLED = FIREBASE_CONFIG.apiKey !== "" && FIREBASE_CONFIG.databa
 // INIZIALIZZAZIONE FIREBASE
 // =====================================================
 let db = null;
-let checklistRef = null;
 let settingsRef = null;
-let materialsRef = null;
-let budgetRef = null;
+let materialsDataRef = null;
+let budgetDataRef = null;
 let checklistDataRef = null;
 let ignoreSettingsUpdate = false;
 let ignoreMaterialsUpdate = false;
@@ -1215,10 +1214,15 @@ const DEFAULT_CHECKLIST = [
 
 const CATEGORIES = ["Materiale", "Sicurezza", "Attrezzi", "Test", "Costruzione", "Varo", "Altro"];
 
-// Current editable data
+// =====================================================
+// UNIFIED DATA ARRAYS (auto + custom in one list)
+// Each item can have auto:true and key:'xxx' for auto-generated items
+// =====================================================
 let checklistData = JSON.parse(JSON.stringify(DEFAULT_CHECKLIST));
-let customMaterials = []; // extra materials added by user
-let customBudget = [];    // extra budget items added by user
+let materialsData = [];  // unified: auto + custom
+let budgetData = [];     // unified: auto + custom
+let materialsInitialized = false;
+let budgetInitialized = false;
 
 // =====================================================
 // FIREBASE INIT
@@ -1227,20 +1231,18 @@ if (FIREBASE_ENABLED) {
   try {
     firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.database();
-    checklistRef = db.ref('zattera/checklist');  // legacy - will migrate
     settingsRef = db.ref('zattera/settings');
-    materialsRef = db.ref('zattera/customMaterials');
-    budgetRef = db.ref('zattera/customBudget');
+    materialsDataRef = db.ref('zattera/materialsData');
+    budgetDataRef = db.ref('zattera/budgetData');
     checklistDataRef = db.ref('zattera/checklistData');
 
-    // Listen for checklist data (new format with editable items)
+    // Listen for checklist data
     checklistDataRef.on('value', (snapshot) => {
       if (ignoreChecklistDataUpdate) return;
       const data = snapshot.val();
       if (data && Array.isArray(data)) {
         checklistData = data;
       } else if (data) {
-        // Convert object to array if needed
         checklistData = Object.values(data);
       }
       renderChecklist();
@@ -1248,20 +1250,26 @@ if (FIREBASE_ENABLED) {
       showSyncStatus('online');
     });
 
-    // Listen for custom materials
-    materialsRef.on('value', (snapshot) => {
+    // Listen for unified materials data
+    materialsDataRef.on('value', (snapshot) => {
       if (ignoreMaterialsUpdate) return;
       const data = snapshot.val();
-      customMaterials = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
-      renderMaterials();
+      if (data) {
+        materialsData = Array.isArray(data) ? data : Object.values(data);
+        materialsInitialized = true;
+        renderMaterials();
+      }
     });
 
-    // Listen for custom budget items
-    budgetRef.on('value', (snapshot) => {
+    // Listen for unified budget data
+    budgetDataRef.on('value', (snapshot) => {
       if (ignoreBudgetUpdate) return;
       const data = snapshot.val();
-      customBudget = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
-      renderBudget();
+      if (data) {
+        budgetData = Array.isArray(data) ? data : Object.values(data);
+        budgetInitialized = true;
+        renderBudget();
+      }
     });
 
     // Listen for calculator settings
@@ -1314,25 +1322,25 @@ function saveChecklistData() {
   }
 }
 
-function saveCustomMaterials() {
-  if (FIREBASE_ENABLED && materialsRef) {
+function saveMaterialsData() {
+  if (FIREBASE_ENABLED && materialsDataRef) {
     ignoreMaterialsUpdate = true;
-    materialsRef.set(customMaterials).then(() => {
+    materialsDataRef.set(materialsData).then(() => {
       setTimeout(() => { ignoreMaterialsUpdate = false; }, 500);
     });
   } else {
-    try { localStorage.setItem('zattera_customMaterials', JSON.stringify(customMaterials)); } catch {}
+    try { localStorage.setItem('zattera_materialsData', JSON.stringify(materialsData)); } catch {}
   }
 }
 
-function saveCustomBudget() {
-  if (FIREBASE_ENABLED && budgetRef) {
+function saveBudgetData() {
+  if (FIREBASE_ENABLED && budgetDataRef) {
     ignoreBudgetUpdate = true;
-    budgetRef.set(customBudget).then(() => {
+    budgetDataRef.set(budgetData).then(() => {
       setTimeout(() => { ignoreBudgetUpdate = false; }, 500);
     });
   } else {
-    try { localStorage.setItem('zattera_customBudget', JSON.stringify(customBudget)); } catch {}
+    try { localStorage.setItem('zattera_budgetData', JSON.stringify(budgetData)); } catch {}
   }
 }
 
@@ -1340,8 +1348,8 @@ function saveCustomBudget() {
 function saveAll() {
   saveSettings();
   saveChecklistData();
-  saveCustomMaterials();
-  saveCustomBudget();
+  saveMaterialsData();
+  saveBudgetData();
   showToast('Tutto salvato!', 'success');
 }
 
@@ -1397,51 +1405,36 @@ function closeEditor() {
 }
 
 // =====================================================
-// MATERIALS (EDITABLE)
+// MATERIALS (UNIFIED — all draggable)
 // =====================================================
-// Auto-generated materials from calculator (read-only base, but user can add extras)
-let autoMaterials = []; // filled by calcola()
-
 function renderMaterials() {
   const tbody = document.getElementById('materialsBody');
   let html = '';
-
-  // Auto materials from calculator
-  autoMaterials.forEach((m, i) => {
-    html += '<tr>' +
-      '<td>' + m.name + '</td>' +
-      '<td><strong>' + m.qty + '</strong></td>' +
-      '<td>' + m.note + '</td>' +
-      '<td style="text-align:center"><span style="font-size:0.7rem;color:#aaa;">auto</span></td>' +
-    '</tr>';
-  });
-
-  // Custom materials
-  customMaterials.forEach((m, i) => {
-    html += '<tr style="background:#f0fff0;" data-idx="' + i + '" data-list="materials">' +
-      '<td><span class="drag-handle" title="Trascina">&#x2630;</span> ' + escHtml(m.name) + '</td>' +
+  materialsData.forEach((m, i) => {
+    const isAuto = m.auto;
+    html += '<tr' + (isAuto ? '' : ' style="background:#f0fff0;"') + ' data-idx="' + i + '" data-list="materials">' +
+      '<td><span class="drag-handle" title="Trascina per riordinare">&#x2630;</span> ' + escHtml(m.name) +
+        (isAuto ? ' <span style="font-size:0.65rem;color:#aaa;background:#f0f0f0;padding:1px 5px;border-radius:4px;">auto</span>' : '') + '</td>' +
       '<td><strong>' + escHtml(m.qty) + '</strong></td>' +
-      '<td>' + escHtml(m.note) + '</td>' +
+      '<td>' + escHtml(m.note || '') + '</td>' +
       '<td style="text-align:center"><div class="row-actions" style="justify-content:center">' +
         '<button class="btn-icon btn-edit" onclick="openMaterialEditor(' + i + ')" title="Modifica">&#x270F;&#xFE0F;</button>' +
         '<button class="btn-icon btn-delete" onclick="deleteMaterial(' + i + ')" title="Elimina">&#x1F5D1;&#xFE0F;</button>' +
       '</div></td>' +
     '</tr>';
   });
-
   tbody.innerHTML = html;
-  // Setup drag on custom rows
   setTimeout(function() { setupTableDrag('materialsBody', 'materials'); }, 0);
 }
 
 function openMaterialEditor(idx) {
   const isNew = idx === -1;
-  const m = isNew ? { name: '', qty: '', note: '' } : customMaterials[idx];
+  const m = isNew ? { name: '', qty: '', note: '' } : materialsData[idx];
   openEditor(
     '<h3>' + (isNew ? 'Aggiungi Materiale' : 'Modifica Materiale') + '</h3>' +
     '<div class="form-group"><label>Materiale</label><input id="edMatName" value="' + escAttr(m.name) + '" placeholder="Es: Vernice extra"></div>' +
     '<div class="form-group"><label>Quantit&agrave;</label><input id="edMatQty" value="' + escAttr(m.qty) + '" placeholder="Es: 3 barattoli"></div>' +
-    '<div class="form-group"><label>Note</label><input id="edMatNote" value="' + escAttr(m.note) + '" placeholder="Es: Per rinforzo"></div>' +
+    '<div class="form-group"><label>Note</label><input id="edMatNote" value="' + escAttr(m.note || '') + '" placeholder="Es: Per rinforzo"></div>' +
     '<div class="btn-row">' +
       '<button class="btn-confirm secondary" onclick="closeEditor()">Annulla</button>' +
       '<button class="btn-confirm primary" onclick="saveMaterialEdit(' + idx + ')">Salva</button>' +
@@ -1455,55 +1448,50 @@ function saveMaterialEdit(idx) {
   const qty = document.getElementById('edMatQty').value.trim();
   const note = document.getElementById('edMatNote').value.trim();
   if (!name) { showToast('Inserisci il nome del materiale', 'error'); return; }
-  const item = { name, qty, note };
   if (idx === -1) {
-    customMaterials.push(item);
+    materialsData.push({ name, qty, note, auto: false });
   } else {
-    customMaterials[idx] = item;
+    materialsData[idx].name = name;
+    materialsData[idx].qty = qty;
+    materialsData[idx].note = note;
+    // Once user edits an auto item, it becomes custom
+    if (materialsData[idx].auto) {
+      materialsData[idx].auto = false;
+      delete materialsData[idx].key;
+    }
   }
-  saveCustomMaterials();
+  saveMaterialsData();
   renderMaterials();
   closeEditor();
   showToast(idx === -1 ? 'Materiale aggiunto!' : 'Materiale modificato!', 'success');
 }
 
 function deleteMaterial(idx) {
-  if (!confirm('Eliminare "' + customMaterials[idx].name + '"?')) return;
-  customMaterials.splice(idx, 1);
-  saveCustomMaterials();
+  if (!confirm('Eliminare "' + materialsData[idx].name + '"?')) return;
+  materialsData.splice(idx, 1);
+  saveMaterialsData();
   renderMaterials();
   showToast('Materiale eliminato', 'success');
 }
 
 // =====================================================
-// BUDGET (EDITABLE)
+// BUDGET (UNIFIED — all draggable)
 // =====================================================
-let autoBudget = []; // filled by calcola()
-
 function renderBudget() {
   const budgetBody = document.getElementById('budgetBody');
   let totalCost = 0;
   let html = '';
 
-  // Auto budget from calculator
-  autoBudget.forEach((item) => {
-    const subtotal = item.cost * item.qty;
+  budgetData.forEach((item, i) => {
+    const isAuto = item.auto;
+    const cost = parseFloat(item.cost) || 0;
+    const qty = parseInt(item.qty) || 1;
+    const subtotal = cost * qty;
     totalCost += subtotal;
-    html += '<tr>' +
-      '<td>' + item.name + ' (x' + item.qty + ')</td>' +
-      '<td><strong>' + (subtotal === 0 ? 'GRATIS*' : '~' + subtotal + ' \u20AC') + '</strong></td>' +
-      '<td>' + item.where + '</td>' +
-      '<td style="text-align:center"><span style="font-size:0.7rem;color:#aaa;">auto</span></td>' +
-    '</tr>';
-  });
-
-  // Custom budget items
-  customBudget.forEach((item, i) => {
-    const subtotal = (parseFloat(item.cost) || 0) * (parseInt(item.qty) || 1);
-    totalCost += subtotal;
-    html += '<tr style="background:#f0fff0;" data-idx="' + i + '" data-list="budget">' +
-      '<td><span class="drag-handle" title="Trascina">&#x2630;</span> ' + escHtml(item.name) + (item.qty > 1 ? ' (x' + item.qty + ')' : '') + '</td>' +
-      '<td><strong>' + (subtotal === 0 ? 'GRATIS' : '~' + subtotal.toFixed(0) + ' \u20AC') + '</strong></td>' +
+    html += '<tr' + (isAuto ? '' : ' style="background:#f0fff0;"') + ' data-idx="' + i + '" data-list="budget">' +
+      '<td><span class="drag-handle" title="Trascina per riordinare">&#x2630;</span> ' + escHtml(item.name) + (qty > 1 ? ' (x' + qty + ')' : '') +
+        (isAuto ? ' <span style="font-size:0.65rem;color:#aaa;background:#f0f0f0;padding:1px 5px;border-radius:4px;">auto</span>' : '') + '</td>' +
+      '<td><strong>' + (subtotal === 0 ? 'GRATIS*' : '~' + subtotal.toFixed(0) + ' \u20AC') + '</strong></td>' +
       '<td>' + escHtml(item.where || '') + '</td>' +
       '<td style="text-align:center"><div class="row-actions" style="justify-content:center">' +
         '<button class="btn-icon btn-edit" onclick="openBudgetEditor(' + i + ')" title="Modifica">&#x270F;&#xFE0F;</button>' +
@@ -1518,13 +1506,12 @@ function renderBudget() {
     '<div class="total-label">BUDGET TOTALE STIMATO</div>' +
     '<div class="total-number">~' + totalCost + ' \u20AC</div>' +
     '<div class="total-label" style="margin-top:0.3rem; opacity:0.7">Esclusi attrezzi (trapano, seghetto) che probabilmente avete gi&agrave;</div>';
-  // Setup drag on custom rows
   setTimeout(function() { setupTableDrag('budgetBody', 'budget'); }, 0);
 }
 
 function openBudgetEditor(idx) {
   const isNew = idx === -1;
-  const b = isNew ? { name: '', cost: '', qty: 1, where: '' } : customBudget[idx];
+  const b = isNew ? { name: '', cost: '', qty: 1, where: '' } : budgetData[idx];
   openEditor(
     '<h3>' + (isNew ? 'Aggiungi Voce di Spesa' : 'Modifica Voce di Spesa') + '</h3>' +
     '<div class="form-group"><label>Descrizione</label><input id="edBudName" value="' + escAttr(b.name) + '" placeholder="Es: Pagaia extra"></div>' +
@@ -1545,22 +1532,28 @@ function saveBudgetEdit(idx) {
   const qty = parseInt(document.getElementById('edBudQty').value) || 1;
   const where = document.getElementById('edBudWhere').value.trim();
   if (!name) { showToast('Inserisci la descrizione', 'error'); return; }
-  const item = { name, cost, qty, where };
   if (idx === -1) {
-    customBudget.push(item);
+    budgetData.push({ name, cost, qty, where, auto: false });
   } else {
-    customBudget[idx] = item;
+    budgetData[idx].name = name;
+    budgetData[idx].cost = cost;
+    budgetData[idx].qty = qty;
+    budgetData[idx].where = where;
+    if (budgetData[idx].auto) {
+      budgetData[idx].auto = false;
+      delete budgetData[idx].key;
+    }
   }
-  saveCustomBudget();
+  saveBudgetData();
   renderBudget();
   closeEditor();
   showToast(idx === -1 ? 'Voce aggiunta!' : 'Voce modificata!', 'success');
 }
 
 function deleteBudgetItem(idx) {
-  if (!confirm('Eliminare "' + customBudget[idx].name + '"?')) return;
-  customBudget.splice(idx, 1);
-  saveCustomBudget();
+  if (!confirm('Eliminare "' + budgetData[idx].name + '"?')) return;
+  budgetData.splice(idx, 1);
+  saveBudgetData();
   renderBudget();
   showToast('Voce eliminata', 'success');
 }
@@ -1703,33 +1696,66 @@ function calcola(fromFirebase) {
   document.getElementById('dimW').textContent = lunghezza.toFixed(1) + ' m';
   document.getElementById('dimH').textContent = larghezza.toFixed(1) + ' m';
 
-  // Auto materials
-  autoMaterials = [
-    { name: 'Boccioni acqua vuoti (' + capienza + 'L)', qty: numBoccioni + ' pezzi', note: 'Ben chiusi e sigillati' },
-    { name: 'Compensato marino 18mm (122x244 cm)', qty: numCompensato + ' fogli', note: 'Trattato con vernice marina' },
-    { name: 'Travetti legno 5x5 cm', qty: '~' + Math.ceil((lunghezza + larghezza) * 3) + ' m lineari', note: 'Per telaio e griglia supporto' },
-    { name: 'Viti inox 4x50mm', qty: '~' + (numCompensato * 30) + ' pezzi', note: 'Resistenti alla salsedine' },
-    { name: 'Corda nautica (8-10mm)', qty: '~' + Math.ceil(numBoccioni * 0.8) + ' m', note: 'Per fissaggio boccioni + perimetrale' },
-    { name: 'Silicone nautico', qty: '2 tubetti', note: 'Per sigillare tappi boccioni' },
-    { name: 'Vernice marina impermeabilizzante', qty: '2 barattoli', note: '2 mani su tutto il legno' },
-    { name: 'Nastro americano impermeabile', qty: '2 rotoli', note: 'Rinforzo e riparazioni' },
-    { name: 'Giubbotti salvagente', qty: numPersone + ' pezzi', note: 'Omologati, uno per persona!' }
+  // Fresh auto materials (used for init and for updating quantities)
+  const freshMaterials = [
+    { name: 'Boccioni acqua vuoti (' + capienza + 'L)', qty: numBoccioni + ' pezzi', note: 'Ben chiusi e sigillati', auto: true, key: 'boccioni' },
+    { name: 'Compensato marino 18mm (122x244 cm)', qty: numCompensato + ' fogli', note: 'Trattato con vernice marina', auto: true, key: 'compensato' },
+    { name: 'Travetti legno 5x5 cm', qty: '~' + Math.ceil((lunghezza + larghezza) * 3) + ' m lineari', note: 'Per telaio e griglia supporto', auto: true, key: 'travetti' },
+    { name: 'Viti inox 4x50mm', qty: '~' + (numCompensato * 30) + ' pezzi', note: 'Resistenti alla salsedine', auto: true, key: 'viti' },
+    { name: 'Corda nautica (8-10mm)', qty: '~' + Math.ceil(numBoccioni * 0.8) + ' m', note: 'Per fissaggio boccioni + perimetrale', auto: true, key: 'corda' },
+    { name: 'Silicone nautico', qty: '2 tubetti', note: 'Per sigillare tappi boccioni', auto: true, key: 'silicone' },
+    { name: 'Vernice marina impermeabilizzante', qty: '2 barattoli', note: '2 mani su tutto il legno', auto: true, key: 'vernice' },
+    { name: 'Nastro americano impermeabile', qty: '2 rotoli', note: 'Rinforzo e riparazioni', auto: true, key: 'nastro' },
+    { name: 'Giubbotti salvagente', qty: numPersone + ' pezzi', note: 'Omologati, uno per persona!', auto: true, key: 'giubbotti' }
   ];
+
+  // Fresh auto budget
+  const freshBudget = [
+    { name: 'Boccioni acqua ' + capienza + 'L', cost: 0, qty: numBoccioni, where: 'Uffici, bar, distributori', auto: true, key: 'boccioni' },
+    { name: 'Compensato marino 18mm', cost: 35, qty: numCompensato, where: 'Brico, falegnameria', auto: true, key: 'compensato' },
+    { name: 'Travetti legno 5x5 cm', cost: 3, qty: Math.ceil((lunghezza + larghezza) * 3), where: 'Brico, falegnameria', auto: true, key: 'travetti' },
+    { name: 'Viti inox 4x50mm (conf. 100)', cost: 12, qty: Math.ceil(numCompensato * 30 / 100), where: 'Ferramenta', auto: true, key: 'viti' },
+    { name: 'Corda nautica 8-10mm (al metro)', cost: 1.5, qty: Math.ceil(numBoccioni * 0.8), where: 'Negozio nautico, online', auto: true, key: 'corda' },
+    { name: 'Silicone nautico', cost: 8, qty: 2, where: 'Brico, ferramenta', auto: true, key: 'silicone' },
+    { name: 'Vernice marina (0.75L)', cost: 18, qty: 2, where: 'Brico, negozio nautico', auto: true, key: 'vernice' },
+    { name: 'Nastro americano impermeabile', cost: 5, qty: 2, where: 'Brico, ferramenta', auto: true, key: 'nastro' },
+    { name: 'Giubbotti salvagente', cost: 15, qty: numPersone, where: 'Decathlon, negozio nautico', auto: true, key: 'giubbotti' },
+    { name: 'Custodia impermeabile cell.', cost: 8, qty: 2, where: 'Online, Decathlon', auto: true, key: 'custodia' }
+  ];
+
+  // Initialize or update materials
+  if (!materialsInitialized || materialsData.length === 0) {
+    materialsData = freshMaterials;
+    materialsInitialized = true;
+  } else {
+    // Update auto items in place (keep user's order)
+    freshMaterials.forEach(fresh => {
+      const existing = materialsData.find(m => m.auto && m.key === fresh.key);
+      if (existing) {
+        existing.name = fresh.name;
+        existing.qty = fresh.qty;
+        existing.note = fresh.note;
+      }
+      // If user deleted an auto item, don't re-add it
+    });
+  }
   renderMaterials();
 
-  // Auto budget
-  autoBudget = [
-    { name: 'Boccioni acqua ' + capienza + 'L', cost: 0, qty: numBoccioni, where: 'Uffici, bar, distributori' },
-    { name: 'Compensato marino 18mm', cost: 35, qty: numCompensato, where: 'Brico, falegnameria' },
-    { name: 'Travetti legno 5x5 cm', cost: 3, qty: Math.ceil((lunghezza + larghezza) * 3), where: 'Brico, falegnameria' },
-    { name: 'Viti inox 4x50mm (conf. 100)', cost: 12, qty: Math.ceil(numCompensato * 30 / 100), where: 'Ferramenta' },
-    { name: 'Corda nautica 8-10mm (al metro)', cost: 1.5, qty: Math.ceil(numBoccioni * 0.8), where: 'Negozio nautico, online' },
-    { name: 'Silicone nautico', cost: 8, qty: 2, where: 'Brico, ferramenta' },
-    { name: 'Vernice marina (0.75L)', cost: 18, qty: 2, where: 'Brico, negozio nautico' },
-    { name: 'Nastro americano impermeabile', cost: 5, qty: 2, where: 'Brico, ferramenta' },
-    { name: 'Giubbotti salvagente', cost: 15, qty: numPersone, where: 'Decathlon, negozio nautico' },
-    { name: 'Custodia impermeabile cell.', cost: 8, qty: 2, where: 'Online, Decathlon' }
-  ];
+  // Initialize or update budget
+  if (!budgetInitialized || budgetData.length === 0) {
+    budgetData = freshBudget;
+    budgetInitialized = true;
+  } else {
+    freshBudget.forEach(fresh => {
+      const existing = budgetData.find(b => b.auto && b.key === fresh.key);
+      if (existing) {
+        existing.name = fresh.name;
+        existing.qty = fresh.qty;
+        existing.cost = fresh.cost;
+        existing.where = fresh.where;
+      }
+    });
+  }
   renderBudget();
 
   // Warning
@@ -1750,15 +1776,15 @@ let dragListType = null;
 
 function getListData(type) {
   if (type === 'checklist') return checklistData;
-  if (type === 'materials') return customMaterials;
-  if (type === 'budget') return customBudget;
+  if (type === 'materials') return materialsData;
+  if (type === 'budget') return budgetData;
   return [];
 }
 
 function saveListData(type) {
   if (type === 'checklist') saveChecklistData();
-  else if (type === 'materials') saveCustomMaterials();
-  else if (type === 'budget') saveCustomBudget();
+  else if (type === 'materials') saveMaterialsData();
+  else if (type === 'budget') saveBudgetData();
 }
 
 function rerenderList(type) {
@@ -1953,12 +1979,12 @@ function init() {
       if (savedChecklist) checklistData = JSON.parse(savedChecklist);
     } catch {}
     try {
-      const savedMats = localStorage.getItem('zattera_customMaterials');
-      if (savedMats) customMaterials = JSON.parse(savedMats);
+      const savedMats = localStorage.getItem('zattera_materialsData');
+      if (savedMats) { materialsData = JSON.parse(savedMats); materialsInitialized = true; }
     } catch {}
     try {
-      const savedBudget = localStorage.getItem('zattera_customBudget');
-      if (savedBudget) customBudget = JSON.parse(savedBudget);
+      const savedBudget = localStorage.getItem('zattera_budgetData');
+      if (savedBudget) { budgetData = JSON.parse(savedBudget); budgetInitialized = true; }
     } catch {}
     showSyncStatus('local');
   }
